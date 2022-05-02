@@ -16,6 +16,7 @@ modules/
 *extern/
 *out/
 *build/
+*publish/
 
 # File extensions
 *.aps
