@@ -10,7 +10,7 @@ namespace tracker
             var cycletime = new library.var_int(0, "/media/ramdisk/cycletime");
 
             int count_rr = 0, count_cycle = 0;
-            int length = 10000;//int.Parse(args[0]);
+            int length = int.Parse(args[0]);
             var rr_ticks_count = new int[length];
             var cycletime_count = new int[length];
 
