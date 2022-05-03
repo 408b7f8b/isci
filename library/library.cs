@@ -27,12 +27,18 @@ namespace library
             return datamodel;
         }
 
-        public void ToFile(string path)
+        public string ToString()
         {
             var settings = new Newtonsoft.Json.JsonSerializerSettings();
             settings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
             settings.Formatting = Newtonsoft.Json.Formatting.Indented;
-            var file = Newtonsoft.Json.JsonConvert.SerializeObject(this, settings);
+            var ret = Newtonsoft.Json.JsonConvert.SerializeObject(this, settings);
+            return ret;
+        }
+
+        public void ToFile(string path)
+        {
+            var file = this.ToString();
             System.IO.File.WriteAllText(path, file);
         }
 
@@ -51,6 +57,19 @@ namespace library
             }
 
             return dm;
+        }
+
+        public void AddEvaluationSet(int size, string identifikation)
+        {
+            for(int i = 0; i < size; ++i)
+            {
+                Datafields.Add(new var_int(0, identifikation + i.ToString()));
+            }
+        }
+
+        public void AddEvaluationLead(int size)
+        {
+            AddEvaluationSet(size, "evalLead_");
         }
     }
 
