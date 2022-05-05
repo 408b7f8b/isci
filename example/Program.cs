@@ -25,6 +25,11 @@ namespace example
             var vals = new System.Collections.Generic.List<library.var_int>();
             var vals_return = new System.Collections.Generic.List<library.var_int>();
             var waiting = new System.Collections.Generic.List<int>();
+
+            var dm_application = new library.Datamodel("example");
+            dm_application.AddEvaluationLead(100);
+            dm_application.AddEvaluationSet(100, "example_");
+            structure.AddDatamodel(dm_application);
             /*for(int i = 0; i < variables; ++i)
             {
                 vals.Add(new library.var_int(0, "/media/ramdisk/process/val" + i.ToString()));
