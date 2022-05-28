@@ -34,7 +34,7 @@ namespace example
             {
                 vals.Add(new library.var_int(0, "/media/ramdisk/process/val" + i.ToString()));
                 vals_return.Add(new library.var_int(0, "/media/ramdisk/process/val_return" + i.ToString()));
-            }
+            }*/
 
             while(true)
             {
@@ -81,7 +81,7 @@ namespace example
 
                     state.WertSchreiben();
                 }
-            }*/
+            }
         }
     }
 }
