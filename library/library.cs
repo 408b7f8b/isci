@@ -1,20 +1,220 @@
 ﻿using System;
+using System.Linq;
 
 namespace library
 {
+    public static class Helfer
+    {
+        private static System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>> Cache;
+
+        public static System.Collections.Generic.List<string> ChangedFiles(string path)
+        {
+            var files_ = System.IO.Directory.GetFiles(path);
+            var files = new System.Collections.Generic.List<string>(files_);
+
+            if (Cache.ContainsKey(path))
+            {
+                var firstNotSecond = files.Except(Cache[path]).ToList();
+                var secondNotFirst = Cache[path].Except(files).ToList();
+
+                if (firstNotSecond.Count > 0) {
+                    Cache[path].AddRange(firstNotSecond);
+                }
+
+                foreach (var s in secondNotFirst)
+                {
+                    Cache[path].Remove(s);
+                }
+            } else {
+                Cache.Add(path, files);                
+            }
+            return Cache[path];
+        }
+    }
+
+    public class RessourceList : System.Collections.Generic.List<string>
+    {
+
+    }
+
+    public class Zustandsbereich
+    {
+        public int Arbeitszustand;
+        public int Nachfolgezustand;
+    }
+
+    public class Konfiguration : Komponentenkonfiguration
+    {
+        public string Ressource;
+        public string[] OrdnerAnwendungen;
+        public string[] OrdnerDatenstrukturen;
+        public string[] OrdnerDatenmodelle;
+        public string[] OrdnerEreignismodelle;
+        public string[] OrdnerFunktionsmodelle;
+        public Zustandsbereich[] Zustandsbereiche;
+
+        public static Konfiguration KonfigurationAusDateiUndUmgebung(string path)
+        {
+            var komponentenkonfiguration = KomponentenKonfigurationAusDatei(path);
+            var konfiguration = new Konfiguration();
+
+            konfiguration.Ressource = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_RESSOURCE");
+            var envAnwendungen = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNGEN");
+            var envDatenstrukturen = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_DATENSTRUKTUREN");
+
+            if (!System.IO.Directory.Exists(envAnwendungen))
+            {
+                System.IO.Directory.CreateDirectory(envAnwendungen);
+            }
+            if (!System.IO.Directory.Exists(envDatenstrukturen))
+            {
+                System.IO.Directory.CreateDirectory(envDatenstrukturen);
+            }
+
+            konfiguration.OrdnerAnwendungen = new string[komponentenkonfiguration.Anwendungen.Length];
+            konfiguration.OrdnerDatenstrukturen = new string[komponentenkonfiguration.Anwendungen.Length];
+            konfiguration.OrdnerDatenmodelle = new string[komponentenkonfiguration.Anwendungen.Length];
+            konfiguration.OrdnerEreignismodelle = new string[komponentenkonfiguration.Anwendungen.Length];
+            konfiguration.OrdnerFunktionsmodelle = new string[komponentenkonfiguration.Anwendungen.Length];
+
+            for (int i = 0; i < komponentenkonfiguration.Anwendungen.Length; ++i)
+            {
+                konfiguration.OrdnerAnwendungen[i] = envAnwendungen + "/" + komponentenkonfiguration.Anwendungen[i];
+                konfiguration.OrdnerDatenmodelle[i] = konfiguration.OrdnerAnwendungen[i] + "/Datenmodelle";
+                konfiguration.OrdnerEreignismodelle[i] = konfiguration.OrdnerAnwendungen[i] + "/Ereignismodelle";
+                konfiguration.OrdnerFunktionsmodelle[i] = konfiguration.OrdnerAnwendungen[i] + "/Funktionsmodelle";
+                konfiguration.OrdnerDatenstrukturen[i] = envDatenstrukturen + "/" + komponentenkonfiguration.Anwendungen[i];
+            }
+
+            return konfiguration;
+        }
+
+        public Konfiguration()
+        {
+
+        }
+
+        public Konfiguration(string datei)
+        {
+            if (!System.IO.File.Exists(datei))
+            {
+                return;
+            }
+            else
+            {
+                try
+                {
+                    var t = Newtonsoft.Json.Linq.JToken.Parse(System.IO.File.ReadAllText(datei));
+                    Console.WriteLine("Konfigdatei: " + datei);
+
+                    var felder = GetType().GetFields();
+
+                    foreach (var f in felder)
+                    {
+                        try
+                        {
+                            var feld = GetType().GetField(f.Name);
+                            var feldtyp = feld.FieldType;
+
+                            if (feldtyp == typeof(string))
+                            {
+                                var o = t.SelectToken(f.Name).ToObject<string>();
+                                feld.SetValue(this, o);
+                            }
+                            else if (feldtyp == typeof(int))
+                            {
+                                var o = t.SelectToken(f.Name).ToObject<int>();
+                                feld.SetValue(this, o);
+                            }
+                            else if (feldtyp == typeof(uint))
+                            {
+                                var o = t.SelectToken(f.Name).ToObject<uint>();
+                                feld.SetValue(this, o);
+                            }
+                            else if (feldtyp == typeof(bool))
+                            {
+                                var o = t.SelectToken(f.Name).ToObject<bool>();
+                                feld.SetValue(this, o);
+                            }
+                            else if (feldtyp == typeof(double))
+                            {
+                                var o = t.SelectToken(f.Name).ToObject<double>();
+                                feld.SetValue(this, o);
+                            }
+                            else if (feldtyp == typeof(Int32[]))
+                            {
+                                var o = t.SelectToken(f.Name).ToObject<Int32[]>();
+                                feld.SetValue(this, o);
+                            }
+                            else if (feldtyp == typeof(string[]))
+                            {
+                                var o = t.SelectToken(f.Name).ToObject<string[]>();
+                                feld.SetValue(this, o);
+                            }
+                            else if (feldtyp == typeof(Zustandsbereich[]))
+                            {
+                                var o = t.SelectToken(f.Name).ToObject<Zustandsbereich[]>();
+                                feld.SetValue(this, o);
+                            }
+
+                            try {
+                                Console.WriteLine("Konfigparam " + feld.Name + ": " + feld.GetValue(this));
+                            } catch { }
+                        }
+                        catch { }
+                    }
+                } catch 
+                {
+
+                }                
+            }
+        }
+    }
+
+    public class Komponentenkonfiguration
+    {
+        public string Identifikation;
+        public string[] Anwendungen;
+
+        public static Komponentenkonfiguration KomponentenKonfigurationAusDatei(string path)
+        {
+            var file = System.IO.File.ReadAllText(path);
+
+            var konfiguration = Newtonsoft.Json.JsonConvert.DeserializeObject<Komponentenkonfiguration>(file);
+
+            return konfiguration;
+        }
+    }
+
+    public class FieldList : System.Collections.Generic.List<Datafield>
+    {
+        public new void Add(Datafield item)
+        {
+            foreach (var entry in this)
+            {
+                if (entry.Identifikation == item.Identifikation)
+                {
+                    return;
+                }
+            }
+            base.Add(item);
+        }
+    }
+
+
     public class Datamodel
     {
         public string Identifikation;
-        public System.Collections.Generic.List<Datafield> Datafields;
+        public FieldList Datafields;
 
         public Datamodel()
         {
-            Datafields = new System.Collections.Generic.List<Datafield>();
+            Datafields = new FieldList();
         }
         public Datamodel(string Identifikation)
         {
             this.Identifikation = Identifikation;
-            Datafields = new System.Collections.Generic.List<Datafield>();
+            Datafields = new FieldList();
         }
 
         public static Datamodel FromFile(string path)
@@ -46,7 +246,7 @@ namespace library
         {
             var dm = new Datamodel();
             dm.Identifikation = datamodel_.SelectToken("Identifikation").ToString();
-            dm.Datafields = new System.Collections.Generic.List<Datafield>();
+            dm.Datafields = new FieldList();
 
             var entries = datamodel_.SelectToken("Datafields");
 
@@ -77,28 +277,58 @@ namespace library
     {
         public System.Collections.Generic.List<string> Datamodels;
         public System.Collections.Generic.Dictionary<string, Datafield> Datafields;
+        public string path;
 
-        public Datastructure()
+        public Datastructure(string path)
         {
             Datamodels = new System.Collections.Generic.List<string>();
             Datafields = new System.Collections.Generic.Dictionary<string, Datafield>();
+            this.path = path;
         }
 
         public void AddDatamodel(Datamodel datamodel)
         {
-            foreach (var entry in datamodel.Datafields)
+            try
             {
-                string ident = "ns=" + datamodel.Identifikation + ";s=" + entry.Identifikation;
-                entry.Identifikation = ident;
-                Datafields.Add(ident, entry);
-            }
-            Datamodels.Add(datamodel.Identifikation);
+                foreach (var entry in datamodel.Datafields)
+                {
+                    string ident = "ns=" + datamodel.Identifikation + ";s=" + entry.Identifikation;
+                    entry.Identifikation = ident;
+                    entry.path = path + "/" + entry.Identifikation;
+                    Datafields.Add(ident, entry);
+                }
+                Datamodels.Add(datamodel.Identifikation);
+            } catch (Exception)
+            {
+                
+            }            
         }
 
         public void AddDatamodelFromFile(string path)
         {
             var dm_ = Datamodel.FromFile(path);
             AddDatamodel(dm_);
+        }
+
+        public void AddDataModelsFromDirectory(string path, string excludeown = "")
+        {
+            var dms_ = System.IO.Directory.GetFiles(path);
+            foreach (var dm_ in dms_)
+            {
+                if (excludeown != "")
+                {
+                    if (dm_.Contains(excludeown)) continue;
+                }                
+                AddDatamodelFromFile(dm_);
+            }
+        }
+
+        public void AddDataModelsFromDirectories(string[] paths, string excludeown = "")
+        {
+            foreach (var path in paths)
+            {
+                AddDataModelsFromDirectory(path, excludeown);
+            }
         }
 
         public void Start()
@@ -203,6 +433,8 @@ namespace library
         public object value;
         [Newtonsoft.Json.JsonIgnore]
         public bool aenderung;
+        [Newtonsoft.Json.JsonIgnore]
+        public string path;
         [Newtonsoft.Json.JsonIgnore]
         public bool write_flag;        
         public Datatype type;
