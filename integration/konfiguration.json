@@ -1,0 +1,13 @@
+{
+    "Ressource":"Laptop",
+    "OrdnerAnwendungen":["../Beispielanwendung"],
+    "OrdnerDatenstrukturen":["/media/ramdisk"],
+    "OrdnerDatenmodelle":["../Beispielanwendung/Datenmodelle"],
+    "OrdnerEreignismodelle":["../Beispielanwendung/Ereignismodelle"],
+    "OrdnerFunktionsmodelle":["../Beispielanwendung/Funktionsmodelle"],
+    "Zustandsbereiche":[{"Arbeitszustand":0, "Nachfolgezustand":1}, {"Arbeitszustand":4, "Nachfolgezustand":0}],
+    "Identifikation":"integration",
+    "Anwendungen":["Beispielanwendung"],
+    "Target":"192.168.10.20",
+    "Port":1337
+}

@@ -33,14 +33,15 @@ namespace example
         {
             var konfiguration = new abbildkonfiguration("konfiguration.json");
 
-            var structure = new library.Datastructure(konfiguration.OrdnerDatenstrukturen + "/" + konfiguration.Anwendungen[0]);
-            structure.AddDataModelsFromDirectory(konfiguration.OrdnerAnwendungen + "/" + konfiguration.Anwendungen[0]);
+            var structure = new library.Datastructure(konfiguration.OrdnerDatenstrukturen[0] + "/" + konfiguration.Anwendungen[0]);
+            structure.AddDataModelsFromDirectory(konfiguration.OrdnerDatenmodelle[0]);
             structure.Start();
 
-            var Zustand = new library.var_int(0, konfiguration.OrdnerDatenstrukturen + "/" + konfiguration.Anwendungen[0] + "/Zustand");
+            var Zustand = new library.var_int(0, "Zustand", konfiguration.OrdnerDatenstrukturen[0] + "/" + konfiguration.Anwendungen[0] + "/Zustand");
             Zustand.Start();
 
-            var influxDBClient = InfluxDBClientFactory.Create(konfiguration.adresse, konfiguration.token);                
+            var influxDBClient = InfluxDBClientFactory.Create(konfiguration.adresse, konfiguration.token);
+            influxDBClient.SetLogLevel(InfluxDB.Client.Core.LogLevel.None);
 
             var writeOptions = WriteOptions
             .CreateNew()
@@ -48,24 +49,36 @@ namespace example
             .FlushInterval(10000)
             .Build();
 
+            var writeApi = influxDBClient.GetWriteApi(writeOptions);
+
             while(true)
             {
                 Zustand.WertLesen();
-                if (Zustand.value == konfiguration.Zustandsbereiche[0].Arbeitszustand)
-                {                
+                var erfüllteTransitionen = konfiguration.Zustandsbereiche.Where(a => a.Arbeitszustand == (System.Int32)Zustand.value);
+                if (erfüllteTransitionen.Count<library.Zustandsbereich>() > 0)
+                {
                     structure.UpdateImage();
                     
-                    using (var writeApi = influxDBClient.GetWriteApi(writeOptions))
-                    {
-                        var timestamp = " " + GetNanoseconds().ToString();
+                    //using ()
+                    //{
+                        var timestamp = DateTime.UtcNow;
+                        System.Collections.Generic.List<InfluxDB.Client.Writes.PointData> points = new System.Collections.Generic.List<InfluxDB.Client.Writes.PointData>();
+                        
                         foreach (var entry in structure.Datafields)
                         {
-                            writeApi.WriteRecord(entry.Value.Identifikation + " value=" + entry.Value.WertSerialisieren() + timestamp, WritePrecision.Ns, konfiguration.bucket, konfiguration.orgId);
-                        }                    
-                    }
+                            var point = InfluxDB.Client.Writes.PointData.Measurement(entry.Value.Identifikation)
+                                        .Tag("Ressource", konfiguration.Ressource)
+                                        .Field("value", entry.Value.value)
+                                        .Timestamp(timestamp, WritePrecision.Ms);
+                            points.Add(point);
+                            //writeApi.WritePoint(point, konfiguration.bucket, konfiguration.orgId);
+                        }
+                        writeApi.WritePoints(points, konfiguration.bucket, konfiguration.orgId);
+                    //}
 
-                    structure.PublishImage();
-                    Zustand.value = konfiguration.Zustandsbereiche[0].Nachfolgezustand;
+                    System.Threading.Thread.Sleep(10);
+
+                    Zustand.value = erfüllteTransitionen.First<library.Zustandsbereich>().Nachfolgezustand;
                     Zustand.WertSchreiben();
                 }
             }

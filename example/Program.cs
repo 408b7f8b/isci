@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Linq;
 
-namespace example
+namespace evaluation
 {
     class Program
     {
         static void Main(string[] args)
         {
-            var konfiguration = library.Konfiguration.KonfigurationAusDateiUndUmgebung("konfiguration.json");
+            var konfiguration = new library.Konfiguration("konfiguration.json");
             
-            var structure = new library.Datastructure(konfiguration.OrdnerDatenstrukturen + "/" + konfiguration.Anwendungen[0]);
+            var structure = new library.Datastructure(konfiguration.OrdnerDatenstrukturen[0] + "/" + konfiguration.Anwendungen[0]);
 
             var evaluation = new library.Datamodel("Evaluation");
 
-            var ressourceList = Newtonsoft.Json.JsonConvert.DeserializeObject<library.RessourceList>(System.IO.File.ReadAllText(konfiguration.OrdnerAnwendungen[0]));
+            var ressourceList = Newtonsoft.Json.JsonConvert.DeserializeObject<library.RessourceList>(System.IO.File.ReadAllText(konfiguration.OrdnerAnwendungen[0] + "/Ressourcen"));
 
             var monitor_and_resp = new System.Collections.Generic.Dictionary<library.var_int, library.var_int>();
 
@@ -24,28 +24,27 @@ namespace example
 
             foreach (var entry in ressourceList)
             {
-                if (entry != konfiguration.Ressource)
-                {
-                    var monitor = new library.var_int(0, "Event_" + entry + "_" + konfiguration.Ressource);
-                    evaluation.Datafields.Add(monitor); //hier erhalten
-                    var resp = new library.var_int(0, "Resp_" + entry + "_" + konfiguration.Ressource);
-                    evaluation.Datafields.Add(resp); //hier beantworten
-                    monitor_and_resp.Add(monitor, resp);
+                if (entry == konfiguration.Ressource) continue;
 
-                    var doEvent = new library.var_int(0, "Do_" + konfiguration.Ressource + "_" + entry);
-                    evaluation.Datafields.Add(doEvent);
-                    var Event = new library.var_int(0, "Event_" + konfiguration.Ressource + "_" + entry);
-                    evaluation.Datafields.Add(Event);
-                    var eventResp = new library.var_int(0, "Resp_" + konfiguration.Ressource + "_" + entry);
-                    evaluation.Datafields.Add(eventResp);
-                    do_events.Add(doEvent, Event);
-                    event_resp.Add(Event, eventResp);
-                    resp_events.Add(eventResp, Event);
+                var monitor = new library.var_int(0, "Event_" + entry + "_" + konfiguration.Ressource);
+                evaluation.Datafields.Add(monitor); //hier erhalten
+                var resp = new library.var_int(0, "Resp_" + entry + "_" + konfiguration.Ressource);
+                evaluation.Datafields.Add(resp); //hier beantworten
+                monitor_and_resp.Add(monitor, resp);
 
-                    var event_w = new library.var_int(0, "t_worst_" + konfiguration.Ressource + "_" + entry);
-                    evaluation.Datafields.Add(event_w); //mittelwert eigene messung
-                    event_worsttime.Add(Event, event_w);
-                }
+                var doEvent = new library.var_int(0, "Do_" + konfiguration.Ressource + "_" + entry);
+                evaluation.Datafields.Add(doEvent);
+                var Event = new library.var_int(0, "Event_" + konfiguration.Ressource + "_" + entry);
+                evaluation.Datafields.Add(Event);
+                var eventResp = new library.var_int(0, "Resp_" + konfiguration.Ressource + "_" + entry);
+                evaluation.Datafields.Add(eventResp);
+                do_events.Add(doEvent, Event);
+                event_resp.Add(Event, eventResp);
+                resp_events.Add(eventResp, Event);
+
+                var event_w = new library.var_int(0, "t_worst_" + konfiguration.Ressource + "_" + entry);
+                evaluation.Datafields.Add(event_w); //mittelwert eigene messung
+                event_worsttime.Add(Event, event_w);
             }
 
             structure.AddDatamodel(evaluation);
@@ -82,7 +81,7 @@ namespace example
                         entry.Key.aenderung = false;
                         if (!todo.ContainsKey(entry.Value)) //ist das Event schon auf der Ausführen-Liste?
                         {
-                            todo.Add(entry.Value, entry.Key.value); //hinzufügen mit seiner Häufigkeit
+                            todo.Add(entry.Value, (System.Int32)entry.Key.value); //hinzufügen mit seiner Häufigkeit
                             meas.Add(entry.Value, new System.Collections.Generic.List<long>()); //
                             to_send.Add(entry.Value);
                         }
@@ -93,7 +92,7 @@ namespace example
                 for (int i = 0; i < exp_keys.Count; ++i)
                 {
                     var entry = exp_keys[i];
-                    if (entry.aenderung && entry.value == expected[entry])
+                    if (entry.aenderung && (System.Int32)entry.value == expected[entry])
                     {
                         var curr_ticks_new = System.DateTime.Now.Ticks;
                         var triggering_event = resp_events[entry];

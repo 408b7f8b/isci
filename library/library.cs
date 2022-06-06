@@ -158,7 +158,7 @@ namespace library
                             }
 
                             try {
-                                Console.WriteLine("Konfigparam " + feld.Name + ": " + feld.GetValue(this));
+                                Console.WriteLine("Konfigparam " + feld.Name + ": " + feld.GetValue(this).ToString());
                             } catch { }
                         }
                         catch { }
@@ -366,11 +366,12 @@ namespace library
 
     public class var_int : Datafield
     {
-        public new System.Int32 value;
+        //public new System.Int32 value;
 
-        public var_int(System.Int32 value, String Identifikation) : base(Identifikation)
+        public var_int(System.Int32 value, String Identifikation, String path = "") : base(Identifikation)
         {
             this.value = value;
+            if (path != "") this.path = path;
         }
 
         public override void WertLesenSpezifisch(System.IO.BinaryReader reader)
@@ -385,7 +386,7 @@ namespace library
 
         public override void WertSchreibenSpezifisch(System.IO.BinaryWriter writer)
         {
-            writer.Write(value);
+            writer.Write((System.Int32)value);
         }
 
         public override string WertSerialisieren()
@@ -406,22 +407,22 @@ namespace library
 
         public static bool operator ==(var_int left, var_int right)
         {
-            return left.value == right.value;
+            return (System.Int32)left.value == (System.Int32)right.value;
         }
 
         public static bool operator !=(var_int left, var_int right)
         {
-            return left.value != right.value;
+            return (System.Int32)left.value != (System.Int32)right.value;
         }
 
         public static bool operator ==(var_int left, System.Int32 right)
         {
-            return left.value == right;
+            return (System.Int32)left.value == right;
         }
 
         public static bool operator !=(var_int left, System.Int32 right)
         {
-            return left.value != right;
+            return (System.Int32)left.value != right;
         }
     }
     
@@ -485,15 +486,15 @@ namespace library
         {
             try
             {
-                var dir = System.IO.Path.GetDirectoryName(Identifikation);
+                var dir = System.IO.Path.GetDirectoryName(path);
                 if (!System.IO.Directory.Exists(dir))
                     System.IO.Directory.CreateDirectory(dir);
 
-                mutex = new System.Threading.Mutex(false, (Identifikation + "_mutex").Replace('/', '.'));
+                mutex = new System.Threading.Mutex(false, (path + "_mutex").Replace('/', '.'));
 
-                if (!System.IO.File.Exists(Identifikation))
+                if (!System.IO.File.Exists(path))
                 {
-                    System.IO.File.Create(Identifikation).Close();
+                    System.IO.File.Create(path).Close();
                     WertSchreiben();
                 }
             }
@@ -507,7 +508,7 @@ namespace library
         {
             try
             {
-                mutex = System.Threading.Mutex.OpenExisting((Identifikation + "_mutex").Replace('/', '.'));
+                mutex = System.Threading.Mutex.OpenExisting((path + "_mutex").Replace('/', '.'));
             }
             catch
             {
@@ -536,7 +537,7 @@ namespace library
         {
             MutexBlockierenSynchron();
 
-            var stream = new System.IO.FileStream(Identifikation, System.IO.FileMode.Open);
+            var stream = new System.IO.FileStream(path, System.IO.FileMode.Open);
             var reader = new System.IO.BinaryReader(stream);
 
             try {
@@ -566,7 +567,7 @@ namespace library
         {
             MutexBlockierenSynchron();
 
-            var stream = new System.IO.FileStream(Identifikation, System.IO.FileMode.Truncate);
+            var stream = new System.IO.FileStream(path, System.IO.FileMode.Truncate);
             var writer = new System.IO.BinaryWriter(stream);
 
             WertSchreibenSpezifisch(writer);

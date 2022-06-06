@@ -1,9 +1,21 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Net;
+using System.Linq;
 
 namespace integration
 {
+    public class Konfiguration : library.Konfiguration
+    {
+        public string Target;
+        public int Port;
+
+        public Konfiguration(string datei) : base(datei)
+        {
+
+        }
+    }
+
     class Program
     {
         static System.Net.Sockets.Socket udpSock;
@@ -27,12 +39,12 @@ namespace integration
                 {
                     var string_parts = conv_string.Split('#');
                     while(change_lock) {}
-                    if (change.ContainsKey(string_parts[0]))
+                    try 
                     {
-                        change[string_parts[0]] = string_parts[1];
-                    } else {
-                        change.Add(string_parts[0], string_parts[1]);
-                    }
+                        structure.Datafields[string_parts[0]].WertAusString(string_parts[1]);
+                    } catch {
+
+                    }                    
                 }
         
                 EndPoint endpoint = target;//new IPEndPoint(target, 0);
@@ -40,105 +52,65 @@ namespace integration
             } catch {}
         }
 
-        static library.var_int state = new library.var_int(0, "/media/ramdisk/state");
-        static library.var_int cycletime = new library.var_int(0, "/media/ramdisk/cycletime");
-        /*static library.var_int val = new library.var_int(0, "/media/ramdisk/process/val");
-        static bool val_flag = false;
-        static library.var_int val2 = new library.var_int(0, "/media/ramdisk/process/val2");
-        static bool val2_flag = false;*/
-        static System.Collections.Generic.Dictionary<string, library.var_int> vals = new System.Collections.Generic.Dictionary<string, library.var_int>();
-        static System.Collections.Generic.Dictionary<string, string> change = new System.Collections.Generic.Dictionary<string, string>();
-        static int state_work, state_target, state_ending;
-        static int variables;
         static System.Net.IPEndPoint target;
         static bool change_lock;
+        static library.Datastructure structure;
 
         static void Main(string[] args)
         {
-            state_work = Int32.Parse(args[0]);
-            state_target = Int32.Parse(args[1]);
-            state_ending = Int32.Parse(args[2]);
-            variables = Int32.Parse(args[3]);
-            target = new System.Net.IPEndPoint(IPAddress.Parse(args[4]), 1337);
+            var konfiguration = new Konfiguration("konfiguration.json");
+            
+            structure = new library.Datastructure(konfiguration.OrdnerDatenstrukturen[0] + "/" + konfiguration.Anwendungen[0]);
 
-            for(int i = 0; i < variables; ++i)
-            {
-                vals.Add("val" + i.ToString(), new library.var_int(0, "/media/ramdisk/process/val" + i.ToString()));
-                vals.Add("val_return" + i.ToString(), new library.var_int(0, "/media/ramdisk/process/val_return" + i.ToString()));
-            }
+            var dm = new library.Datamodel(konfiguration.Identifikation);
+            var cycle = new library.var_int(0, "cycle");
+            dm.Datafields.Add(cycle);
+
+            System.IO.File.WriteAllText(konfiguration.OrdnerDatenmodelle[0] + "/" + konfiguration.Identifikation + ".json", Newtonsoft.Json.JsonConvert.SerializeObject(dm));
+
+            structure.AddDatamodel(dm);
+            structure.AddDataModelsFromDirectory(konfiguration.OrdnerDatenmodelle[0]);
+            structure.Start();
+
+            var Zustand = new library.var_int(0, "Zustand", konfiguration.OrdnerDatenstrukturen[0] + "/" + konfiguration.Anwendungen[0] + "/Zustand");
+            Zustand.Start();
+
+            target = System.Net.IPEndPoint.Parse(konfiguration.Target);
+            target.Port = konfiguration.Port;
 
             udpStart();
             long curr_ticks = 0;
             
             while(true)
             {
-                state.WertLesen();
+                Zustand.WertLesen();
 
-                if (state == state_work)
+                var erfüllteTransitionen = konfiguration.Zustandsbereiche.Where(a => a.Arbeitszustand == (System.Int32)Zustand.value);
+                if (erfüllteTransitionen.Count<library.Zustandsbereich>() > 0)
                 {
-                    curr_ticks = System.DateTime.Now.Ticks;
+                    if ((System.Int32)Zustand.value == 0)
+                    {
+                        var curr_ticks_new = System.DateTime.Now.Ticks;
+                        var ticks_span = curr_ticks_new - curr_ticks;
+                        curr_ticks = curr_ticks_new;
+                        cycle.value = (int)ticks_span;
 
-                    /*if (val_flag)
-                    {
-                        val.WertSchreiben();
-                        val_flag = false;
-                    }
-                    if (val2_flag)
-                    {
-                        val2.WertSchreiben();
-                        val2_flag = false;
-                    }*/
+                        change_lock = true;
+                        structure.PublishImage();
+                        change_lock = false;
+                    } else {
+                        var updated = structure.UpdateImage();
 
-                    change_lock = true;
-                    foreach (var entry in change)
-                    {
-                        vals[entry.Key].WertAusString(entry.Value);
-                        vals[entry.Key].WertSchreiben();
-                    }
-                    change.Clear();
-                    change_lock = false;
-                    
-                    state.value = state_target;
-                    state.WertSchreiben();
-                    continue;
-                }
-
-                if (state == state_ending)
-                {
-                    foreach (var entry in vals)
-                    {
-                        entry.Value.WertLesen();
-                        if (entry.Value.aenderung)
+                        foreach (var entry in updated)
                         {
-                            var snd = System.Text.UTF8Encoding.UTF8.GetBytes(entry.Key + "#" + entry.Value.WertSerialisieren());
+                            var snd = System.Text.UTF8Encoding.UTF8.GetBytes(entry + "#" + structure.Datafields[entry].WertSerialisieren());
                             udpSock.BeginSendTo(snd, 0, snd.Length, 0, target, null, null);//   (snd, new System.Net.IPEndPoint(IPAddress.Any, 1337));
-                            entry.Value.aenderung = false;
+                            structure.Datafields[entry].aenderung = false;
                         }
                     }
-                    /*val.WertLesen();
-                    if (val.aenderung)
-                    {
-                        var snd = System.Text.UTF8Encoding.UTF8.GetBytes("val#" + val.WertSerialisieren());
-                        udpSock.SendTo(snd, new System.Net.IPEndPoint(IPAddress.Any, 1337));
-                        val.aenderung = false;
-                    }
-                    val2.WertLesen();
-                    if (val2.aenderung)
-                    {
-                        var snd = System.Text.UTF8Encoding.UTF8.GetBytes("val2#" + val2.WertSerialisieren());
-                        udpSock.SendTo(snd, new System.Net.IPEndPoint(IPAddress.Any, 1337));
-                        val2.aenderung = false;
-                    }*/
 
-                    var curr_ticks_new = System.DateTime.Now.Ticks;
-                    var ticks_span = curr_ticks_new - curr_ticks;
-                    cycletime.value = (int)ticks_span;
-                    cycletime.WertSchreiben();
-
-                    state.value = state_work;
-                    state.WertSchreiben();
-
-                    //System.Threading.Thread.Sleep(1);
+                    Zustand.value = erfüllteTransitionen.First<library.Zustandsbereich>().Nachfolgezustand;
+                    Zustand.WertSchreiben();
                 }
             }
         }
