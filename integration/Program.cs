@@ -35,21 +35,21 @@ namespace integration
                 int length = recvSock.EndReceiveFrom(asyncResult, ref client);
                 var conv_string = System.Text.UTF8Encoding.UTF8.GetString(buffer, 0, length);
                 conv_string = conv_string.TrimEnd();
-                if (conv_string.StartsWith("val"))
-                {
-                    var string_parts = conv_string.Split('#');
-                    while(change_lock) {}
-                    try 
-                    {
-                        structure.Datafields[string_parts[0]].WertAusString(string_parts[1]);
-                    } catch {
 
-                    }                    
+                var string_parts = conv_string.Split('#');
+                while(change_lock) {}
+                try
+                {
+                    structure.Datafields[string_parts[0]].WertAusString(string_parts[1]);
+                } catch {
+
                 }
         
                 EndPoint endpoint = target;//new IPEndPoint(target, 0);
                 udpSock.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref endpoint, udpCallback, udpSock);
-            } catch {}
+            } catch {
+                
+            }
         }
 
         static System.Net.IPEndPoint target;
@@ -93,7 +93,7 @@ namespace integration
                         var curr_ticks_new = System.DateTime.Now.Ticks;
                         var ticks_span = curr_ticks_new - curr_ticks;
                         curr_ticks = curr_ticks_new;
-                        cycle.value = (int)ticks_span;
+                        cycle.value = (System.Int32)(ticks_span / System.TimeSpan.TicksPerMillisecond);
 
                         change_lock = true;
                         structure.PublishImage();

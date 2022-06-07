@@ -13,10 +13,7 @@ namespace api
     {
         public static void Main(string[] args)
         {           
-            api.Controllers.Applications.target_path = System.Environment.GetEnvironmentVariable("Applications");
-            api.Controllers.Datamodels.target_path = System.Environment.GetEnvironmentVariable("Datamodels");
-            api.Controllers.Eventmodels.target_path = System.Environment.GetEnvironmentVariable("Eventmodels");
-            api.Controllers.Functionmodels.target_path = System.Environment.GetEnvironmentVariable("Functionmodels");
+            api.Controllers.Applications.target_path = "/opt";//System.Environment.GetEnvironmentVariable("ARCHITEKTUR_ANWENDUNGEN");
             api.Controllers.Services.target_path = $"{System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile)}/.config/systemd/user/";
             
             CreateHostBuilder(args).Build().Run();

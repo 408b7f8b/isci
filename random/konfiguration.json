@@ -5,7 +5,7 @@
     "OrdnerDatenmodelle":["../Beispielanwendung/Datenmodelle"],
     "OrdnerEreignismodelle":["../Beispielanwendung/Ereignismodelle"],
     "OrdnerFunktionsmodelle":["../Beispielanwendung/Funktionsmodelle"],
-    "Zustandsbereiche":[{"Arbeitszustand":1, "Nachfolgezustand":2}],
+    "Zustandsbereiche":[{"Arbeitszustand":2, "Nachfolgezustand":3}],
     "Identifikation":"random",
     "Anwendungen":["Beispielanwendung"]
 }
