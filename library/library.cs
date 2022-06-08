@@ -201,11 +201,44 @@ namespace library
         }
     }
 
+    public class LinkDictionary : System.Collections.Generic.Dictionary<Datafield, FieldList>
+    {
+        public new void Add(Datafield item1, FieldList item2)
+        {
+            if (this.ContainsKey(item1))
+            {
+                foreach (var entry in item2)
+                {
+                    if (!this[item1].Contains(entry))
+                    {
+                        this[item1].Add(entry);
+                    }
+                }
+            } else {
+                base.Add(item1, item2);
+            }            
+        }
+
+        public void Add(Datafield item1, Datafield item2)
+        {
+            if (this.ContainsKey(item1))
+            {
+                if (!this[item1].Contains(item2))
+                {
+                    this[item1].Add(item2);
+                }
+            } else {
+                base.Add(item1, new FieldList(){item2});
+            }
+        }
+    }
+
 
     public class Datamodel
     {
         public string Identifikation;
         public FieldList Datafields;
+        public LinkDictionary Links;
 
         public Datamodel()
         {
@@ -277,6 +310,7 @@ namespace library
     {
         public System.Collections.Generic.List<string> Datamodels;
         public System.Collections.Generic.Dictionary<string, Datafield> Datafields;
+        public LinkDictionary Links;
         public string path;
 
         public Datastructure(string path)

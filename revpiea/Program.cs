@@ -13,6 +13,7 @@ namespace revpiea
 
             RevPiZugriff.SystemkonfigurationLesen();
             RevPiZugriff.EinUndAusgängeAufstellen();
+            RevPiZugriff.control.Open();
 
             var dm = new library.Datamodel(konfiguration.Identifikation);
 
@@ -54,7 +55,15 @@ namespace revpiea
                             object o = null;
                             if (Eingang.Key.Zustandlesen(out o))
                             {
-                                Eingang.Value.value = (System.Int32)(true ? 1 : 0);
+                                switch (Eingang.Key.typ)
+                                {
+                                    case ioObjekt.Typ.BOOL: Eingang.Value.value = ((bool)o ? 1 : 0); break;
+                                    case ioObjekt.Typ.BYTE: Eingang.Value.value = (int)((byte)o); break;
+                                    case ioObjekt.Typ.WORD: Eingang.Value.value = o; break;
+                                    case ioObjekt.Typ.INT: Eingang.Value.value = o; break;
+                                    default: continue;
+                                }
+                            
                                 Eingang.Value.WertSchreiben();
                             }
                         }
@@ -66,7 +75,15 @@ namespace revpiea
                             Ausgang.Key.WertLesen();
                             if (Ausgang.Key.aenderung)
                             {
-                                Ausgang.Value.Zustandschreiben((System.Int32)Ausgang.Key.value == 1 ? true : false);
+                                switch (Ausgang.Value.typ)
+                                {
+                                    case ioObjekt.Typ.BOOL: Ausgang.Value.Zustandschreiben((System.Int32)Ausgang.Key.value == 1 ? true : false); break;
+                                    case ioObjekt.Typ.BYTE: Ausgang.Value.Zustandschreiben((byte)Ausgang.Key.value); break;
+                                    case ioObjekt.Typ.WORD: Ausgang.Value.Zustandschreiben((short)Ausgang.Key.value); break;
+                                    case ioObjekt.Typ.INT: Ausgang.Value.Zustandschreiben((System.Int32)Ausgang.Key.value); break;
+                                    default: continue;
+                                }
+
                                 Ausgang.Key.aenderung = false;
                             }
                         }                        

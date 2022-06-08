@@ -69,7 +69,7 @@ namespace revpiea
         public int AdresseByte;
         public int AdresseBit;
         public bool sichtbar;
-        public object wert;
+        private object wert;
         public enum Typ {
                 BOOL = 1, BYTE = 8, WORD = 16, INT = 32
         };
@@ -89,6 +89,8 @@ namespace revpiea
             var AdresseBit_m = AdresseBit_ % 8;
             AdresseBit = AdresseBit_m;
             AdresseByte += AdresseBit_g;
+            int l = (typ == Typ.INT ? 4 : (typ == Typ.WORD ? 2 : 1));
+            wert_ = new byte[l];
         }
 
         public library.var_int EintragErstellen(string praefix)
@@ -154,14 +156,12 @@ namespace revpiea
 
         public void Zustandschreiben(object o)
         {
-            int l = (typ == Typ.INT ? 4 : (typ == Typ.WORD ? 2 : 1));
-
             switch(typ)
             {
                 case Typ.BOOL: wert_[0] = BitConverter.GetBytes((wert_[0] & ~(1 << AdresseBit)) | ( ((bool)o ? 1 : 0) << AdresseBit))[0]; break;
                 case Typ.BYTE: wert_[0] = (byte)o; break;
                 case Typ.INT: wert_ = BitConverter.GetBytes((int)o); break;
-                case Typ.WORD: wert_ = BitConverter.GetBytes((int)o); break;
+                case Typ.WORD: wert_ = BitConverter.GetBytes((short)o); break;
                 default: o = null; break;
             }
 
