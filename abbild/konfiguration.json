@@ -2,14 +2,5 @@
     "token":"rtx9K2a0yKPF3sNsMabdx4mE2J-lR9Rugo4PidWBHUuryFbH3VpurI96fa965I0GYEpdj1wLt_LCjz83PdscOQ==",
     "adresse":"http://localhost:8086",
     "orgId":"81494d02eabbc9e4",
-    "bucket":"Beispielanwendung",
-    "Ressource":"Laptop",
-    "OrdnerAnwendungen":["../Beispielanwendung"],
-    "OrdnerDatenstrukturen":["/media/ramdisk"],
-    "OrdnerDatenmodelle":["../Beispielanwendung/Datenmodelle"],
-    "OrdnerEreignismodelle":["../Beispielanwendung/Ereignismodelle"],
-    "OrdnerFunktionsmodelle":["../Beispielanwendung/Funktionsmodelle"],
-    "Zustandsbereiche":[{"Arbeitszustand":1, "Nachfolgezustand":2}, {"Arbeitszustand":3, "Nachfolgezustand":4}],
-    "Identifikation":"abbild",
-    "Anwendungen":["Beispielanwendung"]
+    "pfad":"abbilder"
 }

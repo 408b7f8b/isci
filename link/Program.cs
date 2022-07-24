@@ -9,16 +9,20 @@ namespace link
         {
             var konfiguration = new library.Konfiguration("konfiguration.json");
             
-            var structure = new library.Datastructure(konfiguration.OrdnerDatenstrukturen[0] + "/" + konfiguration.Anwendungen[0]);
+            var structure = new library.Datastructure(konfiguration.OrdnerDatenstruktur);
 
             var dm = new library.Datamodel(konfiguration.Identifikation);
 
-            System.IO.File.WriteAllText(konfiguration.OrdnerDatenmodelle[0] + "/" + konfiguration.Identifikation + ".json", Newtonsoft.Json.JsonConvert.SerializeObject(dm));
+            System.IO.File.WriteAllText(konfiguration.OrdnerDatenmodelle + "/" + konfiguration.Identifikation + ".json", Newtonsoft.Json.JsonConvert.SerializeObject(dm));
 
             structure.AddDatamodel(dm);
+            structure.AddDataModelsFromDirectory(konfiguration.OrdnerDatenmodelle, konfiguration.Identifikation);
+
+            structure.GenerateLinks();
+
             structure.Start();
 
-            var Zustand = new library.var_int(0, "Zustand", konfiguration.OrdnerDatenstrukturen[0] + "/" + konfiguration.Anwendungen[0] + "/Zustand");
+            var Zustand = new library.var_int(0, "Zustand", konfiguration.OrdnerDatenstruktur + "/Zustand");
             Zustand.Start();
 
             while(true)
@@ -29,13 +33,14 @@ namespace link
                 {
                     structure.UpdateImage();
 
-                    foreach (var entry in structure.Links)
+                    foreach (var entry in structure.LinksActive)
                     {
                         if (entry.Key.aenderung)
                         {
                             foreach (var subentry in entry.Value)
                             {
                                 subentry.value = entry.Key.value;
+                                entry.Key.aenderung = false;
                             }
                         }
                     }

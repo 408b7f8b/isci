@@ -11,11 +11,24 @@ namespace api
 {
     public class Program
     {
+        public static string Ressource, Datenstrukturen, Dateien;
         public static void Main(string[] args)
-        {           
-            api.Controllers.Applications.target_path = "/opt";//System.Environment.GetEnvironmentVariable("ARCHITEKTUR_ANWENDUNGEN");
+        {
+            Ressource = "TEST";// System.Environment.GetEnvironmentVariable("ARCHITEKTUR_RESSOURCE");
+            Datenstrukturen = System.Environment.GetEnvironmentVariable("ARCHITEKTUR_DATENSTRUKTUREN");
+            api.Controllers.Applications.target_path = System.IO.Directory.GetCurrentDirectory(); //System.Environment.GetEnvironmentVariable("ARCHITEKTUR_ANWENDUNGEN");
             api.Controllers.Services.target_path = $"{System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile)}/.config/systemd/user/";
             
+            var handler = new System.Net.Http.HttpClientHandler();
+
+            handler.ServerCertificateCustomValidationCallback += 
+                (sender, certificate, chain, errors) =>
+                {
+                    return true;
+                };
+
+            api.Controllers.Applications.client = new System.Net.Http.HttpClient(handler);
+
             CreateHostBuilder(args).Build().Run();
         }
 

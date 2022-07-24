@@ -1,11 +1,5 @@
 {
-    "Ressource":"Laptop",
-    "OrdnerAnwendungen":["../Beispielanwendung"],
-    "OrdnerDatenstrukturen":["/media/ramdisk"],
-    "OrdnerDatenmodelle":["../Beispielanwendung/Datenmodelle"],
-    "OrdnerEreignismodelle":["../Beispielanwendung/Ereignismodelle"],
-    "OrdnerFunktionsmodelle":["../Beispielanwendung/Funktionsmodelle"],
-    "Zustandsbereiche":[],
+    "Zustandsbereiche":[$ZUSTANDSBEREICHE],
     "Identifikation":"evaluation",
-    "Anwendungen":["Beispielanwendung"]
+    "Anwendung":"$ANWENDUNG"
 }

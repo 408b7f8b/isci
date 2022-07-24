@@ -1,0 +1,8 @@
+{
+    "Zustandsbereiche":[$ZUSTANDSBEREICHE],
+    "Identifikation":"msb",
+    "Anwendung":"$ANWENDUNG",
+    "MsbWebsocketUrl":"$MSBURL",
+    "MsbSmartObjectUuid":"$MSBUUID",
+    "MsbSmartObjectToken":"MSBTOKEN"
+}

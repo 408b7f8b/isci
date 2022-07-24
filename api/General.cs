@@ -9,34 +9,30 @@ namespace api
     {
         public static string FilesInPath(string pfad)
         {
-            var list = System.IO.Directory.GetFiles(pfad, "*", System.IO.SearchOption.AllDirectories);
+            var list = Newtonsoft.Json.JsonConvert.SerializeObject(FilesInPathList(pfad));
 
-            string ret = "[";
+            return list;
+        }
 
-            foreach (var file in list)
-            {
-                ret += ("\"" + file + "\"\n");
-            }
+        public static List<string> FilesInPathList(string pfad)
+        {
+            var list = System.IO.Directory.GetFiles(pfad, "*", System.IO.SearchOption.TopDirectoryOnly).ToList<string>();
 
-            ret += "]";
-
-            return ret;
+            return list;
         }
 
         public static string FoldersInPath(string pfad)
         {
-            var list = System.IO.Directory.GetDirectories(pfad, "*", System.IO.SearchOption.TopDirectoryOnly);
+            var list = Newtonsoft.Json.JsonConvert.SerializeObject(FoldersInPathList(pfad));
 
-            string ret = "[";
+            return list;
+        }
 
-            foreach (var folder in list)
-            {
-                ret += ("\"" + folder + "\"\n");
-            }
+        public static List<string> FoldersInPathList(string pfad)
+        {
+            var list = System.IO.Directory.GetDirectories(pfad, "*", System.IO.SearchOption.TopDirectoryOnly).ToList<string>();
 
-            ret += "]";
-
-            return ret;
+            return list;
         }
 
         public static void Action(string filename, string arguments)

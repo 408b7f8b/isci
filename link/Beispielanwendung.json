@@ -1,0 +1,7 @@
+{
+    "Identifikation": "Beispielanwendung",
+    "Datafields": [],
+    "Links": {
+        "ns=revpiea;s=I_2": ["ns=revpiea;s=O_1"]
+    }
+  }

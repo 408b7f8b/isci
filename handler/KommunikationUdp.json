@@ -1,0 +1,12 @@
+{
+    "Identifikation":"KommunikationUdp",
+    "Name":"UDP-Kommunikation",
+    "Beschreibung":"Kommunikations ueber UDP",
+    "Typ":"Basis",
+    "ReferenzierteModelle":[],
+    "Konfigurationspakete":{"System":{"kommUdp":"integration"}},
+    "Konfigurationselemente":{},
+    "Datenmodelle":[],
+    "Funktionen":[],
+    "Ereignisse":[]
+}

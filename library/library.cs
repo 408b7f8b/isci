@@ -26,9 +26,27 @@ namespace library
                     Cache[path].Remove(s);
                 }
             } else {
-                Cache.Add(path, files);                
+                Cache.Add(path, files);
             }
             return Cache[path];
+        }
+
+        public static void OrdnerPruefenErstellen(string pfad)
+        {
+            if (!System.IO.Directory.Exists(pfad)) System.IO.Directory.CreateDirectory(pfad);
+        }
+    }
+
+    public class Modell
+    {
+        public string Identifikation;
+        public string Name;
+        public string Beschreibung;
+        public string Typ;
+
+        public Modell()
+        {
+            this.Typ = this.GetType().FullName;
         }
     }
 
@@ -43,51 +61,18 @@ namespace library
         public int Nachfolgezustand;
     }
 
-    public class Konfiguration : Komponentenkonfiguration
+    public class Konfiguration
     {
         public string Ressource;
-        public string[] OrdnerAnwendungen;
-        public string[] OrdnerDatenstrukturen;
-        public string[] OrdnerDatenmodelle;
-        public string[] OrdnerEreignismodelle;
-        public string[] OrdnerFunktionsmodelle;
+        public string Identifikation;
+        public string OrdnerAnwendung;
+        public string OrdnerDatenstruktur;
+        public string Anwendung;
+        public string OrdnerDatenmodelle;
+        public string OrdnerEreignismodelle;
+        public string OrdnerFunktionsmodelle;
+        public string OrdnerBeschreibungen;
         public Zustandsbereich[] Zustandsbereiche;
-
-        public static Konfiguration KonfigurationAusDateiUndUmgebung(string path)
-        {
-            var komponentenkonfiguration = KomponentenKonfigurationAusDatei(path);
-            var konfiguration = new Konfiguration();
-
-            konfiguration.Ressource = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_RESSOURCE");
-            var envAnwendungen = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNGEN");
-            var envDatenstrukturen = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_DATENSTRUKTUREN");
-
-            if (!System.IO.Directory.Exists(envAnwendungen))
-            {
-                System.IO.Directory.CreateDirectory(envAnwendungen);
-            }
-            if (!System.IO.Directory.Exists(envDatenstrukturen))
-            {
-                System.IO.Directory.CreateDirectory(envDatenstrukturen);
-            }
-
-            konfiguration.OrdnerAnwendungen = new string[komponentenkonfiguration.Anwendungen.Length];
-            konfiguration.OrdnerDatenstrukturen = new string[komponentenkonfiguration.Anwendungen.Length];
-            konfiguration.OrdnerDatenmodelle = new string[komponentenkonfiguration.Anwendungen.Length];
-            konfiguration.OrdnerEreignismodelle = new string[komponentenkonfiguration.Anwendungen.Length];
-            konfiguration.OrdnerFunktionsmodelle = new string[komponentenkonfiguration.Anwendungen.Length];
-
-            for (int i = 0; i < komponentenkonfiguration.Anwendungen.Length; ++i)
-            {
-                konfiguration.OrdnerAnwendungen[i] = envAnwendungen + "/" + komponentenkonfiguration.Anwendungen[i];
-                konfiguration.OrdnerDatenmodelle[i] = konfiguration.OrdnerAnwendungen[i] + "/Datenmodelle";
-                konfiguration.OrdnerEreignismodelle[i] = konfiguration.OrdnerAnwendungen[i] + "/Ereignismodelle";
-                konfiguration.OrdnerFunktionsmodelle[i] = konfiguration.OrdnerAnwendungen[i] + "/Funktionsmodelle";
-                konfiguration.OrdnerDatenstrukturen[i] = envDatenstrukturen + "/" + komponentenkonfiguration.Anwendungen[i];
-            }
-
-            return konfiguration;
-        }
 
         public Konfiguration()
         {
@@ -96,6 +81,8 @@ namespace library
 
         public Konfiguration(string datei)
         {
+            Ressource = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_RESSOURCE");
+
             if (!System.IO.File.Exists(datei))
             {
                 return;
@@ -163,26 +150,22 @@ namespace library
                         }
                         catch { }
                     }
-                } catch 
-                {
-
-                }                
+                } catch { }
             }
-        }
-    }
 
-    public class Komponentenkonfiguration
-    {
-        public string Identifikation;
-        public string[] Anwendungen;
+            OrdnerAnwendung = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNGEN") + "/" + Anwendung;
+            OrdnerDatenstruktur = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_DATENSTRUKTUREN") + "/" + Anwendung;
+            OrdnerDatenmodelle = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNGEN") + "/" + Anwendung + "/Datenmodelle";
+            OrdnerEreignismodelle = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNGEN") + "/" + Anwendung + "/Ereignismodelle";
+            OrdnerFunktionsmodelle = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNGEN") + "/" + Anwendung + "/Funktionsmodelle";
+            OrdnerBeschreibungen = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNGEN") + "/" + Anwendung + "/Beschreibungen";
 
-        public static Komponentenkonfiguration KomponentenKonfigurationAusDatei(string path)
-        {
-            var file = System.IO.File.ReadAllText(path);
-
-            var konfiguration = Newtonsoft.Json.JsonConvert.DeserializeObject<Komponentenkonfiguration>(file);
-
-            return konfiguration;
+            Helfer.OrdnerPruefenErstellen(OrdnerAnwendung);
+            Helfer.OrdnerPruefenErstellen(OrdnerDatenstruktur);
+            Helfer.OrdnerPruefenErstellen(OrdnerDatenmodelle);
+            Helfer.OrdnerPruefenErstellen(OrdnerEreignismodelle);
+            Helfer.OrdnerPruefenErstellen(OrdnerFunktionsmodelle);
+            Helfer.OrdnerPruefenErstellen(OrdnerBeschreibungen);
         }
     }
 
@@ -190,19 +173,76 @@ namespace library
     {
         public new void Add(Datafield item)
         {
-            foreach (var entry in this)
+            if (this.Where(entry => entry.Identifikation == item.Identifikation).Count() > 0) return;
+            /*foreach (var entry in this)
             {
                 if (entry.Identifikation == item.Identifikation)
                 {
                     return;
                 }
-            }
+            }*/
             base.Add(item);
+        }
+
+        public void AddRange(FieldList items)
+        {
+            foreach (var item in items)
+            {
+                this.Add(item);
+            }
         }
     }
 
-    public class LinkDictionary : System.Collections.Generic.Dictionary<Datafield, FieldList>
+    public class LinkDictionary : System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>>
     {
+        public void Add(LinkDictionary item)
+        {
+            foreach (var entry in item)
+            {
+                this.Add(entry.Key, entry.Value);
+            }        
+        }
+
+        public new void Add(string item1, System.Collections.Generic.List<string> item2)
+        {
+            if (this.ContainsKey(item1))
+            {
+                foreach (var entry in item2)
+                {
+                    if (!this[item1].Contains(entry))
+                    {
+                        this[item1].Add(entry);
+                    }
+                }
+            } else {
+                base.Add(item1, item2);
+            }            
+        }
+
+        public void Add(string item1, string item2)
+        {
+            if (this.ContainsKey(item1))
+            {
+                if (!this[item1].Contains(item2))
+                {
+                    this[item1].Add(item2);
+                }
+            } else {
+                base.Add(item1, new System.Collections.Generic.List<string>(){item2});
+            }
+        }
+    }
+
+    public class LinkDictionaryActive : System.Collections.Generic.Dictionary<Datafield, FieldList>
+    {
+        public void Add(LinkDictionaryActive item)
+        {
+            foreach (var entry in item)
+            {
+                this.Add(entry.Key, entry.Value);
+            }        
+        }
+
         public new void Add(Datafield item1, FieldList item2)
         {
             if (this.ContainsKey(item1))
@@ -233,6 +273,16 @@ namespace library
         }
     }
 
+    public class Ereignis : Modell
+    {
+        public string Ausloeser;
+        public string[] Datenfelder;
+    }
+
+    public class Funktion : Modell
+    {
+        public string[] Datenfelder;
+    }
 
     public class Datamodel
     {
@@ -248,6 +298,7 @@ namespace library
         {
             this.Identifikation = Identifikation;
             Datafields = new FieldList();
+            Links = new LinkDictionary();
         }
 
         public static Datamodel FromFile(string path)
@@ -260,7 +311,7 @@ namespace library
             return datamodel;
         }
 
-        public string ToString()
+        public override string ToString()
         {
             var settings = new Newtonsoft.Json.JsonSerializerSettings();
             settings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
@@ -280,6 +331,7 @@ namespace library
             var dm = new Datamodel();
             dm.Identifikation = datamodel_.SelectToken("Identifikation").ToString();
             dm.Datafields = new FieldList();
+            dm.Links = new LinkDictionary();
 
             var entries = datamodel_.SelectToken("Datafields");
 
@@ -287,6 +339,14 @@ namespace library
             {
                 var de = Datafield.DatafieldTyped(entry);
                 dm.Datafields.Add(de);
+            }
+
+            var link_entries = datamodel_.SelectToken("Links");
+
+            try {
+                dm.Links = link_entries.ToObject<LinkDictionary>();
+            } catch {
+
             }
 
             return dm;
@@ -310,13 +370,16 @@ namespace library
     {
         public System.Collections.Generic.List<string> Datamodels;
         public System.Collections.Generic.Dictionary<string, Datafield> Datafields;
-        public LinkDictionary Links;
+        private LinkDictionary Links;
+        public LinkDictionaryActive LinksActive;
         public string path;
 
         public Datastructure(string path)
         {
             Datamodels = new System.Collections.Generic.List<string>();
             Datafields = new System.Collections.Generic.Dictionary<string, Datafield>();
+            Links = new LinkDictionary();
+            LinksActive = new LinkDictionaryActive();
             this.path = path;
         }
 
@@ -330,6 +393,22 @@ namespace library
                     entry.Identifikation = ident;
                     entry.path = path + "/" + entry.Identifikation;
                     Datafields.Add(ident, entry);
+                }
+                foreach (var entry in datamodel.Links)
+                {
+                    var Links_ = new LinkDictionary();
+                    var key = entry.Key;
+                    var value = new System.Collections.Generic.List<string>();
+                    if (!key.StartsWith("ns="))
+                    {
+                        key = "ns=" + datamodel.Identifikation + ";s=" + key;
+                    }
+                    foreach (var subentry in entry.Value)
+                    {
+                        if (subentry.StartsWith("ns=")) value.Add(subentry);
+                        else value.Add("ns=" + datamodel.Identifikation + ";s=" + subentry);
+                    }
+                    Links.Add(key, value);
                 }
                 Datamodels.Add(datamodel.Identifikation);
             } catch (Exception)
@@ -362,6 +441,21 @@ namespace library
             foreach (var path in paths)
             {
                 AddDataModelsFromDirectory(path, excludeown);
+            }
+        }
+
+        public void GenerateLinks()
+        {
+            foreach (var entry in Links)
+            {
+                foreach (var subentry in entry.Value)
+                {
+                    try {
+                        LinksActive.Add(Datafields[entry.Key], Datafields[subentry]);
+                    } catch {
+
+                    }
+                }
             }
         }
 

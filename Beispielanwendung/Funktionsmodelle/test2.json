@@ -1,0 +1,10 @@
+[
+    {
+        "Identifikation":"testf2",
+        "Name":"Testfunktion 2",
+        "Beschreibung":"Beschreibung Testfunktion 2",
+        "Datenfelder":[
+            "ns=integration;s=cycle"
+        ]
+    }
+]

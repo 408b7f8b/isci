@@ -9,7 +9,7 @@ namespace api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class Environment : Common
+    public class Environment
     {
         [HttpPost("add/{Identifikation}")]
         public void Add(string Identifikation, [FromBody]string value)
@@ -72,17 +72,3 @@ namespace api.Controllers
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-            

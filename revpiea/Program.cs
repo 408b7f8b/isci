@@ -9,7 +9,7 @@ namespace revpiea
         {
             var konfiguration = new library.Konfiguration("konfiguration.json");
             
-            var structure = new library.Datastructure(konfiguration.OrdnerDatenstrukturen[0] + "/" + konfiguration.Anwendungen[0]);
+            var structure = new library.Datastructure(konfiguration.OrdnerDatenstruktur);
 
             RevPiZugriff.SystemkonfigurationLesen();
             RevPiZugriff.EinUndAusgängeAufstellen();
@@ -39,7 +39,7 @@ namespace revpiea
             structure.AddDatamodel(dm);
             structure.Start();
 
-            var Zustand = new library.var_int(0, "Zustand", konfiguration.OrdnerDatenstrukturen[0] + "/" + konfiguration.Anwendungen[0] + "/Zustand");
+            var Zustand = new library.var_int(0, "Zustand", konfiguration.OrdnerDatenstruktur + "/Zustand");
             Zustand.Start();
 
             while(true)

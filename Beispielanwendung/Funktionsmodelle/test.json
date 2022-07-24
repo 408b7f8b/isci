@@ -1,0 +1,11 @@
+[
+    {
+        "Identifikation":"testf",
+        "Name":"Testfunktion",
+        "Beschreibung":"Beschreibung Testfunktion",
+        "Datenfelder":[
+            "ns=integration;s=cycle",
+            "ns=random;s=cycle"
+        ]
+    }
+]

@@ -1,0 +1,58 @@
+{
+    "Identifikation":"Demosystem",
+    "Name":"Demosystem",
+    "Beschreibung":"Verteiltes System zur Demonstration",
+    "Typ":"Instanz",
+    "ReferenzierteModelle":["KommunikationUdp"],
+    "Konfigurationspakete":{},
+    "Konfigurationselemente":{
+        "revpiA":[
+            {
+                "Typ":"Parameter",
+                "Vorgang": {
+                    "Ordner":"$APPLICATIONS/Demosystem",
+                    "Variablen":{
+                        "$ANWENDUNGEN":"\"Demosystem\""
+                    }
+                }
+            },
+            {
+                "Typ":"Parameter",
+                "Vorgang": {
+                    "Ordner":"$APPLICATIONS/Demosystem/Anwendungen/KommunikationUdp/kommUdp",
+                    "Variablen":{
+                        "$TARGET":"192.168.10.20",
+                        "$PORT":"1337",
+                        "$ZUSTANDSBEREICHE":"{\"Arbeitszustand\":0, \"Nachfolgezustand\":1}, {\"Arbeitszustand\":4, \"Nachfolgezustand\":0}"
+                    }
+                }
+            }
+        ],
+        "revpiB":[
+            {
+                "Typ":"Parameter",
+                "Vorgang": {
+                    "Ordner":"$APPLICATIONS/Demosystem",
+                    "Variablen":{
+                        "$ANWENDUNGEN":"\"Demosystem\""
+                    }
+                }
+            },
+            {
+                "Typ":"Parameter",
+                "Vorgang": {
+                    "Ordner":"$APPLICATIONS/Demosystem/Anwendungen/KommunikationUdp/kommUdp",
+                    "Variablen":{
+                        "$TARGET":"192.168.10.10",
+                        "$PORT":"1337",
+                        "$ZUSTANDSBEREICHE":"{\"Arbeitszustand\":0, \"Nachfolgezustand\":1}, {\"Arbeitszustand\":4, \"Nachfolgezustand\":0}"
+                    }
+                }
+            }
+        ]
+    },
+    "Datenmodelle":[],
+    "Funktionen":[],
+    "Ereignisse":[],
+    "Ressourcenkartierung":{"KommunikationUdp":{"System":"*"}, "Demosystem":{"revpiA":"revpiA", "revpiB":"revpiB"}}
+}

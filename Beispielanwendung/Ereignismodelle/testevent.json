@@ -1,0 +1,12 @@
+[
+    {
+        "Identifikation":"testev",
+        "Name":"Testevent",
+        "Beschreibung":"Beschreibung Testevent",
+        "Ausloeser":"ns=random;s=random",
+        "Datenfelder":[
+            "ns=integration;s=cycle",
+            "ns=random;s=cycle"
+        ]
+    }
+]

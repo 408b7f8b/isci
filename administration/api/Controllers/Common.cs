@@ -10,7 +10,12 @@ namespace api.Controllers
     [ApiController]
     public abstract class Common : ControllerBase
     {
-        public static string target_path = "";
+        public string target_path;
+
+        public Common()
+        {
+            
+        }
 
         [HttpGet]
         public ActionResult<string> Get()

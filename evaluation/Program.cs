@@ -9,11 +9,11 @@ namespace evaluation
         {
             var konfiguration = new library.Konfiguration("konfiguration.json");
             
-            var structure = new library.Datastructure(konfiguration.OrdnerDatenstrukturen[0] + "/" + konfiguration.Anwendungen[0]);
+            var structure = new library.Datastructure(konfiguration.OrdnerDatenstruktur);
 
             var evaluation = new library.Datamodel("evaluation");
 
-            var ressourceList = Newtonsoft.Json.JsonConvert.DeserializeObject<library.RessourceList>(System.IO.File.ReadAllText(konfiguration.OrdnerAnwendungen[0] + "/Ressourcen"));
+            var ressourceList = Newtonsoft.Json.JsonConvert.DeserializeObject<library.RessourceList>(System.IO.File.ReadAllText(konfiguration.OrdnerAnwendung + "/Ressourcen"));
 
             var monitor_and_resp = new System.Collections.Generic.Dictionary<library.var_int, library.var_int>();
 
@@ -50,7 +50,7 @@ namespace evaluation
             structure.AddDatamodel(evaluation);
             structure.Start();
 
-            System.IO.File.WriteAllText(konfiguration.OrdnerDatenmodelle[0] + "/evaluation.json", Newtonsoft.Json.JsonConvert.SerializeObject(evaluation));
+            System.IO.File.WriteAllText(konfiguration.OrdnerDatenmodelle + "/evaluation.json", Newtonsoft.Json.JsonConvert.SerializeObject(evaluation));
 
             var todo = new System.Collections.Generic.Dictionary<library.var_int, int>();
             var expected = new System.Collections.Generic.Dictionary<library.var_int, int>();

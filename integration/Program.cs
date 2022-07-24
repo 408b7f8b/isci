@@ -60,19 +60,19 @@ namespace integration
         {
             var konfiguration = new Konfiguration("konfiguration.json");
             
-            structure = new library.Datastructure(konfiguration.OrdnerDatenstrukturen[0] + "/" + konfiguration.Anwendungen[0]);
+            structure = new library.Datastructure(konfiguration.OrdnerDatenstruktur);
 
             var dm = new library.Datamodel(konfiguration.Identifikation);
             var cycle = new library.var_int(0, "cycle");
             dm.Datafields.Add(cycle);
 
-            System.IO.File.WriteAllText(konfiguration.OrdnerDatenmodelle[0] + "/" + konfiguration.Identifikation + ".json", Newtonsoft.Json.JsonConvert.SerializeObject(dm));
+            System.IO.File.WriteAllText(konfiguration.OrdnerDatenmodelle + "/" + konfiguration.Identifikation + ".json", Newtonsoft.Json.JsonConvert.SerializeObject(dm));
 
             structure.AddDatamodel(dm);
-            structure.AddDataModelsFromDirectory(konfiguration.OrdnerDatenmodelle[0]);
+            structure.AddDataModelsFromDirectory(konfiguration.OrdnerDatenmodelle);
             structure.Start();
 
-            var Zustand = new library.var_int(0, "Zustand", konfiguration.OrdnerDatenstrukturen[0] + "/" + konfiguration.Anwendungen[0] + "/Zustand");
+            var Zustand = new library.var_int(0, "Zustand", konfiguration.OrdnerDatenstruktur + "/Zustand");
             Zustand.Start();
 
             target = System.Net.IPEndPoint.Parse(konfiguration.Target);

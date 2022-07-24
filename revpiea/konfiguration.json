@@ -1,11 +1,5 @@
 {
-    "Ressource":"Laptop",
-    "OrdnerAnwendungen":["../Beispielanwendung"],
-    "OrdnerDatenstrukturen":["/media/ramdisk"],
-    "OrdnerDatenmodelle":["../Beispielanwendung/Datenmodelle"],
-    "OrdnerEreignismodelle":["../Beispielanwendung/Ereignismodelle"],
-    "OrdnerFunktionsmodelle":["../Beispielanwendung/Funktionsmodelle"],
     "Zustandsbereiche":[{"Arbeitszustand":2, "Nachfolgezustand":3}],
     "Identifikation":"revpiea",
-    "Anwendungen":["Beispielanwendung"]
+    "Anwendungen":"Beispielanwendung"
 }
