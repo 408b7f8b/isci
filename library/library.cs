@@ -48,6 +48,17 @@ namespace library
         {
             this.Typ = this.GetType().FullName;
         }
+
+        public void Speichern(string pfad)
+        {
+            try {
+                var ser = Newtonsoft.Json.JsonConvert.SerializeObject(this);
+                Helfer.OrdnerPruefenErstellen(System.IO.Path.GetDirectoryName(pfad));
+                System.IO.File.WriteAllText(pfad, ser);
+            } catch {
+
+            }            
+        }
     }
 
     public class RessourceList : System.Collections.Generic.List<string>

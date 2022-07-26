@@ -194,7 +194,18 @@ namespace msb
 
         static void Main(string[] args)
         {
-            var konfiguration = new modulkonfiguration("konfiguration_msb.json");
+            var konfiguration = new modulkonfiguration("konfiguration.json");
+
+            var beschreibung = new Beschreibung.Modul();
+            beschreibung.Identifikation = konfiguration.Identifikation;
+            beschreibung.Name = "MSB Ressource " + konfiguration.Identifikation;
+            beschreibung.Beschreibung = "Modul zur MSB-Integration";
+            beschreibung.Typidentifikation = "isci.msb";
+            beschreibung.Datenfelder = new library.FieldList();
+            beschreibung.Ereignisse = new System.Collections.Generic.List<library.Ereignis>();
+            beschreibung.Funktionen = new System.Collections.Generic.List<library.Funktion>();
+            beschreibung.Speichern(konfiguration.OrdnerBeschreibungen + "/" + konfiguration.Identifikation + ".json");
+
             structure = new library.Datastructure(konfiguration.OrdnerDatenstruktur);
 
             var files = System.IO.Directory.GetFiles(konfiguration.OrdnerDatenmodelle, "*.json");
@@ -217,7 +228,8 @@ namespace msb
             // Create a new MsbClient which allows SmartObjects and Applications to communicate with the MSB
             var MsbClient = new MsbClient(konfiguration.MsbWebsocketUrl);
 
-            var MsbSmartObject = new SmartObject(konfiguration.MsbSmartObjectUuid, konfiguration.Anwendung, beschreibungen.ToString().Replace("/", "//").Replace("\"", "\\\""), konfiguration.MsbSmartObjectToken);
+            var beschr = beschreibungen.ToString().Replace("/", "//").Replace("\"", "\\\"");
+            var MsbSmartObject = new SmartObject(konfiguration.MsbSmartObjectUuid, konfiguration.Anwendung, konfiguration.Anwendung + " über Ressource " + konfiguration.Ressource, konfiguration.MsbSmartObjectToken);
 
             var ereignisse = new Dictionary<library.Datafield, List<Event>>();
             var dateninhalte = new Dictionary<Event, List<library.Datafield>>();

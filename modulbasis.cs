@@ -8,6 +8,17 @@ namespace MODULBASIS {
         static void Main(string[] args)
         {
             var konfiguration = new library.Konfiguration("konfiguration.json");
+
+            var beschreibung = new Beschreibung.Modul();
+            beschreibung.Identifikation = konfiguration.Identifikation;
+            beschreibung.Name = konfiguration.
+            beschreibung.Beschreibung = "Modulbasis zur Implementierung von Modulen";
+            beschreibung.Typidentifikation = "MODULBASIS";
+            beschreibung.Datenfelder = new library.FieldList();
+            beschreibung.Ereignisse = new List<library.Ereignis>();
+            beschreibung.Funktionen = new List<library.Funktion>();
+            beschreibung.Speichern(konfiguration.OrdnerBeschreibungen + "/" + konfiguration.Identifikation + ".json");
+
             var structure = new library.Datastructure(konfiguration.OrdnerDatenstruktur);
             var dm = new library.Datamodel(konfiguration.Identifikation);
 

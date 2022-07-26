@@ -34,10 +34,20 @@ namespace revpiea
                 Ausgaenge.Add(eintrag, eintrag_.Value);
             }
 
-            System.IO.File.WriteAllText(konfiguration.OrdnerDatenmodelle[0] + "/" + konfiguration.Identifikation + ".json", Newtonsoft.Json.JsonConvert.SerializeObject(dm));
+            System.IO.File.WriteAllText(konfiguration.OrdnerDatenmodelle + "/" + konfiguration.Identifikation + ".json", Newtonsoft.Json.JsonConvert.SerializeObject(dm));
 
             structure.AddDatamodel(dm);
             structure.Start();
+
+            var beschreibung = new Beschreibung.Modul();
+            beschreibung.Identifikation = konfiguration.Identifikation;
+            beschreibung.Name = "RevPiEA Ressource " + konfiguration.Identifikation;
+            beschreibung.Beschreibung = "Modul zur EA-Integration von RevPi";
+            beschreibung.Typidentifikation = "isci.revpiea";
+            beschreibung.Datenfelder = dm.Datafields;
+            beschreibung.Ereignisse = new System.Collections.Generic.List<library.Ereignis>();
+            beschreibung.Funktionen = new System.Collections.Generic.List<library.Funktion>();
+            beschreibung.Speichern(konfiguration.OrdnerBeschreibungen + "/" + konfiguration.Identifikation + ".json");
 
             var Zustand = new library.var_int(0, "Zustand", konfiguration.OrdnerDatenstruktur + "/Zustand");
             Zustand.Start();
@@ -67,7 +77,7 @@ namespace revpiea
                                 Eingang.Value.WertSchreiben();
                             }
                         }
-                        structure.PublishImage();
+                        //structure.PublishImage();
                     } else {
                         structure.UpdateImage();
                         foreach (var Ausgang in Ausgaenge)
@@ -75,6 +85,7 @@ namespace revpiea
                             Ausgang.Key.WertLesen();
                             if (Ausgang.Key.aenderung)
                             {
+                                Console.WriteLine("Aenderung " + Ausgang.Key.Identifikation);
                                 switch (Ausgang.Value.typ)
                                 {
                                     case ioObjekt.Typ.BOOL: Ausgang.Value.Zustandschreiben((System.Int32)Ausgang.Key.value == 1 ? true : false); break;

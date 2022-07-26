@@ -4,18 +4,24 @@ using System.Diagnostics;
 using InfluxDB.Client;
 using InfluxDB.Client.Api.Domain;
 
-namespace example
+namespace abbild
 {
     class Program
     {
-        public class Konfiguration
+        public class Konfiguration : library.Konfiguration
         {
             public string token;
             public string adresse;
             public string orgId;
             public string pfad;
+            public int abbildlaenge;
+            public int pause;
 
-            public Konfiguration(string datei)
+            public Konfiguration(string datei) : base(datei)
+            {
+            }
+
+            /*public Konfiguration(string datei)
             {
                 if (!System.IO.File.Exists(datei))
                 {
@@ -84,12 +90,26 @@ namespace example
 
                     }                
                 }
-            }
+            }*/
         }
         
         static async System.Threading.Tasks.Task Main(string[] args)
         {
             var konfiguration = new Konfiguration("konfiguration.json");
+
+            var beschreibung = new Beschreibung.Modul();
+            beschreibung.Identifikation = konfiguration.Identifikation;
+            beschreibung.Name = "Abbild Ressource " + konfiguration.Identifikation;
+            beschreibung.Beschreibung = "Modul zur Abbilderstellung gegen externe Datenbank";
+            beschreibung.Typidentifikation = "isci.abbild";
+            beschreibung.Datenfelder = new library.FieldList();
+            beschreibung.Ereignisse = new System.Collections.Generic.List<library.Ereignis>();
+            beschreibung.Funktionen = new System.Collections.Generic.List<library.Funktion>();
+            beschreibung.Speichern(konfiguration.OrdnerBeschreibungen + "/" + konfiguration.Identifikation + ".json");
+
+            var structure = new library.Datastructure(konfiguration.OrdnerDatenstruktur);
+            structure.AddDataModelsFromDirectory(konfiguration.OrdnerDatenmodelle);
+            structure.Start();
 
             var influxDBClient = InfluxDBClientFactory.Create(konfiguration.adresse, konfiguration.token);
             influxDBClient.SetLogLevel(InfluxDB.Client.Core.LogLevel.None);
@@ -112,15 +132,25 @@ namespace example
                 buckets.Add(bucket.Name);
             }
 
-            if (!System.IO.File.Exists("written")) {
+            if (!buckets.Contains(konfiguration.Anwendung))
+            {
+                bucketApi.CreateBucketAsync(new Bucket(name:konfiguration.Anwendung, orgID:konfiguration.orgId,
+                retentionRules:new System.Collections.Generic.List<BucketRetentionRules>(){
+                    new BucketRetentionRules(BucketRetentionRules.TypeEnum.Expire, 0, 3600)
+                })).Wait();
+            }
+
+            var abbild = new System.Collections.Generic.List<string>();
+
+            /*if (!System.IO.File.Exists("written")) {
                 System.IO.File.Create("written").Close();
             }
 
-            var written = System.IO.File.ReadAllLines("written").ToList<string>();
+            var written = System.IO.File.ReadAllLines("written").ToList<string>();*/
 
             while(true)
             {
-                var files = System.IO.Directory.GetFiles(konfiguration.pfad);
+                /*var files = System.IO.Directory.GetFiles(konfiguration.pfad);
 
                 foreach (var f in files)
                 {
@@ -137,8 +167,24 @@ namespace example
                         written.Add(f);
                         System.IO.File.WriteAllLines("written", written);
                     }
+                }*/
+
+                structure.UpdateImage();
+                var dt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString();
+
+                foreach (var feld in structure.Datafields)
+                {
+                    var l = $"{feld.Key},ressource={konfiguration.Ressource} value={feld.Value.WertSerialisieren()} {dt}";
+                    abbild.Add(l);
                 }
-                System.Threading.Thread.Sleep(2000);
+
+                if (abbild.Count > konfiguration.abbildlaenge)
+                {
+                    writeApi.WriteRecords(abbild, bucket:konfiguration.Anwendung, org:konfiguration.orgId, precision:WritePrecision.Ms);
+                    abbild.Clear();
+                }
+
+                System.Threading.Thread.Sleep(konfiguration.pause);
             }
         }
     }
