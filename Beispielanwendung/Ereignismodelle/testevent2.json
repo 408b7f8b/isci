@@ -3,7 +3,7 @@
         "Identifikation":"testev2",
         "Name":"Testevent 2",
         "Beschreibung":"Beschreibung Testevent 2",
-        "Ausloeser":"ns=random;s=random",
+        "Ausloeser":"ns=random;s=cycle",
         "Datenfelder":[
             "ns=random;s=cycle"
         ]

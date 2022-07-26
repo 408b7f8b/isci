@@ -203,6 +203,7 @@ namespace msb
             {
                 structure.AddDatamodel(library.Datamodel.FromFile(file));
             }
+            structure.Start();
 
             files = System.IO.Directory.GetFiles(konfiguration.OrdnerBeschreibungen, "*.json");
 
