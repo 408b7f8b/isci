@@ -1,5 +1,5 @@
 {
-    "Zustandsbereiche":[$ZUSTANDSBEREICHE],
+    "Ausführungstransitionen":[$ZUSTANDSBEREICHE],
     "Identifikation":"msb",
     "Anwendung":"$ANWENDUNG",
     "MsbWebsocketUrl":"$MSBURL",

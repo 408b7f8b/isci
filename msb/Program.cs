@@ -1,74 +1,36 @@
 ﻿using System;
 using System.Reflection;
-using System.Reflection.Emit;
-using System.Globalization;
 using System.Linq;
 using System.Collections.Generic;
-using Fraunhofer.IPA.MSB.Client.API.Attributes;
-using Fraunhofer.IPA.MSB.Client.API.Configuration;
 using Fraunhofer.IPA.MSB.Client.API.Model;
 using Fraunhofer.IPA.MSB.Client.Websocket;
+using isci.Allgemein;
+using isci.Daten;
+using isci.Anwendungen;
+using isci.Beschreibung;
 
-namespace msb
+namespace isci.msb
 {
-    class modulkonfiguration : library.Konfiguration
+    class modulkonfiguration : Parameter
     {
         public string MsbWebsocketUrl;
         public string MsbSmartObjectUuid;
         public string MsbSmartObjectToken;
 
-        public modulkonfiguration(string datei) : base(datei)
-        {
-
-        }
+        public modulkonfiguration(string datei) : base(datei) {}
     }
 
     class Program
     {
-        /*public static void callbackFunction(params object[] obj)
-        {
-            var mn = obj[0].GetType().Name;
-            var info = (FunctionCallInfo)obj[obj.Length-1];
-
-            try {
-                for(int i = 0; i < obj.Length-1; ++i)
-                {
-                    if (obj[i] == null) continue;
-
-                    var df = Funktionen[info.Function.Id][i];
-
-                    switch (df.type)
-                    {
-                        case library.Datatype.Int32: {
-                            df.value = (System.Int32)obj[i]; break;
-                        }
-                    }
-                }
-
-                update = true;
-            } catch {
-
-            }
-        }*/
-
         public class MsbSmartObject : SmartObject
         {
-            public MsbSmartObject(string uuid, string name, string description, string token) : base(uuid, name, description, token)
-            {
+            public MsbSmartObject(string uuid, string name, string description, string token) : base(uuid, name, description, token) {}
 
-            }
-
-            public new void AddFunction(Function function)
-            {
-
-            }
+            public new void AddFunction(Function function) {}
         }
 
         public class MsbFunction : Function
         {
-            //public delegate void FunctionPointerType (params object[] obj);
-            //public new FunctionPointerType FunctionPointer;
-
             public void callbackFunction(params object[] obj)
             {
                 var mn = obj[0].GetType().Name;
@@ -83,44 +45,17 @@ namespace msb
 
                         switch (df.type)
                         {
-                            case library.Datatype.Int32: {
+                            case Datentypen.Int32: {
                                 df.value = (System.Int32)obj[i]; break;
                             }
                         }
                     }
 
                     update = true;
-                } catch {
-
-                }
+                } catch {}
             }
 
-            /*public void callbackFunction(Dictionary<string, object> parameter)
-            {
-                var info = (FunctionCallInfo)parameter["functionCallInfo"];
-
-                try {
-                    foreach (var param in parameter)
-                    {
-                        if (param.Key == "functionCallInfo") continue;
-
-                        var df = Funktionen[info.Function.Id].First(f => f.Identifikation == param.Key);
-
-                        switch (df.type)
-                        {
-                            case library.Datatype.Int32: {
-                                df.value = (System.Int32)param.Value; break;
-                            }
-                        }
-                    }
-
-                    update = true;
-                } catch {
-
-                }
-            }*/
-
-            public MsbFunction(library.Funktion archFunktion)
+            public MsbFunction(Funktion archFunktion)
             {
                 Id = archFunktion.Identifikation;
                 Name = archFunktion.Name;
@@ -131,43 +66,28 @@ namespace msb
                 this.DataFormat = this.CreateDataFormatFromMethodInfo(archFunktion, mInfo);
             }
 
-            private Delegate CreateFunctionPointer(library.Funktion archFunktion, MethodInfo methodInfo, object callableObjectForMethod)
+            private Delegate CreateFunctionPointer(Funktion archFunktion, MethodInfo methodInfo, object callableObjectForMethod)
             {
-                /*var parameter = new System.Type[archFunktion.Datenfelder.Count()+1];
-                int i = 0;
-                foreach (var datenfeld in archFunktion.Datenfelder)
-                {
-                    switch (structure.Datafields[datenfeld].type)
-                    {
-                        case library.Datatype.Int32:
-                        {
-                            parameter[i] = typeof(System.Int32); break;
-                        }
-                    }
-                    ++i;
-                }
-                parameter[archFunktion.Datenfelder.Count()] = typeof(FunctionCallInfo);*/
-
-                //return new FunctionPointerType(this.callbackFunction);
-
                 var functionParameterTypes = from parameter in methodInfo.GetParameters() select parameter.ParameterType;
-
                 var delgateType = System.Linq.Expressions.Expression.GetActionType(functionParameterTypes.ToArray());
 
                 return methodInfo.CreateDelegate(delgateType, callableObjectForMethod);
             }
 
-            private Fraunhofer.IPA.MSB.Client.Websocket.Model.DataFormat CreateDataFormatFromMethodInfo(library.Funktion archFunktion, MethodInfo methodInfo)
+            private Fraunhofer.IPA.MSB.Client.Websocket.Model.DataFormat CreateDataFormatFromMethodInfo(Funktion archFunktion, MethodInfo methodInfo)
             {
-                var parameter = new System.Type[archFunktion.Datenfelder.Count()];
+                var parameter = new System.Type[archFunktion.Ziele.Count()];
                 int i = 0;
-                foreach (var datenfeld in archFunktion.Datenfelder)
+                foreach (var datenfeld in archFunktion.Ziele)
                 {
-                    switch (structure.Datafields[datenfeld].type)
+                    switch (struktur.dateneinträge[datenfeld].type)
                     {
-                        case library.Datatype.Int32:
+                        case Datentypen.Int32:
                         {
-                            parameter[i] = typeof(System.Int32); break;
+                            if (struktur.dateneinträge[datenfeld].istLIste)
+                                parameter[i] = typeof(List<System.Int32>);
+                            else
+                                parameter[i] = typeof(System.Int32); break;
                         }
                     }
                     ++i;
@@ -175,46 +95,56 @@ namespace msb
 
                 var msbFunctionDataFormat = new Fraunhofer.IPA.MSB.Client.Websocket.Model.DataFormat();
 
+                int list_c = 1;
+
                 for (i = 0; i < parameter.Count(); ++i)
                 {
-                    var dataFormatOfParameter = new Fraunhofer.IPA.MSB.Client.Websocket.Model.DataFormat(archFunktion.Datenfelder[i], parameter[i]);
+                    var dataFormatOfParameter = new Fraunhofer.IPA.MSB.Client.Websocket.Model.DataFormat(archFunktion.Ziele[i], parameter[i], list_c);
                     foreach (var subDataFormat in dataFormatOfParameter)
                     {
-                        msbFunctionDataFormat.Add(subDataFormat.Key, subDataFormat.Value);
-                    }
+                        /*var key_neu = subDataFormat.Key;
+                        if (key_neu.Contains("List"))
+                        {
+                            key_neu = key_neu.Substring(0, 5) + (list_c).ToString();
+                        }
+
+                        try {
+                            var val = (System.Collections.Generic.KeyValuePair<string, string>)subDataFormat.Value;
+                            if (val.Value.Contains("List"))
+                            {
+                                var val_neu = new System.Collections.Generic.KeyValuePair<string, string>(val.Key, val.Value.Substring(0, val.Value.IndexOf("List")) + "List`" + list_c.ToString());
+                                msbFunctionDataFormat.Add(subDataFormat.Key, val_neu);
+                            }
+                        } catch {*/
+                            msbFunctionDataFormat.Add(subDataFormat.Key, subDataFormat.Value);
+                            if (subDataFormat.Key.Contains("List")) ++list_c;
+                        //}
+                    }                        
                 }
 
                 return msbFunctionDataFormat;
             }
         }       
 
-        static Dictionary<string, List<library.Datafield>> Funktionen = new Dictionary<string, List<library.Datafield>>();
+        static Dictionary<string, List<Dateneintrag>> Funktionen = new Dictionary<string, List<Dateneintrag>>();
         static bool update = false;
-        static library.Datastructure structure;
+        static Datenstruktur struktur;
 
         static void Main(string[] args)
         {
-            var konfiguration = new modulkonfiguration("konfiguration.json");
+            var konfiguration = new modulkonfiguration("konfiguration_msb.json");
 
-            var beschreibung = new Beschreibung.Modul();
-            beschreibung.Identifikation = konfiguration.Identifikation;
+            var beschreibung = new Modul(konfiguration.Identifikation, "isci.msb");
             beschreibung.Name = "MSB Ressource " + konfiguration.Identifikation;
             beschreibung.Beschreibung = "Modul zur MSB-Integration";
-            beschreibung.Typidentifikation = "isci.msb";
-            beschreibung.Datenfelder = new library.FieldList();
-            beschreibung.Ereignisse = new System.Collections.Generic.List<library.Ereignis>();
-            beschreibung.Funktionen = new System.Collections.Generic.List<library.Funktion>();
             beschreibung.Speichern(konfiguration.OrdnerBeschreibungen + "/" + konfiguration.Identifikation + ".json");
 
-            structure = new library.Datastructure(konfiguration.OrdnerDatenstruktur);
+            struktur = new Datenstruktur(konfiguration.OrdnerDatenstruktur);
 
             var files = System.IO.Directory.GetFiles(konfiguration.OrdnerDatenmodelle, "*.json");
 
-            foreach (var file in files)
-            {
-                structure.AddDatamodel(library.Datamodel.FromFile(file));
-            }
-            structure.Start();
+            foreach (var file in files) struktur.DatenmodellEinhängen(Datenmodell.AusDatei(file));
+            struktur.Start();
 
             files = System.IO.Directory.GetFiles(konfiguration.OrdnerBeschreibungen, "*.json");
 
@@ -225,39 +155,44 @@ namespace msb
                 beschreibungen.Merge(tmp_file);
             }
 
-            // Create a new MsbClient which allows SmartObjects and Applications to communicate with the MSB
             var MsbClient = new MsbClient(konfiguration.MsbWebsocketUrl);
 
             var beschr = beschreibungen.ToString().Replace("/", "//").Replace("\"", "\\\"");
             var MsbSmartObject = new SmartObject(konfiguration.MsbSmartObjectUuid, konfiguration.Anwendung, konfiguration.Anwendung + " über Ressource " + konfiguration.Ressource, konfiguration.MsbSmartObjectToken);
 
-            var ereignisse = new Dictionary<library.Datafield, List<Event>>();
-            var dateninhalte = new Dictionary<Event, List<library.Datafield>>();
+            var ereignisse = new Dictionary<Dateneintrag, List<Event>>();
+            var dateninhalte = new Dictionary<Event, List<Dateneintrag>>();
 
             files = System.IO.Directory.GetFiles(konfiguration.OrdnerEreignismodelle, "*.json");
             foreach (var file in files)
             {
                 var inh = System.IO.File.ReadAllText(file);
-                var liste = Newtonsoft.Json.JsonConvert.DeserializeObject<List<library.Ereignis>>(inh);
+                var liste = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Ereignis>>(inh);
                 foreach (var ereignis in liste)
                 {
-                    if (!structure.Datafields.ContainsKey(ereignis.Ausloeser)) continue;
+                    if (!struktur.dateneinträge.ContainsKey(ereignis.Ausloeser)) continue;
 
-                    var df = structure.Datafields[ereignis.Ausloeser];
+                    var df = struktur.dateneinträge[ereignis.Ausloeser];
                     
                     if (ereignisse.Where(a => a.Key.Identifikation == ereignis.Ausloeser).Count() == 0) ereignisse.Add(df, new List<Event>());
                     
                     if (ereignisse[df].Where(a => a.Id == ereignis.Identifikation).Count() != 0) continue;
 
-                    var parameter = new System.Type[ereignis.Datenfelder.Count()];
+                    var parameter = new System.Type[ereignis.Elemente.Count()];
                     int i = 0;
-                    foreach (var datenfeld in ereignis.Datenfelder)
+                    foreach (var datenfeld in ereignis.Elemente)
                     {
-                        switch (structure.Datafields[datenfeld].type)
+                        switch (struktur.dateneinträge[datenfeld].type)
                         {
-                            case library.Datatype.Int32:
+                            case Datentypen.Int32:
                             {
-                                parameter[i] = typeof(System.Int32); break;
+                                if (struktur.dateneinträge[datenfeld].istLIste)
+                                {
+                                    parameter[i] = typeof(List<System.Int32>);
+                                } else {
+                                    parameter[i] = typeof(System.Int32);
+                                }
+                                break;
                             }
                         }
                         ++i;
@@ -268,14 +203,11 @@ namespace msb
                     var fields = new Dictionary<string, object>();
                     fields.Add("type", "object");
                     fields.Add("properties", new Dictionary<string, object>());
-                    for (i = 0; i < ereignis.Datenfelder.Count(); ++i)
+                    for (i = 0; i < ereignis.Elemente.Count(); ++i)
                     {
-                        var dataFormatOfParameter = new Fraunhofer.IPA.MSB.Client.Websocket.Model.DataFormat(ereignis.Datenfelder[i], parameter[i]);
+                        var dataFormatOfParameter = new Fraunhofer.IPA.MSB.Client.Websocket.Model.DataFormat(ereignis.Elemente[i], parameter[i]);
                         foreach (var subDataFormat in dataFormatOfParameter)
-                        {
                             ((Dictionary<string, object>)fields["properties"]).Add(subDataFormat.Key, subDataFormat.Value);
-                            //msbEventDataFormat.Add(subDataFormat.Key, subDataFormat.Value);
-                        }
                     }
                     msbEventDataFormat.Add("fields", fields);
 
@@ -283,14 +215,14 @@ namespace msb
                     ereignisse[df].Add(msbEvent);
                     MsbSmartObject.AddEvent(msbEvent);
 
-                    dateninhalte.Add(msbEvent, new List<library.Datafield>());
-                    foreach (var datenfeld in ereignis.Datenfelder)
+                    dateninhalte.Add(msbEvent, new List<Dateneintrag>());
+                    foreach (var datenfeld in ereignis.Elemente)
                     {
-                        switch (structure.Datafields[datenfeld].type)
+                        switch (struktur.dateneinträge[datenfeld].type)
                         {
-                            case library.Datatype.Int32:
+                            case Datentypen.Int32:
                             {
-                                dateninhalte[msbEvent].Add(structure.Datafields[datenfeld]); break;
+                                dateninhalte[msbEvent].Add(struktur.dateneinträge[datenfeld]); break;
                             }
                         }
                         ++i;
@@ -302,7 +234,7 @@ namespace msb
             foreach (var file in files)
             {
                 var inh = System.IO.File.ReadAllText(file);
-                var liste = Newtonsoft.Json.JsonConvert.DeserializeObject<List<library.Funktion>>(inh);
+                var liste = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Funktion>>(inh);
                 foreach (var funktion_ in liste)
                 {
                     var funktion = new MsbFunction(funktion_);
@@ -315,36 +247,34 @@ namespace msb
             System.Threading.Thread.Sleep(5000);
             MsbClient.RegisterAsync(MsbSmartObject);
 
-            structure.Start();
+            struktur.Start();
 
-            var Zustand = new library.var_int(0, "Zustand", konfiguration.OrdnerDatenstruktur + "/Zustand");
+            var Zustand = new dtInt32(0, "Zustand", konfiguration.OrdnerDatenstruktur + "/Zustand");
             Zustand.Start();
 
             while(true)
             {
-                Zustand.WertLesen();
-                var erfüllteTransitionen = konfiguration.Zustandsbereiche.Where(a => a.Arbeitszustand == (System.Int32)Zustand.value);
-                if (erfüllteTransitionen.Count<library.Zustandsbereich>() > 0)
+                Zustand.Lesen();
+                var erfüllteTransitionen = konfiguration.Ausführungstransitionen.Where(a => a.Eingangszustand == (System.Int32)Zustand.value);
+                if (erfüllteTransitionen.Count<Ausführungstransition>() > 0)
                 {
                     if (update)
                     {
-                        structure.PublishImage();
+                        struktur.Schreiben();
                         update = false;
                     }
 
-                    structure.UpdateImage();
-                    foreach (var datenfeld in ereignisse)
+                    struktur.Lesen();
+                    foreach (var dateneintrag in ereignisse)
                     {
-                        if (datenfeld.Key.aenderung)
+                        if (dateneintrag.Key.aenderung)
                         {
                             var werte = new Dictionary<string, object>();
 
-                            foreach (var ereignis in datenfeld.Value)
+                            foreach (var ereignis in dateneintrag.Value)
                             {
                                 foreach (var eintrag in dateninhalte[ereignis])
-                                {
                                     werte.Add(eintrag.Identifikation, eintrag.value);
-                                }
 
                                 var eventData = new EventDataBuilder(ereignis)
                                 .SetValue(werte)
@@ -353,12 +283,12 @@ namespace msb
                                 MsbClient.PublishAsync(MsbSmartObject, eventData).Wait();
                             }
 
-                            datenfeld.Key.aenderung = false;
+                            dateneintrag.Key.aenderung = false;
                         }
                     }
                     
-                    Zustand.value = erfüllteTransitionen.First<library.Zustandsbereich>().Nachfolgezustand;
-                    Zustand.WertSchreiben();
+                    Zustand.value = erfüllteTransitionen.First<Ausführungstransition>().Ausgangszustand;
+                    Zustand.Schreiben();
                 }
             }
         }

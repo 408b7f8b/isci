@@ -1,5 +1,11 @@
 ﻿using System;
 using System.Linq;
+using isci;
+using isci.Allgemein;
+using isci.Daten;
+using isci.Beschreibung;
+using isci.Anwendungen;
+using System.Collections.Generic;
 
 namespace revpiea
 {
@@ -7,18 +13,18 @@ namespace revpiea
     {
         static void Main(string[] args)
         {
-            var konfiguration = new library.Konfiguration("konfiguration.json");
+            var konfiguration = new Parameter("konfiguration.json");
             
-            var structure = new library.Datastructure(konfiguration.OrdnerDatenstruktur);
+            var structure = new Datenstruktur(konfiguration.OrdnerDatenstruktur);
 
             RevPiZugriff.SystemkonfigurationLesen();
             RevPiZugriff.EinUndAusgängeAufstellen();
             RevPiZugriff.control.Open();
 
-            var dm = new library.Datamodel(konfiguration.Identifikation);
+            var dm = new Datenmodell(konfiguration.Identifikation);
 
-            var Ausgaenge = new System.Collections.Generic.Dictionary<library.var_int, ioObjekt>();
-            var Eingaenge = new System.Collections.Generic.Dictionary<ioObjekt, library.var_int>();
+            var Ausgaenge = new Dictionary<dtInt32, ioObjekt>();
+            var Eingaenge = new Dictionary<ioObjekt, dtInt32>();
 
             foreach (var eintrag_ in RevPiZugriff.Eingänge)
             {
@@ -39,26 +45,21 @@ namespace revpiea
             structure.AddDatamodel(dm);
             structure.Start();
 
-            var beschreibung = new Beschreibung.Modul();
-            beschreibung.Identifikation = konfiguration.Identifikation;
+            var beschreibung = new Modul(konfiguration.Identifikation, "isci.revpiea", dm.Datafields);
             beschreibung.Name = "RevPiEA Ressource " + konfiguration.Identifikation;
             beschreibung.Beschreibung = "Modul zur EA-Integration von RevPi";
-            beschreibung.Typidentifikation = "isci.revpiea";
-            beschreibung.Datenfelder = dm.Datafields;
-            beschreibung.Ereignisse = new System.Collections.Generic.List<library.Ereignis>();
-            beschreibung.Funktionen = new System.Collections.Generic.List<library.Funktion>();
             beschreibung.Speichern(konfiguration.OrdnerBeschreibungen + "/" + konfiguration.Identifikation + ".json");
 
-            var Zustand = new library.var_int(0, "Zustand", konfiguration.OrdnerDatenstruktur + "/Zustand");
+            var Zustand = new dtInt32(0, "Zustand", konfiguration.OrdnerDatenstruktur + "/Zustand");
             Zustand.Start();
 
             while(true)
             {
                 Zustand.WertLesen();
-                var erfüllteTransitionen = konfiguration.Zustandsbereiche.Where(a => a.Arbeitszustand == (System.Int32)Zustand.value);
-                if (erfüllteTransitionen.Count<library.Zustandsbereich>() > 0)
+                var erfüllteTransitionen = konfiguration.Aktivzustände.Where(a => a.Eingangszustand == (System.Int32)Zustand.value);
+                if (erfüllteTransitionen.Count<Aktivzustand>() > 0)
                 {
-                    if (erfüllteTransitionen.ElementAt(0) == konfiguration.Zustandsbereiche[0])
+                    if (erfüllteTransitionen.ElementAt(0) == konfiguration.Aktivzustände[0])
                     {
                         foreach (var Eingang in Eingaenge)
                         {
@@ -77,9 +78,7 @@ namespace revpiea
                                 Eingang.Value.WertSchreiben();
                             }
                         }
-                        //structure.PublishImage();
                     } else {
-                        structure.UpdateImage();
                         foreach (var Ausgang in Ausgaenge)
                         {
                             Ausgang.Key.WertLesen();
@@ -97,10 +96,10 @@ namespace revpiea
 
                                 Ausgang.Key.aenderung = false;
                             }
-                        }                        
-                    }                    
+                        }
+                    }
                     
-                    Zustand.value = erfüllteTransitionen.First<library.Zustandsbereich>().Nachfolgezustand;
+                    Zustand.value = erfüllteTransitionen.First<Aktivzustand>().Ausgangszustand;
                     Zustand.WertSchreiben();
                 }
             }

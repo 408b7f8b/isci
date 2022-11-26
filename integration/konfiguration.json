@@ -2,6 +2,7 @@
     "Zustandsbereiche":[$ZUSTANDSBEREICHE],
     "Identifikation":"integration",
     "Anwendung":"$ANWENDUNG",
-    "Target":"$TARGET",
+    "Targets":["$TARGETS"],
+    "Adapter":"$ADAPTER"
     "Port":$PORT
 }

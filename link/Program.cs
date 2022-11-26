@@ -1,66 +1,62 @@
 ﻿using System;
 using System.Linq;
+using isci.Allgemein;
+using isci.Beschreibung;
+using isci.Daten;
 
-namespace link
+namespace isci.link
 {
     class Program
     {
         static void Main(string[] args)
         {
-            var konfiguration = new library.Konfiguration("konfiguration.json");
+            var konfiguration = new Parameter("konfiguration.json");
 
-            var beschreibung = new Beschreibung.Modul();
-            beschreibung.Identifikation = konfiguration.Identifikation;
+            var beschreibung = new Modul(konfiguration.Identifikation, "isci.link");
             beschreibung.Name = "Link Ressource " + konfiguration.Identifikation;
             beschreibung.Beschreibung = "Modul zur Verknüpfung von Dateneinträgen";
-            beschreibung.Typidentifikation = "isci.link";
-            beschreibung.Datenfelder = new library.FieldList();
-            beschreibung.Ereignisse = new System.Collections.Generic.List<library.Ereignis>();
-            beschreibung.Funktionen = new System.Collections.Generic.List<library.Funktion>();
             beschreibung.Speichern(konfiguration.OrdnerBeschreibungen + "/" + konfiguration.Identifikation + ".json");
             
-            var structure = new library.Datastructure(konfiguration.OrdnerDatenstruktur);
+            var struktur = new Datenstruktur(konfiguration.OrdnerDatenstruktur);
 
-            var dm = new library.Datamodel(konfiguration.Identifikation);
+            var dm = new Datenmodell(konfiguration.Identifikation);
 
             System.IO.File.WriteAllText(konfiguration.OrdnerDatenmodelle + "/" + konfiguration.Identifikation + ".json", Newtonsoft.Json.JsonConvert.SerializeObject(dm));
 
-            structure.AddDatamodel(dm);
-            structure.AddDataModelsFromDirectory(konfiguration.OrdnerDatenmodelle, konfiguration.Identifikation);
+            struktur.DatenmodellEinhängen(dm);
+            struktur.DatenmodelleEinhängenAusOrdner(konfiguration.OrdnerDatenmodelle, konfiguration.Identifikation);
 
-            structure.GenerateLinks();
+            struktur.VerweiseErzeugen();
 
-            structure.Start();
+            struktur.Start();
 
-            var Zustand = new library.var_int(0, "Zustand", konfiguration.OrdnerDatenstruktur + "/Zustand");
+            var Zustand = new dtInt32(0, "Zustand", konfiguration.OrdnerDatenstruktur + "/Zustand");
             Zustand.Start();
 
             while(true)
             {
-                Zustand.WertLesen();
-                var erfüllteTransitionen = konfiguration.Zustandsbereiche.Where(a => a.Arbeitszustand == (System.Int32)Zustand.value);
-                if (erfüllteTransitionen.Count<library.Zustandsbereich>() > 0)
+                Zustand.Lesen();
+                var erfüllteTransitionen = konfiguration.Aktivzustände.Where(a => a.Eingangszustand == (System.Int32)Zustand.value);
+                if (erfüllteTransitionen.Count<Aktivzustand>() > 0)
                 {
-                    structure.UpdateImage();
+                    struktur.Lesen();
 
-                    foreach (var entry in structure.LinksActive)
+                    foreach (var eintrag in struktur.verweiseAktiv)
                     {
-                        if (entry.Key.aenderung)
+                        if (eintrag.Key.aenderung)
                         {
-                            foreach (var subentry in entry.Value)
+                            foreach (var untereintrag in eintrag.Value)
                             {
-                                Console.WriteLine(System.DateTime.Now.ToString("O") + ": " + entry.Key.Identifikation + " --> " + subentry.Identifikation);
-                                subentry.value = entry.Key.value;
-                                entry.Key.aenderung = false;
-                                subentry.WertSchreiben();
+                                Console.WriteLine(System.DateTime.Now.ToString("O") + ": " + eintrag.Key.Identifikation + " --> " + untereintrag.Identifikation);
+                                untereintrag.value = eintrag.Key.value;
+                                eintrag.Key.aenderung = false;
+                                untereintrag.Schreiben();
                             }
                         }
                     }
-
-                    //structure.PublishImage();
                     
-                    Zustand.value = erfüllteTransitionen.First<library.Zustandsbereich>().Nachfolgezustand;
-                    Zustand.WertSchreiben();
+                    Zustand.value = erfüllteTransitionen.First<Aktivzustand>().Ausgangszustand;
+                    Zustand.Schreiben();
                 }
             }
         }

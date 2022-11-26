@@ -1,0 +1,5 @@
+{
+    "Ausführungstransitionen":[$ZUSTANDSBEREICHE],
+    "Identifikation":"zykluszeit",
+    "Anwendung":"$ANWENDUNG"
+}

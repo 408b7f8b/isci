@@ -1,1 +1,14 @@
-{"Identifikation":null,"Datafields":[{"Identifikation":"cycle","value":0,"type":0}],"Links":{}}
+{
+  "Dateneinträge": [
+    {
+      "Identifikation": "zykluszeit",
+      "value": 0,
+      "type": 0
+    }
+  ],
+  "Links": {},
+  "Identifikation": null,
+  "Name": "",
+  "Beschreibung": "",
+  "Typ": "isci.Daten.Datenmodell"
+}

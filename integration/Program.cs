@@ -2,32 +2,35 @@
 using System.Net.Sockets;
 using System.Net;
 using System.Linq;
+using System.Collections.Generic;
+using isci.Allgemein;
+using isci.Daten;
+using isci.Beschreibung;
 
-namespace integration
+namespace isci.integration
 {
-    public class Konfiguration : library.Konfiguration
+    public class Konfiguration : Parameter
     {
-        public string Target;
+        public string[] Targets;
+        public string Adapter;
         public int Port;
 
-        public Konfiguration(string datei) : base(datei)
-        {
+        public Konfiguration(string datei) : base(datei) {
 
         }
     }
 
     class Program
     {
-        static System.Net.Sockets.Socket udpSock;
+        static Socket udpSock;
         static byte[] buffer = new byte[1024];
-        static EndPoint endpoint = new IPEndPoint(IPAddress.Any, 0);
-        static void udpStart(){
-            udpSock = new System.Net.Sockets.Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            udpSock.Bind(new System.Net.IPEndPoint(IPAddress.Any, 1337));
-            udpSock.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref endpoint, udpCallback, udpSock);
-        }
+        static Dictionary<string, string> aenderungen = new Dictionary<string, string>();
 
-        static System.Collections.Generic.Dictionary<string, string> aenderungen = new System.Collections.Generic.Dictionary<string, string>();
+        static void udpStart(IPAddress ip, int port){
+            udpSock = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            udpSock.Bind(new IPEndPoint(ip, port));
+            udpSock.BeginReceive(buffer, 0, buffer.Length, socketFlags:SocketFlags.None, udpCallback, udpSock);
+        }       
 
         static void udpCallback(IAsyncResult asyncResult){
             try
@@ -47,59 +50,89 @@ namespace integration
                 } catch {
 
                 }
-        
-                EndPoint endpoint = target;//new IPEndPoint(target, 0);
-                udpSock.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref endpoint, udpCallback, udpSock);
+
+                udpSock.BeginReceive(buffer, 0, buffer.Length, socketFlags:SocketFlags.None, udpCallback, udpSock);
             } catch {
                 
             }
         }
 
-        static System.Net.IPEndPoint target;
+        static List<IPEndPoint> targets = new List<IPEndPoint>();
         static bool change_lock;
-        static library.Datastructure structure;
+        static Datenstruktur structure;
+
+        static IPAddress holeLokaleAdresse(string adapterName)
+        {
+            var adapters = System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces();
+            var ips = Dns.GetHostAddresses(Dns.GetHostName());
+
+            foreach (var adapter in adapters)
+            {
+                if (adapter.Name != adapterName) continue;
+                var properties = adapter.GetIPProperties();
+                foreach (var ip in properties.UnicastAddresses)
+                    if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+                        return ip.Address;
+            }
+
+            return new IPAddress(0);
+        }
 
         static void Main(string[] args)
         {
             var konfiguration = new Konfiguration("konfiguration.json");
             
-            structure = new library.Datastructure(konfiguration.OrdnerDatenstruktur);
+            structure = new Datenstruktur(konfiguration.OrdnerDatenstruktur);
 
-            var dm = new library.Datamodel(konfiguration.Identifikation);
-            var cycle = new library.var_int(0, "cycle");
-            dm.Datafields.Add(cycle);
+            var dm = new Datenmodell(konfiguration.Identifikation);
+            var cycle = new dtInt32(0, "cycle");
+            dm.Dateneinträge.Add(cycle);
 
-            var beschreibung = new Beschreibung.Modul();
-            beschreibung.Identifikation = konfiguration.Identifikation;
+            var beschreibung = new Modul(konfiguration.Identifikation, "isci.integration", new ListeDateneintraege(){cycle});
             beschreibung.Name = "Integration Ressource " + konfiguration.Identifikation;
             beschreibung.Beschreibung = "Modul zur Integration";
-            beschreibung.Typidentifikation = "isci.integration";
-            beschreibung.Datenfelder = new library.FieldList(){cycle};
-            beschreibung.Ereignisse = new System.Collections.Generic.List<library.Ereignis>();
-            beschreibung.Funktionen = new System.Collections.Generic.List<library.Funktion>();
             beschreibung.Speichern(konfiguration.OrdnerBeschreibungen + "/" + konfiguration.Identifikation + ".json");
 
-            System.IO.File.WriteAllText(konfiguration.OrdnerDatenmodelle + "/" + konfiguration.Identifikation + ".json", Newtonsoft.Json.JsonConvert.SerializeObject(dm));
+            dm.Speichern(konfiguration.OrdnerDatenmodelle + "/" + konfiguration.Identifikation + ".json");
 
-            structure.AddDatamodel(dm);
-            structure.AddDataModelsFromDirectory(konfiguration.OrdnerDatenmodelle);
+            var ip = holeLokaleAdresse(konfiguration.Adapter);
+            while (ip.Equals(new IPAddress(0)))
+            {
+                System.Threading.Thread.Sleep(5000);
+                ip = holeLokaleAdresse(konfiguration.Adapter);
+            }
+            
+            var schnittstelle = new SchnittstelleUdp(konfiguration.Ressource + ". " + konfiguration.Anwendung + "." + konfiguration.Identifikation, ip.ToString(), konfiguration.Ressource);
+            schnittstelle.Speichern(konfiguration.OrdnerSchnittstellen + "/" + schnittstelle.Identifikation + ".json");
+
+            structure.DatenmodellEinhängen(dm);
+            structure.DatenmodelleEinhängenAusOrdner(konfiguration.OrdnerDatenmodelle);
             structure.Start();
 
-            var Zustand = new library.var_int(0, "Zustand", konfiguration.OrdnerDatenstruktur + "/Zustand");
+            var Zustand = new dtInt32(0, "Zustand", konfiguration.OrdnerDatenstruktur + "/Zustand");
             Zustand.Start();
 
-            target = System.Net.IPEndPoint.Parse(konfiguration.Target);
-            target.Port = konfiguration.Port;
+            for (int i = 0; i < konfiguration.Targets.Length; ++i)
+            {
+                try
+                {
+                    var target_ = System.IO.File.ReadAllText(konfiguration.OrdnerSchnittstellen + "/" + konfiguration.Targets[i]);
+                    var schnittstelleTarget = Newtonsoft.Json.JsonConvert.DeserializeObject<SchnittstelleUdp>(target_);
+                    targets.Add(IPEndPoint.Parse(schnittstelleTarget.adresse));
+                } catch {
 
-            udpStart();
+                }
+            }
+
+            udpStart(ip, konfiguration.Port);
             long curr_ticks = 0;
             
             while(true)
             {
-                Zustand.WertLesen();
+                Zustand.Lesen();
 
-                var erfüllteTransitionen = konfiguration.Zustandsbereiche.Where(a => a.Arbeitszustand == (System.Int32)Zustand.value);
-                if (erfüllteTransitionen.Count<library.Zustandsbereich>() > 0)
+                var erfüllteTransitionen = konfiguration.Ausführungstransitionen.Where(a => a.Eingangszustand == (System.Int32)Zustand.value);
+                if (erfüllteTransitionen.Count<Ausführungstransition>() > 0)
                 {
                     if ((System.Int32)Zustand.value == 0)
                     {
@@ -107,14 +140,14 @@ namespace integration
                         var ticks_span = curr_ticks_new - curr_ticks;
                         curr_ticks = curr_ticks_new;
                         cycle.value = (System.Int32)(ticks_span / System.TimeSpan.TicksPerMillisecond);
-                        cycle.WertSchreiben();
+                        cycle.Schreiben();
 
                         change_lock = true;
                         foreach (var aenderung in aenderungen)
                         {
                             try {
-                                structure.Datafields[aenderung.Key].WertAusString(aenderung.Value);
-                                structure.Datafields[aenderung.Key].WertSchreiben();
+                                structure.dateneinträge[aenderung.Key].AusString(aenderung.Value);
+                                structure.dateneinträge[aenderung.Key].Schreiben();
                             } catch {
 
                             }                            
@@ -122,19 +155,22 @@ namespace integration
                         aenderungen.Clear();
                         change_lock = false;
                     } else {
-                        var updated = structure.UpdateImage();
+                        var updated = structure.Lesen();
 
                         foreach (var entry in updated)
                         {
-                            if (structure.Datafields[entry].Identifikation == "ns=integration;cycle") continue;
-                            var snd = System.Text.UTF8Encoding.UTF8.GetBytes(entry + "#" + structure.Datafields[entry].WertSerialisieren());
-                            udpSock.BeginSendTo(snd, 0, snd.Length, 0, target, null, null);//   (snd, new System.Net.IPEndPoint(IPAddress.Any, 1337));
-                            structure.Datafields[entry].aenderung = false;
+                            if (structure.dateneinträge[entry].Identifikation == "ns=integration;cycle") continue;
+                            var snd = System.Text.UTF8Encoding.UTF8.GetBytes(entry + "#" + structure.dateneinträge[entry].Serialisieren());
+                            foreach (var target in targets) {
+                                udpSock.BeginSendTo(snd, 0, snd.Length, 0, target, null, null);
+                            }
+                            
+                            structure.dateneinträge[entry].aenderung = false;
                         }
                     }
 
-                    Zustand.value = erfüllteTransitionen.First<library.Zustandsbereich>().Nachfolgezustand;
-                    Zustand.WertSchreiben();
+                    Zustand.value = erfüllteTransitionen.First<Ausführungstransition>().Ausgangszustand;
+                    Zustand.Schreiben();
                 }
             }
         }

@@ -17,6 +17,14 @@ modules/
 *out/
 *build/
 *publish/
+anwendung.*/
+Beispielanwendung/
+*Beschreibungen/
+*Datenmodelle/
+*Ereignismodelle/
+*Funktionsmodelle/
+*Schnittstellen/
+*Module/
 
 # File extensions
 *.aps

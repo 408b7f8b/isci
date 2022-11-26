@@ -9,8 +9,4 @@
     <ProjectReference Include="..\isci\isci.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="InfluxDB.Client" Version="4.2.0" />
-  </ItemGroup>
-
 </Project>

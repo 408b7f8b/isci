@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using IctBaden.RevolutionPi;
 using IctBaden.RevolutionPi.Configuration;
 using IctBaden.RevolutionPi.Model;
+using isci.Daten;
 
 namespace revpiea
 {
@@ -93,16 +94,16 @@ namespace revpiea
             wert_ = new byte[l];
         }
 
-        public library.var_int EintragErstellen(string praefix)
+        public dtInt32 EintragErstellen(string praefix)
         {
-            library.var_int dateneintrag;
+            dtInt32 dateneintrag;
 
             switch(typ)
             {
-                case Typ.BOOL: dateneintrag = new library.var_int(wert_[0] != 0 ? 1 : 0, Name); break;
-                case Typ.BYTE: dateneintrag = new library.var_int(wert_[0], Name); break;
-                case Typ.INT: dateneintrag = new library.var_int((wert_[3] << 24) + (wert_[2] << 16) + (wert_[1] << 8) + wert_[0], Name); break;
-                case Typ.WORD: dateneintrag = new library.var_int((short)((wert_[1] << 8) + wert_[0]), Name); break;
+                case Typ.BOOL: dateneintrag = new dtInt32(wert_[0] != 0 ? 1 : 0, Name); break;
+                case Typ.BYTE: dateneintrag = new dtInt32(wert_[0], Name); break;
+                case Typ.INT: dateneintrag = new dtInt32((wert_[3] << 24) + (wert_[2] << 16) + (wert_[1] << 8) + wert_[0], Name); break;
+                case Typ.WORD: dateneintrag = new dtInt32((short)((wert_[1] << 8) + wert_[0]), Name); break;
                 default: return null;
             }
 

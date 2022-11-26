@@ -1,1 +1,16 @@
-{"Typidentifikation":"isci.integration","Datenfelder":[{"Identifikation":"cycle","value":0,"type":0}],"Ereignisse":[],"Funktionen":[],"Identifikation":null,"Name":"Integration Ressource ","Beschreibung":"Modul zur Integration","Typ":"Beschreibung.Modul"}
+{
+  "Typidentifikation": "isci.zykluszeit",
+  "Datenfelder": [
+    {
+      "Identifikation": "zykluszeit",
+      "value": 0,
+      "type": 0
+    }
+  ],
+  "Ereignisse": [],
+  "Funktionen": [],
+  "Identifikation": null,
+  "Name": "Zykluszeit Ressource ",
+  "Beschreibung": "Modul zur Zykluszeitermittlung",
+  "Typ": "isci.Beschreibung.Modul"
+}

@@ -1,0 +1,17 @@
+{
+  "ReferenzierteModelle": [],
+  "Konfigurationspakete": {
+    "*": {
+      "integration": "isci.integration",
+      "link": "isci.link"
+    }
+  },
+  "Konfigurationselemente": {},
+  "Datenmodelle": [],
+  "Funktionen": [],
+  "Ereignisse": [],
+  "Identifikation": "anwendung.IntegrationStandard",
+  "Name": "IntegrationStandard",
+  "Beschreibung": "Anwendung zur Standardintegration für alle Einzelsysteme",
+  "Typ": "isci.Anwendungen.Basis"
+}
