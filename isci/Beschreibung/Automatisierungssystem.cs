@@ -9,7 +9,8 @@ namespace isci.Beschreibung
 {
     public class Automatisierungssystem : Header
     {
-        public List<string> Ressourcen;
+        public List<string> Automatisierungsressourcen;
+        public string Anwendung;
         public Dictionary<string, string> Module;
         public Dictionary<string, string> Modulverteilung;
         public ListeDateneintraege Dateneinträge;

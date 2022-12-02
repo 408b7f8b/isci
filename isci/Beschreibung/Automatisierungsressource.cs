@@ -10,6 +10,6 @@ namespace isci.Beschreibung
         public string Handler;
         public Dictionary<string, object> Devicebeschreibung;
         public List<string> Anwendungen;
-        public List<Schnittstelle> Schnittstellen;
+        public Dictionary<string, Systemteil> Systemteile;
     }
 }

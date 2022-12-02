@@ -7,12 +7,12 @@ using isci.Daten;
 
 namespace isci.Beschreibung
 {
-    public class Systemteil : Header
+    public class Systemteil
     {
-        public string Ressource;
         public Dictionary<string, string> Module;
         public ListeDateneintraege Dateneinträge;
         public List<Ereignis> Ereignisse;
         public List<Funktion> Funktionen;
+        public List<string> Schnittstellen;
     }
 }

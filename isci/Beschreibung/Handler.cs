@@ -7,6 +7,6 @@ namespace isci.Beschreibung
 {
     public class Handler : Header
     {
-        public List<string> Ressourcen;
+        public List<string> Automatisierungsressourcen;
     }
 }
