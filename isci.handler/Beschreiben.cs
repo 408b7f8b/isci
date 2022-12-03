@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using library;
+using isci.Beschreibung;
 using System.Collections.Generic;
 
 namespace handler
@@ -9,7 +9,7 @@ namespace handler
     {
         public static void RessourceBeschreiben(string Ressource, string adresse)
         {
-            var b = new Beschreibung.Ressource();
+            var b = new Automatisierungsressource();
         }
 
         public static Newtonsoft.Json.Linq.JObject Beschreiben(string adresse)
@@ -49,7 +49,7 @@ namespace handler
                     cont.Wait();
                     //var subobj = Newtonsoft.Json.Linq.JObject.Parse(cont.Result);
                     //obj.Merge(obj);
-                    var modul = Newtonsoft.Json.JsonConvert.DeserializeObject<Beschreibung.Modul>(cont.Result);
+                    var modul = Newtonsoft.Json.JsonConvert.DeserializeObject<Modul>(cont.Result);
                 }
                 //gobj.Add(instanz, obj);
             }

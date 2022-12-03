@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Linq;
-using library;
+using isci;
+using isci.Anwendungen;
+using isci.Beschreibung;
+using isci.Konfiguration;
 using System.Collections.Generic;
 
 namespace handler
 {
-    public class Ziel : Modell
+    public class Ziel : isci.Allgemein.Header
     {
         public string Adresse, User, Passwort;
     }
@@ -177,8 +180,8 @@ namespace handler
                             //instanz_task.Start();
                             instanz_task.Wait();
 
-                            var instanz = Newtonsoft.Json.JsonConvert.DeserializeObject<Anwendungen.Instanz>(System.IO.File.ReadAllText(subdiff + ".json"));
-                            var beschr = new Beschreibung.Automatisierungssystem();
+                            var instanz = Newtonsoft.Json.JsonConvert.DeserializeObject<Instanz>(System.IO.File.ReadAllText(subdiff + ".json"));
+                            var beschr = new Automatisierungssystem();
                             beschr.Identifikation = instanz.Identifikation;
                             beschr.Name = instanz.Name;
                             
@@ -192,7 +195,7 @@ namespace handler
                                     //neu_task.Start();
                                     neu_task.Wait();
                                 }
-                                var neu = Newtonsoft.Json.JsonConvert.DeserializeObject<Anwendungen.Basis>(System.IO.File.ReadAllText(basis + ".json"));
+                                var neu = Newtonsoft.Json.JsonConvert.DeserializeObject<Basis>(System.IO.File.ReadAllText(basis + ".json"));
                                 foreach (var neu_anwendungen in neu.ReferenzierteModelle)
                                 {
                                     if (!anwendungen.Contains(neu_anwendungen)) anwendungen.Add(neu_anwendungen);
@@ -201,7 +204,7 @@ namespace handler
 
                             foreach (var basis in anwendungen)
                             {
-                                var neu = Newtonsoft.Json.JsonConvert.DeserializeObject<Anwendungen.Basis>(System.IO.File.ReadAllText(basis + ".json"));
+                                var neu = Newtonsoft.Json.JsonConvert.DeserializeObject<Basis>(System.IO.File.ReadAllText(basis + ".json"));
 
                                 var pseudonyme_basis = instanz.Ressourcenkartierung[neu.Identifikation];
 
@@ -224,14 +227,14 @@ namespace handler
                                         var datei = GetToFile(Adresse + "/Konfigurationen/" + paket_.Value + ".json", paket_.Key + ".json");
                                         //datei.Start();
                                         datei.Wait();
-                                        var paket = Newtonsoft.Json.JsonConvert.DeserializeObject<Anwendungen.Konfigurationspaket>(System.IO.File.ReadAllText(paket_.Key + ".json"));
+                                        var paket = Newtonsoft.Json.JsonConvert.DeserializeObject<Konfigurationspaket>(System.IO.File.ReadAllText(paket_.Key + ".json"));
 
                                         foreach (var element in paket.Elemente)
                                         {
-                                            switch (element.Typ)
+                                            switch (element.typ)
                                             {
                                                 case "Datei": {
-                                                    var vorgang = ((Newtonsoft.Json.Linq.JObject)element.Vorgang).ToObject<Anwendungen.Konfigurationselement.Datei>();
+                                                    var vorgang = (Datei)element.vorgang;//((Newtonsoft.Json.Linq.JObject)element.vorgang).ToObject<Datei>();
                                                     var anforderung = new Dictionary<string, string>();
                                                     anforderung.Add("Cmd", "anlegen");
                                                     anforderung.Add("Url", vorgang.Quelle + "/" + vorgang.Name);
@@ -242,7 +245,7 @@ namespace handler
                                                     break;
                                                 }
                                                 case "Service": {
-                                                    var vorgang = ((Newtonsoft.Json.Linq.JObject)element.Vorgang).ToObject<Anwendungen.Konfigurationselement.Dienst>();
+                                                    var vorgang = (Dienst)element.vorgang;//((Newtonsoft.Json.Linq.JObject)element.vorgang).ToObject<Dienst>();
                                                     var anforderung = new Dictionary<string, string>();
                                                     anforderung.Add("Cmd", vorgang.Operation);
                                                     switch (vorgang.Operation)
@@ -269,7 +272,7 @@ namespace handler
                                                 }
                                                 case "Parameter":
                                                 {
-                                                    var vorgang = ((Newtonsoft.Json.Linq.JObject)element.Vorgang).ToObject<Anwendungen.Konfigurationselement.Parameter>();
+                                                    var vorgang = (Parameter)element.vorgang;//((Newtonsoft.Json.Linq.JObject)element.vorgang).ToObject<Parameter>();
                                                     var anforderung = new Dictionary<string, object>();
                                                     anforderung.Add("Cmd", "variablen");
                                                     anforderung.Add("Variablen", vorgang.Variablen);
@@ -290,10 +293,10 @@ namespace handler
 
                                     foreach (var element in neu.Konfigurationselemente[pseudonym])
                                     {
-                                        switch (element.Typ)
+                                        switch (element.typ)
                                         {
                                             case "Datei": {
-                                                var vorgang = ((Newtonsoft.Json.Linq.JObject)element.Vorgang).ToObject<Anwendungen.Konfigurationselement.Datei>();
+                                                var vorgang = (Datei)element.vorgang;//((Newtonsoft.Json.Linq.JObject)element.vorgang).ToObject<Datei>();
                                                 var anforderung = new Dictionary<string, string>();
                                                 anforderung.Add("Cmd", "anlegen");
                                                 anforderung.Add("Url", vorgang.Quelle + "/" + vorgang.Name);
@@ -304,7 +307,7 @@ namespace handler
                                                 break;
                                             }
                                             case "Service": {
-                                                var vorgang = ((Newtonsoft.Json.Linq.JObject)element.Vorgang).ToObject<Anwendungen.Konfigurationselement.Dienst>();
+                                                var vorgang = (Dienst)element.vorgang;//((Newtonsoft.Json.Linq.JObject)element.vorgang).ToObject<Dienst>();
                                                 var anforderung = new Dictionary<string, string>();
                                                 anforderung.Add("Cmd", vorgang.Operation);
                                                 switch (vorgang.Operation)
@@ -331,7 +334,7 @@ namespace handler
                                             }
                                             case "Parameter":
                                             {
-                                                var vorgang = ((Newtonsoft.Json.Linq.JObject)element.Vorgang).ToObject<Anwendungen.Konfigurationselement.Parameter>();
+                                                var vorgang = (Parameter)element.vorgang;//((Newtonsoft.Json.Linq.JObject)element.vorgang).ToObject<Parameter>();
                                                 var anforderung = new Dictionary<string, object>();
                                                 anforderung.Add("Cmd", "variablen");
                                                 anforderung.Add("Variablen", vorgang.Variablen);
@@ -367,14 +370,14 @@ namespace handler
                                     var datei = GetToFile(Adresse + "/Konfigurationen/" + paket_.Value + ".json", paket_.Key + ".json");
                                     datei.Start();
                                     datei.Wait();
-                                    var paket = Newtonsoft.Json.JsonConvert.DeserializeObject<Anwendungen.Konfigurationspaket>(System.IO.File.ReadAllText(paket_.Key + ".json"));
+                                    var paket = Newtonsoft.Json.JsonConvert.DeserializeObject<Konfigurationspaket>(System.IO.File.ReadAllText(paket_.Key + ".json"));
 
                                     foreach (var element in paket.Elemente)
                                     {
-                                        switch (element.Typ)
+                                        switch (element.typ)
                                         {
                                             case "Datei": {
-                                                var vorgang = ((Newtonsoft.Json.Linq.JObject)element.Vorgang).ToObject<Anwendungen.Konfigurationselement.Datei>();
+                                                var vorgang = (Datei)element.vorgang;//((Newtonsoft.Json.Linq.JObject)element.vorgang).ToObject<Datei>();
                                                 var anforderung = new Dictionary<string, string>();
                                                 anforderung.Add("Cmd", "anlegen");
                                                 anforderung.Add("Url", vorgang.Quelle + "/" + vorgang.Name);
@@ -385,7 +388,7 @@ namespace handler
                                                 break;
                                             }
                                             case "Service": {
-                                                var vorgang = ((Newtonsoft.Json.Linq.JObject)element.Vorgang).ToObject<Anwendungen.Konfigurationselement.Dienst>();
+                                                var vorgang = (Dienst)element.vorgang;//((Newtonsoft.Json.Linq.JObject)element.vorgang).ToObject<Dienst>();
                                                 var anforderung = new Dictionary<string, string>();
                                                 anforderung.Add("Cmd", vorgang.Operation);
                                                 switch (vorgang.Operation)
@@ -412,7 +415,7 @@ namespace handler
                                             }
                                             case "Parameter":
                                             {
-                                                var vorgang = ((Newtonsoft.Json.Linq.JObject)element.Vorgang).ToObject<Anwendungen.Konfigurationselement.Parameter>();
+                                                var vorgang = (Parameter)element.vorgang;//((Newtonsoft.Json.Linq.JObject)element.vorgang).ToObject<Parameter>();
                                                 var anforderung = new Dictionary<string, object>();
                                                 anforderung.Add("Cmd", "variablen");
                                                 anforderung.Add("Variablen", vorgang.Variablen);
@@ -433,10 +436,10 @@ namespace handler
 
                                 foreach (var element in instanz.Konfigurationselemente[pseudonym])
                                 {
-                                    switch (element.Typ)
+                                    switch (element.typ)
                                     {
                                         case "Datei": {
-                                            var vorgang = ((Newtonsoft.Json.Linq.JObject)element.Vorgang).ToObject<Anwendungen.Konfigurationselement.Datei>();
+                                            var vorgang = (Datei)element.vorgang;//((Newtonsoft.Json.Linq.JObject)element.vorgang).ToObject<Datei>();
                                             var anforderung = new Dictionary<string, string>();
                                             anforderung.Add("Cmd", "anlegen");
                                             anforderung.Add("Url", vorgang.Quelle + "/" + vorgang.Name);
@@ -447,7 +450,7 @@ namespace handler
                                             break;
                                         }
                                         case "Service": {
-                                            var vorgang = ((Newtonsoft.Json.Linq.JObject)element.Vorgang).ToObject<Anwendungen.Konfigurationselement.Dienst>();
+                                            var vorgang = (Dienst)element.vorgang;//((Newtonsoft.Json.Linq.JObject)element.vorgang).ToObject<Dienst>();
                                             var anforderung = new Dictionary<string, string>();
                                             anforderung.Add("Cmd", vorgang.Operation);
                                             switch (vorgang.Operation)
@@ -474,7 +477,7 @@ namespace handler
                                         }
                                         case "Parameter":
                                         {
-                                            var vorgang = ((Newtonsoft.Json.Linq.JObject)element.Vorgang).ToObject<Anwendungen.Konfigurationselement.Parameter>();
+                                            var vorgang = (Parameter)element.vorgang;//((Newtonsoft.Json.Linq.JObject)element.vorgang).ToObject<Parameter>();
                                             var anforderung = new Dictionary<string, object>();
                                             anforderung.Add("Cmd", "variablen");
                                             anforderung.Add("Variablen", vorgang.Variablen);
