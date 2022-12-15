@@ -1,0 +1,14 @@
+[
+    {
+        "Identifikation":"revpiB",
+        "Adresse":"http://localhost:5100",
+        "User":"pi",
+        "Passwort":"89z84b"
+    },
+    {
+        "Identifikation":"revpiA",
+        "Adresse":"172.21.5.117:5000",
+        "User":"pi",
+        "Passwort":"ln0yqn"
+    }
+]

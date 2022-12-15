@@ -343,7 +343,7 @@ namespace modellgen
                     {
                         "SteuerungX", new List<Konfigurationselement>(){
                         {
-                            new Konfigurationselement(){Typ = "Parameter", Vorgang = new Konfigurationselement.Parameter() {
+                            new Konfigurationselement(){typ = "Parameter", vorgang = new isci.Konfiguration.Parameter() {
                                 Ordner = "AchseX",
                                 Variablen = new Dictionary<string, string>(){{"Steigung", "5"}, {"Aufloesung", "400"}}
                             }}
@@ -352,7 +352,7 @@ namespace modellgen
                     {
                         "SteuerungY", new List<Konfigurationselement>(){
                         {
-                            new Konfigurationselement(){Typ = "Parameter", Vorgang = new Konfigurationselement.Parameter() {
+                            new Konfigurationselement(){typ = "Parameter", vorgang = new isci.Konfiguration.Parameter() {
                                 Ordner = "AchseY",
                                 Variablen = new Dictionary<string, string>(){{"Steigung", "5"}, {"Aufloesung", "400"}}
                             }}
@@ -361,7 +361,7 @@ namespace modellgen
                     {
                         "SteuerungZ", new List<Konfigurationselement>(){
                         {
-                            new Konfigurationselement(){Typ = "Parameter", Vorgang = new Konfigurationselement.Parameter() {
+                            new Konfigurationselement(){typ = "Parameter", vorgang = new isci.Konfiguration.Parameter() {
                                 Ordner = "AchseZ",
                                 Variablen = new Dictionary<string, string>(){{"Steigung", "8"}, {"Aufloesung", "400"}}
                             }}
@@ -370,7 +370,7 @@ namespace modellgen
                     {
                         "SteuerungSpind", new List<Konfigurationselement>(){
                         {
-                            new Konfigurationselement(){Typ = "Parameter", Vorgang = new Konfigurationselement.Parameter() {
+                            new Konfigurationselement(){typ = "Parameter", vorgang = new isci.Konfiguration.Parameter() {
                                 Ordner = "Spindel",
                                 Variablen = new Dictionary<string, string>(){{"Adresse", "1"}}
                             }}
@@ -402,15 +402,15 @@ namespace modellgen
                 Konfigurationselemente = new Dictionary<string, List<Konfigurationselement>>() {
                     {
                         "RevPiXYZ", new List<Konfigurationselement>(){
-                            new Konfigurationselement(){ Typ = "Parameter", Vorgang = new Konfigurationselement.Parameter() {
+                            new Konfigurationselement(){typ = "Parameter", vorgang = new isci.Konfiguration.Parameter() {
                                 Ordner = "AchseX",
                                 Variablen = new Dictionary<string, string>(){{"Id", "101"}}
                             }},
-                            new Konfigurationselement(){Typ = "Parameter", Vorgang = new Konfigurationselement.Parameter() {
+                            new Konfigurationselement(){typ = "Parameter", vorgang = new isci.Konfiguration.Parameter() {
                                 Ordner = "AchseY",
                                 Variablen = new Dictionary<string, string>(){{"Id", "102"}}
                             }},
-                            new Konfigurationselement(){Typ = "Parameter", Vorgang = new Konfigurationselement.Parameter() {
+                            new Konfigurationselement(){typ = "Parameter", vorgang = new isci.Konfiguration.Parameter() {
                                 Ordner = "AchseZ",
                                 Variablen = new Dictionary<string, string>(){{"Id", "103"}}
                             }}

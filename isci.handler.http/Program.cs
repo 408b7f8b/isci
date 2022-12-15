@@ -5,8 +5,11 @@ using isci.Anwendungen;
 using isci.Beschreibung;
 using isci.Konfiguration;
 using System.Collections.Generic;
+using System.Net.Http;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
-namespace handler
+namespace handler.http
 {
     public class Ziel : isci.Allgemein.Header
     {
@@ -15,20 +18,19 @@ namespace handler
 
     class Program
     {
-        static System.Net.Http.HttpClient client;
+        static HttpClient client;
 
         static async System.Threading.Tasks.Task GetToFile(string pfad, string ziel)
         {
-        // Call asynchronous network methods in a try/catch block to handle exceptions.
             try
             {
-                System.Net.Http.HttpResponseMessage response = await client.GetAsync(pfad);
+                HttpResponseMessage response = await client.GetAsync(pfad);
                 response.EnsureSuccessStatusCode();
                 string responseBody = await response.Content.ReadAsStringAsync();
                 System.IO.File.WriteAllText(ziel, responseBody);
                 Console.WriteLine(responseBody);
             }
-            catch(System.Net.Http.HttpRequestException e)
+            catch(HttpRequestException e)
             {
                 Console.WriteLine("\nException Caught!");	
                 Console.WriteLine("Message :{0} ",e.Message);
@@ -37,17 +39,16 @@ namespace handler
 
         static async System.Threading.Tasks.Task PostToFile(string pfad, string stringcontent)
         {
-        // Call asynchronous network methods in a try/catch block to handle exceptions.
             try
             {
-                System.Net.Http.HttpContent content = new System.Net.Http.StringContent(stringcontent, System.Text.Encoding.UTF8, "application/json");
-                System.Net.Http.HttpResponseMessage response = await client.PostAsync(pfad, content);
+                HttpContent content = new StringContent(stringcontent, System.Text.Encoding.UTF8, "application/json");
+                HttpResponseMessage response = await client.PostAsync(pfad, content);
                 var s = response.RequestMessage.Content.ToString();
                 response.EnsureSuccessStatusCode();
                 string responseBody = await response.Content.ReadAsStringAsync();
                 Console.WriteLine(responseBody);
             }
-            catch(System.Net.Http.HttpRequestException e)
+            catch(HttpRequestException e)
             {
                 Console.WriteLine("\nException Caught!");	
                 Console.WriteLine("Message :{0} ",e.Message);
@@ -56,15 +57,14 @@ namespace handler
 
         static async System.Threading.Tasks.Task Post(string pfad)
         {
-        // Call asynchronous network methods in a try/catch block to handle exceptions.
             try
             {
-                System.Net.Http.HttpResponseMessage response = await client.PostAsync(pfad, new System.Net.Http.StringContent(""));
+                HttpResponseMessage response = await client.PostAsync(pfad, new StringContent(""));
                 response.EnsureSuccessStatusCode();
                 string responseBody = await response.Content.ReadAsStringAsync();
                 Console.WriteLine(responseBody);
             }
-            catch(System.Net.Http.HttpRequestException e)
+            catch(HttpRequestException e)
             {
                 Console.WriteLine("\nException Caught!");	
                 Console.WriteLine("Message :{0} ",e.Message);
@@ -79,7 +79,7 @@ namespace handler
 
         static void Main(string[] args)
         {
-            var handler = new System.Net.Http.HttpClientHandler();
+            var handler = new HttpClientHandler();
 
             handler.ServerCertificateCustomValidationCallback += 
                 (sender, certificate, chain, errors) =>
@@ -87,7 +87,7 @@ namespace handler
                     return true;
                 };
 
-            client = new System.Net.Http.HttpClient(handler);
+            client = new HttpClient(handler);
 
             while(true)
             {
@@ -101,7 +101,7 @@ namespace handler
                 try
                 {
                     var f = System.IO.File.ReadAllText("Automatisierungsressourcen.json");
-                    Automatisierungsressourcen = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Ziel>>(f);
+                    Automatisierungsressourcen = JsonConvert.DeserializeObject<List<Ziel>>(f);
                 } catch {
 
                 }
@@ -111,7 +111,7 @@ namespace handler
                     try
                     {
                         var f = System.IO.File.ReadAllText("Umgesetzt.json");
-                        Umgesetzt = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(f);
+                        Umgesetzt = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(f);
                     } catch {
 
                     }
@@ -126,13 +126,12 @@ namespace handler
                         }
                     }
 
-                    var jobj = new Newtonsoft.Json.Linq.JObject();
+                    var jobj = new JObject();
                     foreach (var ziel in Automatisierungsressourcen)
                     {
                         var get = GetToFile(Adresse + "/Anweisungen/" + ziel.Identifikation + ".json", ziel.Identifikation + ".json");
-                        //get.Start();
                         get.Wait();
-                        jobj.Merge(Newtonsoft.Json.Linq.JObject.Parse(System.IO.File.ReadAllText(ziel.Identifikation + ".json")));
+                        jobj.Merge(JObject.Parse(System.IO.File.ReadAllText(ziel.Identifikation + ".json")));
                     }
                     Umzusetzen = jobj.ToObject<Dictionary<string, List<string>>>();
 
@@ -177,10 +176,9 @@ namespace handler
                         foreach (var subdiff in diff.Value)
                         {
                             var instanz_task = GetToFile(Adresse + "/Anwendungen/" + subdiff + ".json", subdiff + ".json");
-                            //instanz_task.Start();
                             instanz_task.Wait();
 
-                            var instanz = Newtonsoft.Json.JsonConvert.DeserializeObject<Instanz>(System.IO.File.ReadAllText(subdiff + ".json"));
+                            var instanz = JsonConvert.DeserializeObject<Instanz>(System.IO.File.ReadAllText(subdiff + ".json"));
                             var beschr = new Automatisierungssystem();
                             beschr.Identifikation = instanz.Identifikation;
                             beschr.Name = instanz.Name;
@@ -192,10 +190,9 @@ namespace handler
                                 if (!System.IO.File.Exists(basis + ".json"))
                                 {
                                     var neu_task = GetToFile(Adresse + "/Anwendungen/" + basis + ".json", basis + ".json");
-                                    //neu_task.Start();
                                     neu_task.Wait();
                                 }
-                                var neu = Newtonsoft.Json.JsonConvert.DeserializeObject<Basis>(System.IO.File.ReadAllText(basis + ".json"));
+                                var neu = JsonConvert.DeserializeObject<Basis>(System.IO.File.ReadAllText(basis + ".json"));
                                 foreach (var neu_anwendungen in neu.ReferenzierteModelle)
                                 {
                                     if (!anwendungen.Contains(neu_anwendungen)) anwendungen.Add(neu_anwendungen);
@@ -204,7 +201,7 @@ namespace handler
 
                             foreach (var basis in anwendungen)
                             {
-                                var neu = Newtonsoft.Json.JsonConvert.DeserializeObject<Basis>(System.IO.File.ReadAllText(basis + ".json"));
+                                var neu = JsonConvert.DeserializeObject<Basis>(System.IO.File.ReadAllText(basis + ".json"));
 
                                 var pseudonyme_basis = instanz.Ressourcenkartierung[neu.Identifikation];
 
@@ -225,27 +222,25 @@ namespace handler
                                     foreach (var paket_ in neu.Konfigurationspakete[pseudonym])
                                     {
                                         var datei = GetToFile(Adresse + "/Konfigurationen/" + paket_.Value + ".json", paket_.Key + ".json");
-                                        //datei.Start();
                                         datei.Wait();
-                                        var paket = Newtonsoft.Json.JsonConvert.DeserializeObject<Konfigurationspaket>(System.IO.File.ReadAllText(paket_.Key + ".json"));
+                                        var paket = JsonConvert.DeserializeObject<Konfigurationspaket>(System.IO.File.ReadAllText(paket_.Key + ".json"));
 
                                         foreach (var element in paket.Elemente)
                                         {
                                             switch (element.typ)
                                             {
                                                 case "Datei": {
-                                                    var vorgang = (Datei)element.vorgang;//((Newtonsoft.Json.Linq.JObject)element.vorgang).ToObject<Datei>();
+                                                    var vorgang = (Datei)element.vorgang;//((JObject)element.vorgang).ToObject<Datei>();
                                                     var anforderung = new Dictionary<string, string>();
                                                     anforderung.Add("Cmd", "anlegen");
                                                     anforderung.Add("Url", vorgang.Quelle + "/" + vorgang.Name);
                                                     anforderung.Add("Identifikation", $"{instanz.Identifikation}/Anwendungen/{basis}/{paket_.Key}/{vorgang.Ordner}/{vorgang.Name}");
-                                                    var post = PostToFile(Automatisierungsressource.Adresse + "/Applications/anforderung", Newtonsoft.Json.JsonConvert.SerializeObject(anforderung));
-                                                    //post.Start();
+                                                    var post = PostToFile(Automatisierungsressource.Adresse + "/Applications/anforderung", JsonConvert.SerializeObject(anforderung));
                                                     post.Wait();
                                                     break;
                                                 }
                                                 case "Service": {
-                                                    var vorgang = (Dienst)element.vorgang;//((Newtonsoft.Json.Linq.JObject)element.vorgang).ToObject<Dienst>();
+                                                    var vorgang = (Dienst)element.vorgang;//((JObject)element.vorgang).ToObject<Dienst>();
                                                     var anforderung = new Dictionary<string, string>();
                                                     anforderung.Add("Cmd", vorgang.Operation);
                                                     switch (vorgang.Operation)
@@ -265,20 +260,19 @@ namespace handler
                                                         case "reload":
                                                         break; 
                                                     }
-                                                    var post = PostToFile(Automatisierungsressource.Adresse + "/Services/anforderung", Newtonsoft.Json.JsonConvert.SerializeObject(anforderung));
-                                                    //post.Start();
+                                                    var post = PostToFile(Automatisierungsressource.Adresse + "/Services/anforderung", JsonConvert.SerializeObject(anforderung));
                                                     post.Wait();
                                                     break;
                                                 }
                                                 case "Parameter":
                                                 {
-                                                    var vorgang = (Parameter)element.vorgang;//((Newtonsoft.Json.Linq.JObject)element.vorgang).ToObject<Parameter>();
+                                                    var vorgang = (Parameter)element.vorgang;//((JObject)element.vorgang).ToObject<Parameter>();
                                                     var anforderung = new Dictionary<string, object>();
                                                     anforderung.Add("Cmd", "variablen");
                                                     anforderung.Add("Variablen", vorgang.Variablen);
                                                     anforderung.Add("Rekursiv", "true");
                                                     anforderung.Add("Bezugspfad", ($"$APPLICATIONS/{instanz.Identifikation}/Anwendungen/{basis}/{paket_.Key}/{vorgang.Ordner}").Replace("//", "/"));
-                                                    var post = PostToFile(Automatisierungsressource.Adresse + "/Parameter/anforderung", Newtonsoft.Json.JsonConvert.SerializeObject(anforderung));
+                                                    var post = PostToFile(Automatisierungsressource.Adresse + "/Parameter/anforderung", JsonConvert.SerializeObject(anforderung));
                                                     post.Wait();
                                                     break;
                                                 }                                                    
@@ -296,18 +290,17 @@ namespace handler
                                         switch (element.typ)
                                         {
                                             case "Datei": {
-                                                var vorgang = (Datei)element.vorgang;//((Newtonsoft.Json.Linq.JObject)element.vorgang).ToObject<Datei>();
+                                                var vorgang = (Datei)element.vorgang;//((JObject)element.vorgang).ToObject<Datei>();
                                                 var anforderung = new Dictionary<string, string>();
                                                 anforderung.Add("Cmd", "anlegen");
                                                 anforderung.Add("Url", vorgang.Quelle + "/" + vorgang.Name);
                                                 anforderung.Add("Identifikation", $"{instanz.Identifikation}/Anwendungen/{basis}/{vorgang.Ordner}/{vorgang.Name}");
-                                                var post = PostToFile(Automatisierungsressource.Adresse + "/Applications/anforderung", Newtonsoft.Json.JsonConvert.SerializeObject(anforderung));
-                                                //post.Start();
+                                                var post = PostToFile(Automatisierungsressource.Adresse + "/Applications/anforderung", JsonConvert.SerializeObject(anforderung));
                                                 post.Wait();
                                                 break;
                                             }
                                             case "Service": {
-                                                var vorgang = (Dienst)element.vorgang;//((Newtonsoft.Json.Linq.JObject)element.vorgang).ToObject<Dienst>();
+                                                var vorgang = (Dienst)element.vorgang;//((JObject)element.vorgang).ToObject<Dienst>();
                                                 var anforderung = new Dictionary<string, string>();
                                                 anforderung.Add("Cmd", vorgang.Operation);
                                                 switch (vorgang.Operation)
@@ -327,20 +320,19 @@ namespace handler
                                                     case "reload":
                                                     break; 
                                                 }
-                                                var post = PostToFile(Automatisierungsressource.Adresse + "/Services/anforderung", Newtonsoft.Json.JsonConvert.SerializeObject(anforderung));
-                                                //post.Start();
+                                                var post = PostToFile(Automatisierungsressource.Adresse + "/Services/anforderung", JsonConvert.SerializeObject(anforderung));
                                                 post.Wait();
                                                 break;
                                             }
                                             case "Parameter":
                                             {
-                                                var vorgang = (Parameter)element.vorgang;//((Newtonsoft.Json.Linq.JObject)element.vorgang).ToObject<Parameter>();
+                                                var vorgang = (Parameter)element.vorgang;//((JObject)element.vorgang).ToObject<Parameter>();
                                                 var anforderung = new Dictionary<string, object>();
                                                 anforderung.Add("Cmd", "variablen");
                                                 anforderung.Add("Variablen", vorgang.Variablen);
                                                 anforderung.Add("Rekursiv", "true");
                                                 anforderung.Add("Bezugspfad", ($"$APPLICATIONS/{instanz.Identifikation}/Anwendungen/{basis}/{vorgang.Ordner}").Replace("//", "/"));
-                                                var post = PostToFile(Automatisierungsressource.Adresse + "/Parameter/anforderung", Newtonsoft.Json.JsonConvert.SerializeObject(anforderung));
+                                                var post = PostToFile(Automatisierungsressource.Adresse + "/Parameter/anforderung", JsonConvert.SerializeObject(anforderung));
                                                 post.Wait();
                                                 break;
                                             }                                                    
@@ -370,25 +362,25 @@ namespace handler
                                     var datei = GetToFile(Adresse + "/Konfigurationen/" + paket_.Value + ".json", paket_.Key + ".json");
                                     datei.Start();
                                     datei.Wait();
-                                    var paket = Newtonsoft.Json.JsonConvert.DeserializeObject<Konfigurationspaket>(System.IO.File.ReadAllText(paket_.Key + ".json"));
+                                    var paket = JsonConvert.DeserializeObject<Konfigurationspaket>(System.IO.File.ReadAllText(paket_.Key + ".json"));
 
                                     foreach (var element in paket.Elemente)
                                     {
                                         switch (element.typ)
                                         {
                                             case "Datei": {
-                                                var vorgang = (Datei)element.vorgang;//((Newtonsoft.Json.Linq.JObject)element.vorgang).ToObject<Datei>();
+                                                var vorgang = (Datei)element.vorgang;//((JObject)element.vorgang).ToObject<Datei>();
                                                 var anforderung = new Dictionary<string, string>();
                                                 anforderung.Add("Cmd", "anlegen");
                                                 anforderung.Add("Url", vorgang.Quelle + "/" + vorgang.Name);
                                                 anforderung.Add("Identifikation", $"{instanz.Identifikation}/Anwendungen/{paket_.Key}/{vorgang.Ordner}/{vorgang.Name}");
-                                                var post = PostToFile(Automatisierungsressource.Adresse + "/Applications/anforderung", Newtonsoft.Json.JsonConvert.SerializeObject(anforderung));
+                                                var post = PostToFile(Automatisierungsressource.Adresse + "/Applications/anforderung", JsonConvert.SerializeObject(anforderung));
                                                 //post.Start();
                                                 post.Wait();
                                                 break;
                                             }
                                             case "Service": {
-                                                var vorgang = (Dienst)element.vorgang;//((Newtonsoft.Json.Linq.JObject)element.vorgang).ToObject<Dienst>();
+                                                var vorgang = (Dienst)element.vorgang;//((JObject)element.vorgang).ToObject<Dienst>();
                                                 var anforderung = new Dictionary<string, string>();
                                                 anforderung.Add("Cmd", vorgang.Operation);
                                                 switch (vorgang.Operation)
@@ -408,20 +400,20 @@ namespace handler
                                                     case "reload":
                                                     break; 
                                                 }
-                                                var post = PostToFile(Automatisierungsressource.Adresse + "/Services/anforderung", Newtonsoft.Json.JsonConvert.SerializeObject(anforderung));
+                                                var post = PostToFile(Automatisierungsressource.Adresse + "/Services/anforderung", JsonConvert.SerializeObject(anforderung));
                                                 //post.Start();
                                                 post.Wait();
                                                 break;
                                             }
                                             case "Parameter":
                                             {
-                                                var vorgang = (Parameter)element.vorgang;//((Newtonsoft.Json.Linq.JObject)element.vorgang).ToObject<Parameter>();
+                                                var vorgang = (Parameter)element.vorgang;//((JObject)element.vorgang).ToObject<Parameter>();
                                                 var anforderung = new Dictionary<string, object>();
                                                 anforderung.Add("Cmd", "variablen");
                                                 anforderung.Add("Variablen", vorgang.Variablen);
                                                 anforderung.Add("Rekursiv", "true");
                                                 anforderung.Add("Bezugspfad", ($"$APPLICATIONS/{instanz.Identifikation}/Anwendungen/{paket_.Key}/{vorgang.Ordner}").Replace("//", "/"));
-                                                var post = PostToFile(Automatisierungsressource.Adresse + "/Parameter/anforderung", Newtonsoft.Json.JsonConvert.SerializeObject(anforderung));
+                                                var post = PostToFile(Automatisierungsressource.Adresse + "/Parameter/anforderung", JsonConvert.SerializeObject(anforderung));
                                                 post.Wait();
                                                 break;
                                             }                                                    
@@ -439,18 +431,18 @@ namespace handler
                                     switch (element.typ)
                                     {
                                         case "Datei": {
-                                            var vorgang = (Datei)element.vorgang;//((Newtonsoft.Json.Linq.JObject)element.vorgang).ToObject<Datei>();
+                                            var vorgang = (Datei)element.vorgang;//((JObject)element.vorgang).ToObject<Datei>();
                                             var anforderung = new Dictionary<string, string>();
                                             anforderung.Add("Cmd", "anlegen");
                                             anforderung.Add("Url", vorgang.Quelle + "/" + vorgang.Name);
                                             anforderung.Add("Identifikation", $"{instanz.Identifikation}/Anwendungen/{vorgang.Ordner}/{vorgang.Name}");
-                                            var post = PostToFile(Automatisierungsressource.Adresse + "/Applications/anforderung", Newtonsoft.Json.JsonConvert.SerializeObject(anforderung));
+                                            var post = PostToFile(Automatisierungsressource.Adresse + "/Applications/anforderung", JsonConvert.SerializeObject(anforderung));
                                             //post.Start();
                                             post.Wait();
                                             break;
                                         }
                                         case "Service": {
-                                            var vorgang = (Dienst)element.vorgang;//((Newtonsoft.Json.Linq.JObject)element.vorgang).ToObject<Dienst>();
+                                            var vorgang = (Dienst)element.vorgang;//((JObject)element.vorgang).ToObject<Dienst>();
                                             var anforderung = new Dictionary<string, string>();
                                             anforderung.Add("Cmd", vorgang.Operation);
                                             switch (vorgang.Operation)
@@ -470,20 +462,20 @@ namespace handler
                                                 case "reload":
                                                 break; 
                                             }
-                                            var post = PostToFile(Automatisierungsressource.Adresse + "/Services/anforderung", Newtonsoft.Json.JsonConvert.SerializeObject(anforderung));
+                                            var post = PostToFile(Automatisierungsressource.Adresse + "/Services/anforderung", JsonConvert.SerializeObject(anforderung));
                                             //post.Start();
                                             post.Wait();
                                             break;
                                         }
                                         case "Parameter":
                                         {
-                                            var vorgang = (Parameter)element.vorgang;//((Newtonsoft.Json.Linq.JObject)element.vorgang).ToObject<Parameter>();
+                                            var vorgang = (Parameter)element.vorgang;//((JObject)element.vorgang).ToObject<Parameter>();
                                             var anforderung = new Dictionary<string, object>();
                                             anforderung.Add("Cmd", "variablen");
                                             anforderung.Add("Variablen", vorgang.Variablen);
                                             anforderung.Add("Rekursiv", "true");
                                             anforderung.Add("Bezugspfad", ($"$APPLICATIONS/{instanz.Identifikation}/Anwendungen/{vorgang.Ordner}").Replace("//", "/"));
-                                            var post = PostToFile(Automatisierungsressource.Adresse + "/Parameter/anforderung", Newtonsoft.Json.JsonConvert.SerializeObject(anforderung));
+                                            var post = PostToFile(Automatisierungsressource.Adresse + "/Parameter/anforderung", JsonConvert.SerializeObject(anforderung));
                                             post.Wait();
                                             break;
                                         }                                                    
@@ -493,7 +485,7 @@ namespace handler
                         }
                     }
 
-                    var ser = Newtonsoft.Json.JsonConvert.SerializeObject(Umzusetzen);
+                    var ser = JsonConvert.SerializeObject(Umzusetzen);
                     System.IO.File.WriteAllText("Umgesetzt.json", ser);
                     Umgesetzt = Umzusetzen;
                 }

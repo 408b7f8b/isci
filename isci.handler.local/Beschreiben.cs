@@ -3,7 +3,7 @@ using System.Linq;
 using isci.Beschreibung;
 using System.Collections.Generic;
 
-namespace handler
+namespace handler.local
 {
     public class Funktionen
     {

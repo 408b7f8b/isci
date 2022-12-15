@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using isci.Beschreibung;
 
 namespace api.Controllers
 {
@@ -13,7 +14,7 @@ namespace api.Controllers
     {
         public string GetRessource()
         {
-            var beschreibung = new Beschreibung.Ressource();
+            var beschreibung = new Automatisierungsressource();
             beschreibung.Identifikation = Program.Ressource;
             beschreibung.Name = "Automatisierungsressource " + beschreibung.Identifikation;
             beschreibung.Beschreibung = "";
@@ -70,18 +71,14 @@ namespace api.Controllers
                 return "{}";
             }
 
-            var systemteil = new Beschreibung.Systemteil();
-            systemteil.Identifikation = Identifikation + "." + Program.Ressource;
-            systemteil.Ressource = Program.Ressource;
-            systemteil.Name = "Systemteil " + Identifikation + ", Ressource " + Program.Ressource;
-            systemteil.Beschreibung = "Systemteil " + Identifikation + " der Ressource " + Program.Ressource;
+            var systemteil = new Systemteil();
 
             var modulliste = General.FilesInPathList(Applications.target_path + "/" + Identifikation + "/Beschreibungen");
             foreach (var modul in modulliste)
             {
-                var m = Newtonsoft.Json.JsonConvert.DeserializeObject<Beschreibung.Modul>(System.IO.File.ReadAllText(Applications.target_path + "/" + Identifikation + "/Beschreibungen/" + modul));
+                var m = Newtonsoft.Json.JsonConvert.DeserializeObject<Modul>(System.IO.File.ReadAllText(Applications.target_path + "/" + Identifikation + "/Beschreibungen/" + modul));
                 systemteil.Module.Add(m.Identifikation, m.Typidentifikation);
-                systemteil.Datenfelder.AddRange(m.Datenfelder);
+                systemteil.Dateneinträge.AddRange(m.Dateneinträge);
                 systemteil.Ereignisse.AddRange(m.Ereignisse);
                 systemteil.Funktionen.AddRange(m.Funktionen);
             }
