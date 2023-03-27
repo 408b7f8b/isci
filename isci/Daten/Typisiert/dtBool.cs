@@ -7,6 +7,7 @@ namespace isci.Daten
     {
         public dtBool(System.Boolean value, String Identifikation, String path = "") : base(Identifikation)
         {
+            this.type = Datentypen.Bool;
             this.value = value;
             if (path != "") this.path = path;
         }

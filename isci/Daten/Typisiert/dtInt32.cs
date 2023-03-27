@@ -9,6 +9,7 @@ namespace isci.Daten
 
         public dtInt32(System.Int32 value, String Identifikation, String path = "") : base(Identifikation)
         {
+            this.type = Datentypen.Int32;
             this.value = value;
             if (path != "") this.path = path;
         }

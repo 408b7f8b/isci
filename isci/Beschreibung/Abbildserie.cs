@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using isci.Allgemein;
-using System.Datetime;
 
 namespace isci.Beschreibung
 {
@@ -10,7 +9,7 @@ namespace isci.Beschreibung
     {
         public string Automatisierungsressource;
         public string Anwendung;
-        public List<Datetime> Zeitstempel;
+        public List<System.DateTime> Zeitstempel;
         public Dictionary<string, List<object>> WerteNachDateneinträgen;
     }
 }

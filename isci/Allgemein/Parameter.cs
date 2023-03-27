@@ -17,11 +17,6 @@ namespace isci.Allgemein
         public string OrdnerBeschreibungen;
         public Ausführungstransition[] Ausführungstransitionen;
 
-        public Parameter()
-        {
-
-        }
-
         public Parameter(string datei)
         {
             Ressource = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_RESSOURCE");
@@ -111,6 +106,70 @@ namespace isci.Allgemein
             Helfer.OrdnerPruefenErstellen(OrdnerFunktionsmodelle);
             Helfer.OrdnerPruefenErstellen(OrdnerSchnittstellen);
             Helfer.OrdnerPruefenErstellen(OrdnerBeschreibungen);
+        }
+
+        public Parameter()
+        {
+            var felder = GetType().GetFields();
+
+            foreach (var f in felder)
+            {
+                try
+                {
+                    string var_string = "";
+                    var feld = GetType().GetField(f.Name);
+                    var feldtyp = feld.FieldType;
+
+                    try {
+                        var_string = Environment.GetEnvironmentVariable(f.Name);
+                    } catch {
+                        Environment.SetEnvironmentVariable(f.Name, feld.GetValue(this).ToString());
+                        continue;
+                    }
+
+                    if (feldtyp == typeof(string))
+                    {
+                        feld.SetValue(this, var_string);
+                    }
+                    else if (feldtyp == typeof(int))
+                    {
+                        feld.SetValue(this, Int32.Parse(var_string));
+                    }
+                    else if (feldtyp == typeof(uint))
+                    {
+                        feld.SetValue(this, UInt32.Parse(var_string));
+                    }
+                    else if (feldtyp == typeof(bool))
+                    {
+                        feld.SetValue(this, Boolean.Parse(var_string));
+                    }
+                    else if (feldtyp == typeof(double))
+                    {
+                        feld.SetValue(this, Double.Parse(var_string));
+                    } else {
+                        if (!var_string.StartsWith("{")) var_string = "{" + var_string;
+                        if (!var_string.EndsWith("}")) var_string += "}";
+
+                        if (feldtyp == typeof(Int32[]))
+                        {
+                            feld.SetValue(this, Newtonsoft.Json.JsonToken.Parse(typeof(Int32[]), var_string));
+                        }
+                        else if (feldtyp == typeof(string[]))
+                        {
+                            feld.SetValue(this, Newtonsoft.Json.JsonToken.Parse(typeof(string[]), var_string));
+                        }
+                        else if (feldtyp == typeof(Ausführungstransition[]))
+                        {
+                            feld.SetValue(this, Newtonsoft.Json.JsonToken.Parse(typeof(Ausführungstransition[]), var_string));
+                        }
+                    }
+
+                    try {
+                        Console.WriteLine("Konfigparam " + feld.Name + ": " + feld.GetValue(this).ToString());
+                    } catch { }
+                }
+                catch { }
+            }
         }
     }
 }

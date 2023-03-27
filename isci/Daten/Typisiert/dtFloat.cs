@@ -17,6 +17,7 @@ namespace isci.Daten
 
         public dtFloat(float value, String Identifikation, String path = "") : base(Identifikation)
         {
+            this.type = Datentypen.Float;
             this.value = value;
             if (path != "") this.path = path;
         }
@@ -33,7 +34,7 @@ namespace isci.Daten
 
         public override void SchreibenSpezifisch(System.IO.BinaryWriter writer)
         {
-            writer.Write((float)value);
+            writer.Write((double)((float)value));
         }
 
         public override string Serialisieren()

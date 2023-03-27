@@ -1,0 +1,16 @@
+{
+    "Ausführungstransitionen":[$ZUSTANDSBEREICHE],
+    "Identifikation":"dreiachsansteuerung",
+    "Anwendung":"$ANWENDUNG",
+    "Port":"$PORT",
+    "Baudrate":"$BAUDRATE",
+    "Achse1Steigung":"$ACHSE1STEIGUNG",
+    "Achse1Schritte":"$ACHSE1SCHRITTE",
+    "Achse1Drehrichtung":$ACHSE1DREHRICHTUNG,
+    "Achse2Steigung":"$ACHSE2STEIGUNG",
+    "Achse2Schritte":"$ACHSE2SCHRITTE",
+    "Achse2Drehrichtung":$ACHSE2DREHRICHTUNG,
+    "Achse3Steigung":"$ACHSE3STEIGUNG",
+    "Achse3Schritte":"$ACHSE3SCHRITTE",
+    "Achse3Drehrichtung":$ACHSE3DREHRICHTUNG
+}

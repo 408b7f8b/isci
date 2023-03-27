@@ -30,11 +30,11 @@ namespace isci.Beschreibung
             {
                 var file_ = System.IO.File.ReadAllText(file);
                 var teil = Newtonsoft.Json.JsonConvert.DeserializeObject<Systemteil>(file_);
-                Ressourcen.Add(teil.Ressource);
+                //Automatisierungsressourcen.Add(teil.Ressource);
                 foreach (var m in teil.Module)
                 {
                     Module.Add(m.Key, m.Value);
-                    Modulverteilung.Add(m.Key, teil.Ressource);
+                    //Modulverteilung.Add(m.Key, teil.Ressource);
                 }
                 Dateneinträge.AddRange(teil.Dateneinträge);
                 Ereignisse.AddRange(teil.Ereignisse);

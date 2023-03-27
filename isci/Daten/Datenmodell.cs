@@ -11,8 +11,12 @@ namespace isci.Daten
 
         public Datenmodell(string Identifikation, ListeDateneintraege Dateneinträge = null) : base(Identifikation)
         {
-            this.Dateneinträge = (Dateneinträge == null ? new ListeDateneintraege() : Dateneinträge);
-            Links = new VerweislisteDateneintraege();
+            if (this.Dateneinträge == null)
+            {
+                this.Dateneinträge = (Dateneinträge == null ? new ListeDateneintraege() : Dateneinträge);
+            }
+            
+            if (this.Links == null) this.Links = new VerweislisteDateneintraege();
         }
 
         public static Datenmodell AusDatei(string path)

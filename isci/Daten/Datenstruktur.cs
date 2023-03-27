@@ -120,6 +120,26 @@ namespace isci.Daten
             return result;
         }
 
+        public bool AenderungVorhanden()
+        {
+            foreach (var eintrag in dateneinträge)
+                if (eintrag.Value.aenderung) return true;
+
+            return false;
+        }
+
+        public void AenderungenZuruecksetzen()
+        {
+            foreach (var eintrag in dateneinträge)
+                if (eintrag.Value.aenderung) eintrag.Value.aenderung = false;
+        }
+
+        public void AenderungenZuruecksetzen(System.Collections.Generic.List<string> liste)
+        {
+            foreach (var eintrag in liste)
+                if (dateneinträge[eintrag].aenderung)dateneinträge[eintrag].aenderung = false;
+        }
+
         public bool Lesen(string Identifikation)
         {
             if (this.dateneinträge.ContainsKey(Identifikation))

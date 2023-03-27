@@ -1,5 +1,5 @@
 {
-    "Ausführungstransitionen":[$ZUSTANDSBEREICHE],
+    "Ausführungstransitionen":[{"Eingangszustand":3, "Ausgangszustand":0}],
     "Identifikation":"zykluszeit",
-    "Anwendung":"$ANWENDUNG"
+    "Anwendung":"fraesmaschine"
 }

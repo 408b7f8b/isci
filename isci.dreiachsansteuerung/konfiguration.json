@@ -1,0 +1,16 @@
+{
+    "Ausführungstransitionen":[{"Eingangszustand":1, "Ausgangszustand":2}],
+    "Identifikation":"dreiachsansteuerung",
+    "Anwendung":"fraesmaschine",
+    "Port":"/dev/ttyACM0",
+    "Baudrate":"115200",
+    "AchseXSteigung":5,
+    "AchseXSchritte":400,
+    "AchseXDrehrichtung":true,
+    "AchseYSteigung":5,
+    "AchseYSchritte":400,
+    "AchseYDrehrichtung":true,
+    "AchseZSteigung":8,
+    "AchseZSchritte":400,
+    "AchseZDrehrichtung":false
+}

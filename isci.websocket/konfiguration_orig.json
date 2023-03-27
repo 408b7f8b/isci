@@ -1,0 +1,7 @@
+{
+    "Zustandsbereiche":[$ZUSTANDSBEREICHE],
+    "Identifikation":"websocket",
+    "Anwendung":"$ANWENDUNG",
+    "Port":$PORT,
+    "Ausschliessen":[$AUSSCHLIESSEN]
+}

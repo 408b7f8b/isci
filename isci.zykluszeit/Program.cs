@@ -35,10 +35,20 @@ namespace isci.zykluszeit
             Zustand.Start();
 
             long curr_ticks = 0;
+
+            bool dbg = System.Environment.UserInteractive;
             
             while(true)
             {
+                System.Threading.Thread.Sleep(10);
                 Zustand.Lesen();
+
+                if (dbg)
+                {
+                    System.Console.Clear();
+                    System.Console.WriteLine("Zustand: " + (System.Int32)Zustand.value);
+                    System.Console.WriteLine("Zykluszeit: " + (System.Int32)zykluszeit.value);
+                }
 
                 var erfüllteTransitionen = konfiguration.Ausführungstransitionen.Where(a => a.Eingangszustand == (System.Int32)Zustand.value);
                 if (erfüllteTransitionen.Count<Ausführungstransition>() > 0)

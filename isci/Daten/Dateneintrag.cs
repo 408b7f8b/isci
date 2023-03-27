@@ -16,7 +16,7 @@ namespace isci.Daten
         [Newtonsoft.Json.JsonIgnore]
         public bool write_flag;        
         public Datentypen type;
-        public bool istLIste;
+        public bool istListe;
 
         public Dateneintrag()
         {
@@ -54,7 +54,11 @@ namespace isci.Daten
 
             switch(df_.type)
             {
+                case Datentypen.UInt16: return jObject.ToObject<dtUInt16>();
+                case Datentypen.Int16: return jObject.ToObject<dtInt16>();
                 case Datentypen.Int32: return jObject.ToObject<dtInt32>();
+                case Datentypen.Float: return jObject.ToObject<dtFloat>();
+                case Datentypen.Bool: return jObject.ToObject<dtBool>();
             }
 
             return null;
@@ -68,8 +72,21 @@ namespace isci.Daten
                 if (!System.IO.Directory.Exists(dir))
                     System.IO.Directory.CreateDirectory(dir);
 
-                mutex = new System.Threading.Mutex(false, (path + "_mutex").Replace('/', '.'));
+            } catch {
 
+            }
+
+            System.Threading.Mutex.
+
+            try
+            {
+                mutex = new System.Threading.Mutex(false, (path + "_mutex").Replace('/', '.'));
+            } catch {
+
+            }
+            
+            try
+            {
                 if (!System.IO.File.Exists(path))
                 {
                     System.IO.File.Create(path).Close();
@@ -78,7 +95,7 @@ namespace isci.Daten
             }
             catch
             {
-
+                Console.WriteLine("ImSpeicherAnlagen fehlgeschlagen: " + this.Identifikation);
             }
         }
 
@@ -90,7 +107,7 @@ namespace isci.Daten
             }
             catch
             {
-                
+                Console.WriteLine("MitSpeicherVerknuepfen fehlgeschlagen: " + this.Identifikation);
             }
         }
 
@@ -102,7 +119,7 @@ namespace isci.Daten
             }
             catch
             {
-
+                Console.WriteLine("MutexBlockierenSynchron fehlgeschlagen: " + this.Identifikation);
             }            
         }
 
@@ -122,7 +139,7 @@ namespace isci.Daten
                 //var zst = reader.ReadInt64();
                 LesenSpezifisch(reader);
             } catch {
-
+                Console.WriteLine("Lesen fehlgeschlagen: " + this.Identifikation);
             }
 
             reader.Close();
@@ -169,5 +186,11 @@ namespace isci.Daten
         {
             AusJTokenSpezifisch(token);
         }
+
+        public Newtonsoft.Json.Linq.JToken NachJToken()
+        {
+            return NachJTokenSpezifisch();
+        }
+        public virtual Newtonsoft.Json.Linq.JToken NachJTokenSpezifisch() { return null; }
     }
 }
