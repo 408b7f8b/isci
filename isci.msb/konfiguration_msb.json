@@ -1,8 +1,0 @@
-{
-    "Ausführungstransitionen":[{"Arbeitszustand":2, "Nachfolgezustand":3}],
-    "Identifikation":"msb",
-    "Anwendung":"anwendung.Maschine1",
-    "MsbWebsocketUrl":"https://ws.15xr.msb.oss.cell.vfk.fraunhofer.de",
-    "MsbSmartObjectUuid":"b1350695-7dd4-40d1-a425-40c04a95cd7b",
-    "MsbSmartObjectToken":"40c04a95cd7b"
-}

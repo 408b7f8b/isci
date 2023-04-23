@@ -1,8 +1,0 @@
-{
-    "Zustandsbereiche":[$ZUSTANDSBEREICHE],
-    "Identifikation":"integration",
-    "Anwendung":"$ANWENDUNG",
-    "Targets":["$TARGETS"],
-    "Adapter":"$ADAPTER"
-    "Port":$PORT
-}

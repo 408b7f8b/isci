@@ -1,7 +1,0 @@
-{
-    "Ausführungstransitionen":[$ZUSTANDSBEREICHE],
-    "Identifikation":"modbusspindel",
-    "Anwendung":"$ANWENDUNG",
-    "Port":"$PORT",
-    "Baudrate":"$BAUDRATE"
-}

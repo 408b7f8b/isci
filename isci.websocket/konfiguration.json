@@ -1,7 +1,0 @@
-{
-    "Ausführungstransitionen":[{"Eingangszustand":0, "Ausgangszustand":1}, {"Eingangszustand":2, "Ausgangszustand":3}],
-    "Identifikation":"websocket",
-    "Anwendung":"fraesmaschine",
-    "Port":9999,
-    "Ausschliessen":["ns=zykluszeit;s=zykluszeit"]
-}
