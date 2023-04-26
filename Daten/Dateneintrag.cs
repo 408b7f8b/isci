@@ -76,8 +76,6 @@ namespace isci.Daten
 
             }
 
-            System.Threading.Mutex.
-
             try
             {
                 mutex = new System.Threading.Mutex(false, (path + "_mutex").Replace('/', '.'));
