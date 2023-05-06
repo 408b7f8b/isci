@@ -54,10 +54,14 @@ namespace isci.Daten
 
             switch(df_.type)
             {
+                case Datentypen.UInt8: return jObject.ToObject<dtUInt8>();
                 case Datentypen.UInt16: return jObject.ToObject<dtUInt16>();
+                case Datentypen.UInt32: return jObject.ToObject<dtUInt32>();
+                case Datentypen.Int8: return jObject.ToObject<dtInt8>();
                 case Datentypen.Int16: return jObject.ToObject<dtInt16>();
                 case Datentypen.Int32: return jObject.ToObject<dtInt32>();
                 case Datentypen.Float: return jObject.ToObject<dtFloat>();
+                case Datentypen.Double: return jObject.ToObject<dtDouble>();
                 case Datentypen.Bool: return jObject.ToObject<dtBool>();
             }
 
