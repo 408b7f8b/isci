@@ -21,6 +21,14 @@ namespace isci.Allgemein
         {
             Ressource = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_RESSOURCE");
 
+            OrdnerAnwendung = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNGEN");
+            OrdnerDatenstruktur = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_DATENSTRUKTUREN");
+            OrdnerDatenmodelle = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNGEN");
+            OrdnerEreignismodelle = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNGEN");
+            OrdnerFunktionsmodelle = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNGEN");
+            OrdnerSchnittstellen = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNGEN");
+            OrdnerBeschreibungen = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNGEN");
+
             if (!System.IO.File.Exists(datei))
             {
                 return;
@@ -91,13 +99,13 @@ namespace isci.Allgemein
                 } catch { }
             }
 
-            OrdnerAnwendung = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNGEN") + "/" + Anwendung;
-            OrdnerDatenstruktur = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_DATENSTRUKTUREN") + "/" + Anwendung;
-            OrdnerDatenmodelle = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNGEN") + "/" + Anwendung + "/Datenmodelle";
-            OrdnerEreignismodelle = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNGEN") + "/" + Anwendung + "/Ereignismodelle";
-            OrdnerFunktionsmodelle = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNGEN") + "/" + Anwendung + "/Funktionsmodelle";
-            OrdnerSchnittstellen = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNGEN") + "/" + Anwendung + "/Schnittstellen";
-            OrdnerBeschreibungen = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNGEN") + "/" + Anwendung + "/Beschreibungen";
+            if (OrdnerAnwendung.EndsWith(Anwendung)) OrdnerAnwendung = (OrdnerAnwendung + "/" + Anwendung).Replace("//", "/");
+            if (OrdnerDatenstruktur.EndsWith(Anwendung)) OrdnerDatenstruktur = (OrdnerDatenstruktur + "/" + Anwendung).Replace("//", "/");
+            if (OrdnerDatenmodelle.EndsWith(Anwendung + "/Datenmodelle")) OrdnerDatenmodelle = (OrdnerDatenmodelle + "/" + Anwendung + "/Datenmodelle").Replace("//", "/");
+            if (OrdnerEreignismodelle.EndsWith(Anwendung + "/Ereignismodelle")) OrdnerEreignismodelle = (OrdnerEreignismodelle + "/" + Anwendung + "/Ereignismodelle").Replace("//", "/");
+            if (OrdnerFunktionsmodelle.EndsWith(Anwendung + "/Funktionsmodelle")) OrdnerFunktionsmodelle = (OrdnerFunktionsmodelle + "/" + Anwendung + "/Funktionsmodelle").Replace("//", "/");
+            if (OrdnerSchnittstellen.EndsWith(Anwendung + "/Schnittstellen")) OrdnerSchnittstellen = (OrdnerSchnittstellen + "/" + Anwendung + "/Schnittstellen").Replace("//", "/");
+            if (OrdnerBeschreibungen.EndsWith(Anwendung + "/Beschreibungen")) OrdnerBeschreibungen = (OrdnerBeschreibungen + "/" + Anwendung + "/Beschreibungen").Replace("//", "/");
 
             Helfer.OrdnerPruefenErstellen(OrdnerAnwendung);
             Helfer.OrdnerPruefenErstellen(OrdnerDatenstruktur);

@@ -20,7 +20,7 @@ namespace isci.Daten
             this.pfad = pfad;
         }
 
-        public void DatenmodellEinhängen(Datenmodell datenmodell)
+        /*public void DatenmodellEinhängen(Datenmodell datenmodell)
         {
             try
             {
@@ -52,6 +52,40 @@ namespace isci.Daten
             {
                 
             }            
+        }*/
+
+        public void DatenmodellEinhängen(Datenmodell datenmodell)
+        {
+            try
+            {
+                foreach (var eintrag in datenmodell.Dateneinträge)
+                {
+                    string ident = "ns=2;s=" + datenmodell.Identifikation + "." + eintrag.Identifikation;
+                    eintrag.Identifikation = ident;
+                    eintrag.path = pfad + "/" + eintrag.Identifikation;
+                    dateneinträge.Add(ident, eintrag);
+                }
+                foreach (var eintrag in datenmodell.Links)
+                {
+                    var Links_ = new ListeDateneintraege();
+                    var key = eintrag.Key;
+                    var value = new System.Collections.Generic.List<string>();
+                    if (!key.StartsWith("ns="))
+                    {
+                        key = "ns=2;s=" + datenmodell.Identifikation + "." + key;
+                    }
+                    foreach (var untereintrag in eintrag.Value)
+                    {
+                        if (untereintrag.StartsWith("ns=")) value.Add(untereintrag);
+                        else value.Add("ns=2;s=" + datenmodell.Identifikation + "." + untereintrag);
+                    }
+                    verweise.Add(key, value);
+                }
+                datenmodelle.Add(datenmodell.Identifikation);
+            } catch (Exception)
+            {
+                
+            }            
         }
 
         public void DatenmodellEinhängenAusDatei(string pfad)
@@ -62,6 +96,12 @@ namespace isci.Daten
 
         public void DatenmodelleEinhängenAusOrdner(string pfade, string excludeown = "")
         {
+            if (pfade == null)
+            {
+                Console.WriteLine("DatenmodelleEinhängenAusOrdner: pfade ist NULL");
+                return;
+            }
+            
             var dms_ = System.IO.Directory.GetFiles(pfade);
             foreach (var dm_ in dms_)
             {

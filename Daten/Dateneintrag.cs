@@ -194,5 +194,47 @@ namespace isci.Daten
             return NachJTokenSpezifisch();
         }
         public virtual Newtonsoft.Json.Linq.JToken NachJTokenSpezifisch() { return null; }
+
+        public string getName()
+        {
+            if (!this.Identifikation.StartsWith("ns=2;s=")) return Identifikation;
+            if (!this.Identifikation.Contains('.')) return this.Identifikation.Substring(7);
+
+            return this.Identifikation.Substring(this.Identifikation.LastIndexOf('.') + 1);
+        }
+
+        public string getFullname()
+        {
+            if (!this.Identifikation.StartsWith("ns=2;s=")) return Identifikation;
+            else return this.Identifikation.Substring(7);
+        }
+
+        public int getNamespace()
+        {
+            var splits = new string[2];
+            splits[0] = "ns=";
+            splits[1] = ";";
+            var teile = this.Identifikation.Split(splits, StringSplitOptions.RemoveEmptyEntries);
+            return int.Parse(teile[0]);
+        }
+
+        public string getDatenmodell()
+        {
+            if (!this.Identifikation.StartsWith("ns=2;s=")) return "";
+            if (!this.Identifikation.Contains('.')) return this.Identifikation.Substring(7);
+
+            var teile = this.Identifikation.Split(new char[]{'.'}, StringSplitOptions.RemoveEmptyEntries);
+            if (teile.Length > 1) return teile[0];
+            else return "";
+        }
+
+        public string getTop()
+        {
+            if (!this.Identifikation.Contains('.')) return this.getDatenmodell();
+
+            var top = this.Identifikation.Substring(0, this.Identifikation.LastIndexOf('.'));
+            
+            return top;
+        }
     }
 }
