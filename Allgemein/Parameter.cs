@@ -19,7 +19,13 @@ namespace isci.Allgemein
 
         public Parameter(string datei)
         {
-            Ressource = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_RESSOURCE");
+            var tmp = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_IDENTIFIKATION");
+            if (tmp == null) Identifikation = tmp;
+
+            tmp = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_RESSOURCE");
+            if (tmp == null) Ressource = System.Environment.MachineName;
+
+            Anwendung = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNG");
 
             OrdnerAnwendung = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNGEN");
             OrdnerDatenstruktur = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_DATENSTRUKTUREN");
