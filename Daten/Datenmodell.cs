@@ -6,6 +6,7 @@ namespace isci.Daten
 {
     public class Datenmodell : Header
     {
+        public string Stand;
         public ListeDateneintraege Dateneinträge;
         public VerweislisteDateneintraege Links;
 
@@ -60,6 +61,14 @@ namespace isci.Daten
 
             try {
                 dm.Links = link_entries.ToObject<VerweislisteDateneintraege>();
+            } catch {
+
+            }
+
+            var stand = datamodel_.SelectToken("Stand");
+
+            try {
+                dm.Stand = stand.ToObject<string>();
             } catch {
 
             }

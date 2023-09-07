@@ -5,6 +5,14 @@ namespace isci.Allgemein
 {
     public class Parameter
     {
+        static void NullPruefen(object var, string Name)
+        {
+            if (var == null) 
+            {
+                System.Console.WriteLine(Name + " undefiniert, setze Umgebungsvariable oder in konfiguration.json"); System.Environment.Exit(-1);
+            }
+        }
+
         public string Ressource;
         public string Identifikation;
         public string OrdnerAnwendung;
@@ -105,13 +113,22 @@ namespace isci.Allgemein
                 } catch { }
             }
 
-            if (OrdnerAnwendung.EndsWith(Anwendung)) OrdnerAnwendung = (OrdnerAnwendung + "/" + Anwendung).Replace("//", "/");
-            if (OrdnerDatenstruktur.EndsWith(Anwendung)) OrdnerDatenstruktur = (OrdnerDatenstruktur + "/" + Anwendung).Replace("//", "/");
-            if (OrdnerDatenmodelle.EndsWith(Anwendung + "/Datenmodelle")) OrdnerDatenmodelle = (OrdnerDatenmodelle + "/" + Anwendung + "/Datenmodelle").Replace("//", "/");
-            if (OrdnerEreignismodelle.EndsWith(Anwendung + "/Ereignismodelle")) OrdnerEreignismodelle = (OrdnerEreignismodelle + "/" + Anwendung + "/Ereignismodelle").Replace("//", "/");
-            if (OrdnerFunktionsmodelle.EndsWith(Anwendung + "/Funktionsmodelle")) OrdnerFunktionsmodelle = (OrdnerFunktionsmodelle + "/" + Anwendung + "/Funktionsmodelle").Replace("//", "/");
-            if (OrdnerSchnittstellen.EndsWith(Anwendung + "/Schnittstellen")) OrdnerSchnittstellen = (OrdnerSchnittstellen + "/" + Anwendung + "/Schnittstellen").Replace("//", "/");
-            if (OrdnerBeschreibungen.EndsWith(Anwendung + "/Beschreibungen")) OrdnerBeschreibungen = (OrdnerBeschreibungen + "/" + Anwendung + "/Beschreibungen").Replace("//", "/");
+            NullPruefen(Anwendung, "Anwendung");
+            NullPruefen(OrdnerAnwendung, "OrdnerAnwendung");
+            NullPruefen(OrdnerDatenstruktur, "OrdnerDatenstruktur");
+            NullPruefen(OrdnerDatenmodelle, "OrdnerDatenmodelle");
+            NullPruefen(OrdnerEreignismodelle, "OrdnerEreignismodelle");
+            NullPruefen(OrdnerFunktionsmodelle, "OrdnerFunktionsmodelle");
+            NullPruefen(OrdnerSchnittstellen, "OrdnerSchnittstellen");
+            NullPruefen(OrdnerBeschreibungen, "OrdnerBeschreibungen");
+
+            if (!OrdnerAnwendung.EndsWith(Anwendung)) OrdnerAnwendung = (OrdnerAnwendung + "/" + Anwendung).Replace("//", "/");
+            if (!OrdnerDatenstruktur.EndsWith(Anwendung)) OrdnerDatenstruktur = (OrdnerDatenstruktur + "/" + Anwendung).Replace("//", "/");
+            if (!OrdnerDatenmodelle.EndsWith(Anwendung + "/Datenmodelle")) OrdnerDatenmodelle = (OrdnerDatenmodelle + "/" + Anwendung + "/Datenmodelle").Replace("//", "/");
+            if (!OrdnerEreignismodelle.EndsWith(Anwendung + "/Ereignismodelle")) OrdnerEreignismodelle = (OrdnerEreignismodelle + "/" + Anwendung + "/Ereignismodelle").Replace("//", "/");
+            if (!OrdnerFunktionsmodelle.EndsWith(Anwendung + "/Funktionsmodelle")) OrdnerFunktionsmodelle = (OrdnerFunktionsmodelle + "/" + Anwendung + "/Funktionsmodelle").Replace("//", "/");
+            if (!OrdnerSchnittstellen.EndsWith(Anwendung + "/Schnittstellen")) OrdnerSchnittstellen = (OrdnerSchnittstellen + "/" + Anwendung + "/Schnittstellen").Replace("//", "/");
+            if (!OrdnerBeschreibungen.EndsWith(Anwendung + "/Beschreibungen")) OrdnerBeschreibungen = (OrdnerBeschreibungen + "/" + Anwendung + "/Beschreibungen").Replace("//", "/");
 
             Helfer.OrdnerPruefenErstellen(OrdnerAnwendung);
             Helfer.OrdnerPruefenErstellen(OrdnerDatenstruktur);

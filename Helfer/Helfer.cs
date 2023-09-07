@@ -5,7 +5,7 @@ namespace isci
 {
     public static class Helfer
     {
-        private static System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>> Cache;
+        private static System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>> Cache = null;
 
         public static System.Collections.Generic.List<string> ChangedFiles(string path)
         {
