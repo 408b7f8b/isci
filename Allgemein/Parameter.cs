@@ -32,6 +32,7 @@ namespace isci.Allgemein
 
             tmp = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_RESSOURCE");
             if (tmp == null) Ressource = System.Environment.MachineName;
+            else Ressource = tmp;
 
             Anwendung = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNG");
 
@@ -45,6 +46,8 @@ namespace isci.Allgemein
 
             if (!System.IO.File.Exists(datei))
             {
+                System.Console.WriteLine("Konfigurationsdatei " + datei + "existiert nicht. Erstelle Beispieldatei.");
+                System.IO.File.WriteAllText("konfiguration_beispiel.json", Newtonsoft.Json.JsonConvert.SerializeObject(this));
                 return;
             }
             else

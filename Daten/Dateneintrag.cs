@@ -17,6 +17,11 @@ namespace isci.Daten
         public bool write_flag;        
         public Datentypen type;
         public bool istListe;
+        //public System.Collections.Generic.List<string> components;
+        public string parentEintrag;
+
+        //parent, children? oder relationen?
+        //dimensionen array?
 
         public Dateneintrag()
         {
@@ -197,7 +202,7 @@ namespace isci.Daten
 
         public string getName()
         {
-            if (!this.Identifikation.StartsWith("ns=2;s=")) return Identifikation;
+            if (!this.Identifikation.StartsWith("ns=3;s=")) return Identifikation;
             if (!this.Identifikation.Contains('.')) return this.Identifikation.Substring(7);
 
             return this.Identifikation.Substring(this.Identifikation.LastIndexOf('.') + 1);
@@ -205,7 +210,7 @@ namespace isci.Daten
 
         public string getFullname()
         {
-            if (!this.Identifikation.StartsWith("ns=2;s=")) return Identifikation;
+            if (!this.Identifikation.StartsWith("ns=3;s=")) return Identifikation;
             else return this.Identifikation.Substring(7);
         }
 
@@ -220,7 +225,7 @@ namespace isci.Daten
 
         public string getDatenmodell()
         {
-            if (!this.Identifikation.StartsWith("ns=2;s=")) return "";
+            if (!this.Identifikation.StartsWith("ns=3;s=")) return "";
             if (!this.Identifikation.Contains('.')) return this.Identifikation.Substring(7);
 
             var teile = this.Identifikation.Split(new char[]{'.'}, StringSplitOptions.RemoveEmptyEntries);
@@ -230,6 +235,8 @@ namespace isci.Daten
 
         public string getTop()
         {
+            if (this.parentEintrag != null) return this.parentEintrag;
+
             if (!this.Identifikation.Contains('.')) return this.getDatenmodell();
 
             var top = this.Identifikation.Substring(0, this.Identifikation.LastIndexOf('.'));

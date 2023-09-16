@@ -60,7 +60,7 @@ namespace isci.Daten
             {
                 foreach (var eintrag in datenmodell.Dateneinträge)
                 {
-                    string ident = "ns=2;s=" + datenmodell.Identifikation + "." + eintrag.Identifikation;
+                    string ident = "ns=3;s=" + datenmodell.Identifikation + "." + eintrag.Identifikation;
                     eintrag.Identifikation = ident;
                     eintrag.path = pfad + "/" + eintrag.Identifikation;
                     dateneinträge.Add(ident, eintrag);
@@ -72,12 +72,12 @@ namespace isci.Daten
                     var value = new System.Collections.Generic.List<string>();
                     if (!key.StartsWith("ns="))
                     {
-                        key = "ns=2;s=" + datenmodell.Identifikation + "." + key;
+                        key = "ns=3;s=" + datenmodell.Identifikation + "." + key;
                     }
                     foreach (var untereintrag in eintrag.Value)
                     {
                         if (untereintrag.StartsWith("ns=")) value.Add(untereintrag);
-                        else value.Add("ns=2;s=" + datenmodell.Identifikation + "." + untereintrag);
+                        else value.Add("ns=3;s=" + datenmodell.Identifikation + "." + untereintrag);
                     }
                     verweise.Add(key, value);
                 }
