@@ -17,8 +17,9 @@ namespace isci.Daten
         public bool write_flag;        
         public Datentypen type;
         public bool istListe;
+        public UInt16 listeDimensionen;
         //public System.Collections.Generic.List<string> components;
-        public string parentEintrag;
+        public string parentEintrag; //ist für den Bau von Bäumen
 
         //parent, children? oder relationen?
         //dimensionen array?
