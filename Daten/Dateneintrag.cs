@@ -14,7 +14,8 @@ namespace isci.Daten
         [Newtonsoft.Json.JsonIgnore]
         public string path;
         [Newtonsoft.Json.JsonIgnore]
-        public bool write_flag;        
+        public bool write_flag;
+        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public Datentypen type;
         public bool istListe;
         public UInt16 listeDimensionen;
@@ -52,6 +53,24 @@ namespace isci.Daten
             } catch {
 
             }
+        }
+
+        public System.Type Typ()
+        {
+            switch(this.type)
+            {
+                case Datentypen.UInt8: return typeof(sbyte);
+                case Datentypen.UInt16: return typeof(UInt16);
+                case Datentypen.UInt32: return typeof(UInt32);
+                case Datentypen.Int8: return typeof(byte);
+                case Datentypen.Int16: return typeof(Int16);
+                case Datentypen.Int32: return typeof(Int32);
+                case Datentypen.Float: return typeof(float);
+                case Datentypen.Double: return typeof(double);
+                case Datentypen.Bool: return typeof(bool);
+            }
+
+            return null;
         }
 
         public static Dateneintrag DatafieldTyped(Newtonsoft.Json.Linq.JObject jObject)

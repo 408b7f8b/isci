@@ -7,6 +7,6 @@ namespace isci.Anwendungen
 {
     public class Ereignis : Header {
         public string Ausloeser;
-        public List<string> Elemente;
+        public List<string> Elemente = new List<string>();
     }
 }

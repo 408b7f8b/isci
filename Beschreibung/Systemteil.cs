@@ -9,7 +9,7 @@ namespace isci.Beschreibung
 {
     public class Systemteil
     {
-        public Dictionary<string, string> Module;
+        public Dictionary<string, Modul> Module;
         public ListeDateneintraege Dateneinträge;
         public List<Ereignis> Ereignisse;
         public List<Funktion> Funktionen;

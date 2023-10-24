@@ -11,9 +11,10 @@ namespace isci.Beschreibung
     {
         public List<string> Automatisierungsressourcen;
         public string Anwendung;
-        public Dictionary<string, string> Module;
+        public Dictionary<string, Modul> Module;
         public Dictionary<string, string> Modulverteilung;
         public ListeDateneintraege Dateneinträge;
+        public List<Datenmodell> Datenmodelle;
         public List<Ereignis> Ereignisse;
         public List<Funktion> Funktionen;
 
@@ -39,6 +40,30 @@ namespace isci.Beschreibung
                 Dateneinträge.AddRange(teil.Dateneinträge);
                 Ereignisse.AddRange(teil.Ereignisse);
                 Funktionen.AddRange(teil.Funktionen);
+            }
+        }
+
+        public Automatisierungssystem(string Anwendung, List<string> Automatisierungsressourcen, string Pfad_Beschreibungen, string Pfad_Datenmodelle, string Pfad_Ereignismodelle, string Pfad_Funktionsmodelle, string Pfad_Schnittstellen)
+        {
+            this.Automatisierungsressourcen = Automatisierungsressourcen;
+            this.Anwendung = Anwendung;
+
+            Module = new Dictionary<string, Modul>();
+            var dateien = System.IO.Directory.GetFiles(Pfad_Beschreibungen, "*.json");
+            foreach (var datei in dateien)
+            {
+                var modul_serialisiert = System.IO.File.ReadAllText(datei);
+                var modul = Newtonsoft.Json.JsonConvert.DeserializeObject<Modul>(modul_serialisiert);
+                Module.Add(modul.Identifikation, modul);
+            }
+
+            Datenmodelle = new List<Datenmodell>();
+            dateien = System.IO.Directory.GetFiles(Pfad_Datenmodelle, "*.json");
+            foreach (var datei in dateien)
+            {
+                var datenmodell_serialisiert = System.IO.File.ReadAllText(datei);
+                var datenmodell = Newtonsoft.Json.JsonConvert.DeserializeObject<Datenmodell>(datenmodell_serialisiert);
+                Datenmodelle.Add(datenmodell);
             }
         }
     }
