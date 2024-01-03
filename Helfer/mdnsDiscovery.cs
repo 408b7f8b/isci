@@ -76,6 +76,7 @@ namespace isci
                 foreach (var server in servers)
                 {
                     if (!server.CanonicalName.Contains(".isci.")) continue;
+                    if (targets.ContainsKey(server.CanonicalName)) continue;
                     // Ask for the host IP addresses.
                     mdns.SendQuery(server.Target, type: DnsType.A); //frage nach ipv4
                     targets.Add(server.CanonicalName, server.Target);
@@ -92,7 +93,8 @@ namespace isci
                         Entdeckungen.Add(address.CanonicalName, new Entdeckung(){CanonicalName = address.CanonicalName});
                     }
                     var geteilt = address.CanonicalName.Split('.');
-                    Entdeckungen[address.CanonicalName].Ipv4 = new System.Net.IPAddress(address.Address.Address);
+                    
+                    Entdeckungen[address.CanonicalName].Ipv4 = address.Address;
                     Entdeckungen[address.CanonicalName].Anwendung = geteilt[0];
                     Entdeckungen[address.CanonicalName].Identifikation = geteilt[1];
 

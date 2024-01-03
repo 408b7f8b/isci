@@ -7,9 +7,10 @@ namespace isci.Daten
     {
         public System.Collections.Generic.List<string> datenmodelle;
         public System.Collections.Generic.Dictionary<string, Dateneintrag> dateneinträge;
-        private VerweislisteDateneintraege verweise;
+        public VerweislisteDateneintraege verweise;
         public VerweislisteDateneintraegeAktiv verweiseAktiv;
         public string pfad;
+        public System.Collections.Generic.List<string> nichtVerteilen;
 
         public Datenstruktur(string pfad)
         {
@@ -17,6 +18,7 @@ namespace isci.Daten
             dateneinträge = new System.Collections.Generic.Dictionary<string, Dateneintrag>();
             verweise = new VerweislisteDateneintraege();
             verweiseAktiv = new VerweislisteDateneintraegeAktiv();
+            nichtVerteilen = new System.Collections.Generic.List<string>();
             this.pfad = pfad;
         }
 
@@ -76,8 +78,11 @@ namespace isci.Daten
                     }
                     foreach (var untereintrag in eintrag.Value)
                     {
-                        if (untereintrag.StartsWith("ns=")) value.Add(untereintrag);
-                        else value.Add("ns=3;s=" + datenmodell.Identifikation + "." + untereintrag);
+                        var eintrag_ = "";
+                        if (untereintrag.StartsWith("ns=")) eintrag_ = untereintrag;
+                        else eintrag_ = "ns=3;s=" + datenmodell.Identifikation + "." + untereintrag;
+                        value.Add(eintrag_);
+                        if (!nichtVerteilen.Contains(eintrag_)) nichtVerteilen.Add(eintrag_);
                     }
                     verweise.Add(key, value);
                 }

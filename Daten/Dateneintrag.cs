@@ -6,8 +6,8 @@ namespace isci.Daten
     public class Dateneintrag
     {
         public string Identifikation;
-        [Newtonsoft.Json.JsonIgnore]
-        private System.Threading.Mutex mutex;
+        //[Newtonsoft.Json.JsonIgnore]
+        //private System.Threading.Mutex mutex;
         public object value;
         [Newtonsoft.Json.JsonIgnore]
         public bool aenderung;
@@ -46,6 +46,9 @@ namespace isci.Daten
         {
             Identifikation = jObject.SelectToken("Identifikation").ToString();
             type = jObject.SelectToken("type").ToObject<Datentypen>();
+            if (jObject.ContainsKey("istListe")) istListe = jObject.SelectToken("istListe").ToObject<bool>();
+            if (jObject.ContainsKey("listeDimensionen")) listeDimensionen = jObject.SelectToken("listeDimensionen").ToObject<UInt16>();
+            if (jObject.ContainsKey("parentEintrag")) parentEintrag = jObject.SelectToken("parentEintrag").ToString();
 
             try {
                 var value = jObject.SelectToken("Wert");
@@ -105,12 +108,13 @@ namespace isci.Daten
 
             }
 
-            try
+            //mutex
+            /*try
             {
                 mutex = new System.Threading.Mutex(false, (path + "_mutex").Replace('/', '.'));
             } catch {
 
-            }
+            }*/
             
             try
             {
@@ -128,6 +132,8 @@ namespace isci.Daten
 
         public void MitSpeicherVerknuepfen()
         {
+            //mutex
+            /*
             try
             {
                 mutex = System.Threading.Mutex.OpenExisting((path + "_mutex").Replace('/', '.'));
@@ -135,11 +141,13 @@ namespace isci.Daten
             catch
             {
                 Console.WriteLine("MitSpeicherVerknuepfen fehlgeschlagen: " + this.Identifikation);
-            }
+            }*/
         }
 
         public void MutexBlockierenSynchron()
         {
+            //mutex
+            /*
             try
             {
                 mutex.WaitOne();
@@ -147,12 +155,13 @@ namespace isci.Daten
             catch
             {
                 Console.WriteLine("MutexBlockierenSynchron fehlgeschlagen: " + this.Identifikation);
-            }            
+            } */           
         }
 
         public void MutexFreigeben()
         {
-            mutex.ReleaseMutex();
+            //mutex
+            //mutex.ReleaseMutex();
         }
 
         public void Lesen()

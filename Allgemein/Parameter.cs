@@ -1,36 +1,35 @@
 using System;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace isci.Allgemein
 {
     public class Parameter
     {
-        static void NullPruefen(object var, string Name)
+        [AttributeUsage(AttributeTargets.Field)]
+        public class IgnoreParse : Attribute
         {
-            if (var == null) 
-            {
-                System.Console.WriteLine(Name + " undefiniert, setze Umgebungsvariable oder in konfiguration.json"); System.Environment.Exit(-1);
-            }
+            public IgnoreParse(){}
         }
 
-        public string Ressource;
-        public string Identifikation;
-        public string OrdnerAnwendung;
-        public string OrdnerDatenstruktur;
-        public string Anwendung;
-        public string OrdnerDatenmodelle;
-        public string OrdnerEreignismodelle;
-        public string OrdnerFunktionsmodelle;
-        public string OrdnerSchnittstellen;
-        public string OrdnerBeschreibungen;
-        public Ausführungstransition[] Ausführungstransitionen;
-
-        public Parameter(string datei)
+        public class fromArgs : Attribute
         {
-            var tmp = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_IDENTIFIKATION");
-            if (tmp == null) Identifikation = tmp;
+            public fromArgs(){}
+        }
 
-            tmp = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_RESSOURCE");
+        public class fromEnv : Attribute
+        {
+            public fromEnv(){}
+        }
+/*
+        static Parameter ausDatei(string datei)
+        {
+            var ret = new Parameter();
+
+            Identifikation = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_IDENTIFIKATION");
+
+            var tmp = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_RESSOURCE");
             if (tmp == null) Ressource = System.Environment.MachineName;
             else Ressource = tmp;
 
@@ -46,9 +45,8 @@ namespace isci.Allgemein
 
             if (!System.IO.File.Exists(datei))
             {
-                System.Console.WriteLine("Konfigurationsdatei " + datei + "existiert nicht. Erstelle Beispieldatei.");
-                System.IO.File.WriteAllText("konfiguration_beispiel.json", Newtonsoft.Json.JsonConvert.SerializeObject(this));
-                return;
+                System.Console.WriteLine("Konfigurationsdatei " + datei + " existiert nicht. Erstelle Beispieldatei, falls noch nicht vorhanden.");
+                if (!System.IO.File.Exists("konfiguration_beispiel.json")) System.IO.File.WriteAllText("konfiguration_beispiel.json", Newtonsoft.Json.JsonConvert.SerializeObject(this));
             }
             else
             {
@@ -115,7 +113,8 @@ namespace isci.Allgemein
                     }
                 } catch { }
             }
-
+            
+            NullPruefen(Identifikation, "Identifikation");
             NullPruefen(Anwendung, "Anwendung");
             NullPruefen(OrdnerAnwendung, "OrdnerAnwendung");
             NullPruefen(OrdnerDatenstruktur, "OrdnerDatenstruktur");
@@ -140,9 +139,153 @@ namespace isci.Allgemein
             Helfer.OrdnerPruefenErstellen(OrdnerFunktionsmodelle);
             Helfer.OrdnerPruefenErstellen(OrdnerSchnittstellen);
             Helfer.OrdnerPruefenErstellen(OrdnerBeschreibungen);
+
+
+        }*/
+
+        static void NullPruefen(object var, string Name)
+        {
+            if (var == null) 
+            {
+                System.Console.WriteLine("'" + Name + "' undefiniert, Umgebungsvariable ('AUTOMATISIERUNG_${" + Name.ToUpper() + "}) anlegen oder als '" + Name + "' in konfiguration.json vorgeben."); System.Environment.Exit(-1);
+            }
         }
 
-        public Parameter()
+        public string Ressource = "";
+        public string Identifikation = "";
+        public string OrdnerAnwendungen = "";
+        public string OrdnerDatenstrukturen = "";
+        public string Anwendung = "";
+
+        [IgnoreParse]
+        public string OrdnerDatenmodelle;
+        [IgnoreParse]
+        public string OrdnerEreignismodelle;
+        [IgnoreParse]
+        public string OrdnerFunktionsmodelle;
+        [IgnoreParse]
+        public string OrdnerSchnittstellen;
+        [IgnoreParse]
+        public string OrdnerBeschreibungen;
+
+        public Parameter(string[] args)
+        {
+            var param_env = new System.Collections.Generic.Dictionary<string, string>();
+
+            foreach (System.Collections.Generic.KeyValuePair<string, string> variable in Environment.GetEnvironmentVariables())
+            {
+                var name = variable.Key;
+                if (name.StartsWith("ISCI_"))
+                {
+                    var value = variable.Value;
+                    param_env[name.Substring(5)] = value;
+                }
+            }
+
+            var param_args = new System.Collections.Generic.Dictionary<string, string>();
+            
+            for (int i = 0; i < args.Length; i += 2)
+            {
+                if (i + 1 < args.Length)
+                {
+                    param_args[args[i]] = args[i + 1];
+                }
+                else
+                {
+                    param_args[args[i]] = null;
+                }
+            }
+
+            var felder = GetType().GetFields();
+            foreach (var f in felder)
+            {
+                if (param_env.ContainsKey(f.Name) && Attribute.IsDefined(f, attributeType: typeof(fromEnv))) this.GetType().GetField(f.Name).SetValue(this, param_env[key: f.Name]);
+                else if (param_args.ContainsKey(f.Name) && Attribute.IsDefined(f, attributeType: typeof(fromArgs))) this.GetType().GetField(f.Name).SetValue(this, param_args[f.Name]);
+            }
+
+            var konfigurationsdatei = (OrdnerAnwendungen + "/" + Anwendung + "/Konfigurationen/" + Identifikation + ".json").Replace("//", "/");
+            if (System.IO.File.Exists(konfigurationsdatei))
+            {
+                try
+                {
+                    var t = Newtonsoft.Json.Linq.JToken.Parse(System.IO.File.ReadAllText(konfigurationsdatei));
+                    Console.WriteLine("Konfigdatei: " + konfigurationsdatei);
+
+                    foreach (var f in felder)
+                    {
+                        if (Attribute.IsDefined(f, attributeType: typeof(IgnoreParse))) continue;
+
+                        try
+                        {
+                            var feld = GetType().GetField(f.Name);
+                            var feldtyp = feld.FieldType;
+
+                            if (feldtyp == typeof(string))
+                            {
+                                var o = t.SelectToken(f.Name).ToObject<string>();
+                                feld.SetValue(this, o);
+                            }
+                            else if (feldtyp == typeof(int))
+                            {
+                                var o = t.SelectToken(f.Name).ToObject<int>();
+                                feld.SetValue(this, o);
+                            }
+                            else if (feldtyp == typeof(uint))
+                            {
+                                var o = t.SelectToken(f.Name).ToObject<uint>();
+                                feld.SetValue(this, o);
+                            }
+                            else if (feldtyp == typeof(bool))
+                            {
+                                var o = t.SelectToken(f.Name).ToObject<bool>();
+                                feld.SetValue(this, o);
+                            }
+                            else if (feldtyp == typeof(double))
+                            {
+                                var o = t.SelectToken(f.Name).ToObject<double>();
+                                feld.SetValue(this, o);
+                            }
+                            else if (feldtyp == typeof(Int32[]))
+                            {
+                                var o = t.SelectToken(f.Name).ToObject<Int32[]>();
+                                feld.SetValue(this, o);
+                            }
+                            else if (feldtyp == typeof(string[]))
+                            {
+                                var o = t.SelectToken(f.Name).ToObject<string[]>();
+                                feld.SetValue(this, o);
+                            }
+                            else if (feldtyp == typeof(Ausführungstransition[]))
+                            {
+                                var o = t.SelectToken(f.Name).ToObject<Ausführungstransition[]>();
+                                feld.SetValue(this, o);
+                            } else {
+                                var o = t.SelectToken(f.Name).ToObject<object>();
+                                feld.SetValue(this, o);
+                            }
+
+                            try {
+                                Console.WriteLine("Konfigparam " + feld.Name + ": " + feld.GetValue(this).ToString());
+                            } catch { }
+                        }
+                        catch { }
+                    }
+                } catch { }
+            }
+
+            OrdnerDatenmodelle = (OrdnerAnwendungen + "/" + Anwendung + "/Datenmodelle").Replace("//", "/");
+            OrdnerEreignismodelle = (OrdnerAnwendungen + "/" + Anwendung + "/Ereignismodelle").Replace("//", "/");
+            OrdnerFunktionsmodelle = (OrdnerAnwendungen + "/" + Anwendung + "/Funktionsmodelle").Replace("//", "/");
+            OrdnerSchnittstellen = (OrdnerAnwendungen + "/" + Anwendung + "/Schnittstellen").Replace("//", "/");
+            OrdnerBeschreibungen = (OrdnerAnwendungen + "/" + Anwendung + "/Beschreibungen").Replace("//", "/");
+
+            Helfer.OrdnerPruefenErstellen(OrdnerDatenmodelle);
+            Helfer.OrdnerPruefenErstellen(OrdnerEreignismodelle);
+            Helfer.OrdnerPruefenErstellen(OrdnerFunktionsmodelle);
+            Helfer.OrdnerPruefenErstellen(OrdnerSchnittstellen);
+            Helfer.OrdnerPruefenErstellen(OrdnerBeschreibungen);
+        }
+        /*public Parameter()
         {
             var felder = GetType().GetFields();
 
@@ -204,6 +347,6 @@ namespace isci.Allgemein
                 }
                 catch { }
             }
-        }
+        }*/
     }
 }

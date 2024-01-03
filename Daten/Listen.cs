@@ -105,5 +105,16 @@ namespace isci.Daten
                 base.Add(item1, new ListeDateneintraege(){item2});
             }
         }
+
+        public void Aktualisieren(Dateneintrag item1)
+        {
+            if (this.ContainsKey(item1))
+            {
+                foreach (var subItem in this[item1])
+                {
+                    subItem.value = item1.value;
+                }
+            }
+        }
     }
 }
