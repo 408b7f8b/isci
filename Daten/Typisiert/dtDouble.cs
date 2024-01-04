@@ -64,5 +64,19 @@ namespace isci.Daten
         {
             return (Double)left.value != right;
         }
+        
+        public override bool Equals(object obj)
+        {
+            if (obj is dtDouble other)
+            {
+                return value == other.value;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return value.GetHashCode();
+        }
     }
 }

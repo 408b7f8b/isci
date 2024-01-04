@@ -87,5 +87,19 @@ namespace isci.Daten
         {
             return !(left == right);
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is dtObjekt other)
+            {
+                return value == other.value; //implementierung nicht korrekt!
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return value.GetHashCode();
+        }
     }
 }

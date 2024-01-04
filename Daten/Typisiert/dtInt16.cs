@@ -64,5 +64,19 @@ namespace isci.Daten
         {
             return (System.Int16)left.value != right;
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is dtInt16 other)
+            {
+                return value == other.value;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return value.GetHashCode();
+        }
     }
 }

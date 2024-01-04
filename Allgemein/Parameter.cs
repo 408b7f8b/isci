@@ -8,17 +8,17 @@ namespace isci.Allgemein
     public class Parameter
     {
         [AttributeUsage(AttributeTargets.Field)]
-        public class IgnoreParse : Attribute
+        class IgnoreParse : Attribute
         {
             public IgnoreParse(){}
         }
 
-        public class fromArgs : Attribute
+        class fromArgs : Attribute
         {
             public fromArgs(){}
         }
 
-        public class fromEnv : Attribute
+        class fromEnv : Attribute
         {
             public fromEnv(){}
         }
@@ -151,10 +151,15 @@ namespace isci.Allgemein
             }
         }
 
+        [fromArgs, fromEnv]
         public string Ressource = "";
+        [fromArgs, fromEnv]
         public string Identifikation = "";
+        [fromArgs, fromEnv]
         public string OrdnerAnwendungen = "";
+        [fromArgs, fromEnv]
         public string OrdnerDatenstrukturen = "";
+        [fromArgs, fromEnv]
         public string Anwendung = "";
 
         [IgnoreParse]

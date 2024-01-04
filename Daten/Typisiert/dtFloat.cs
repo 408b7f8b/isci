@@ -72,5 +72,19 @@ namespace isci.Daten
         {
             return (float)left.value != right;
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is dtFloat other)
+            {
+                return value == other.value;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return value.GetHashCode();
+        }
     }
 }
