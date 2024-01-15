@@ -21,6 +21,8 @@ namespace isci.Daten
         public UInt16 listeDimensionen;
         //public System.Collections.Generic.List<string> components;
         public string parentEintrag; //ist für den Bau von Bäumen
+        [Newtonsoft.Json.JsonIgnore]
+        public const uint size = 4;
 
         //parent, children? oder relationen?
         //dimensionen array?
@@ -218,6 +220,8 @@ namespace isci.Daten
 
         public virtual void AusJTokenSpezifisch(Newtonsoft.Json.Linq.JToken token) {}
 
+        public virtual void AusBytes(byte[] bytes) {}
+
         public void AusJToken(Newtonsoft.Json.Linq.JToken token)
         {
             AusJTokenSpezifisch(token);
@@ -228,6 +232,8 @@ namespace isci.Daten
             return NachJTokenSpezifisch();
         }
         public virtual Newtonsoft.Json.Linq.JToken NachJTokenSpezifisch() { return null; }
+
+        public virtual byte[] NachBytes() { return null; }
 
         public string getName()
         {

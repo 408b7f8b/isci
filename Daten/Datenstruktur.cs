@@ -12,6 +12,16 @@ namespace isci.Daten
         public string pfad;
         public System.Collections.Generic.List<string> nichtVerteilen;
 
+        public Datenstruktur(isci.Allgemein.Parameter parameter)
+        {
+            datenmodelle = new System.Collections.Generic.List<string>();
+            dateneinträge = new System.Collections.Generic.Dictionary<string, Dateneintrag>();
+            verweise = new VerweislisteDateneintraege();
+            verweiseAktiv = new VerweislisteDateneintraegeAktiv();
+            nichtVerteilen = new System.Collections.Generic.List<string>();
+            this.pfad = parameter.OrdnerDatenstrukturen + "/" + parameter.Anwendung;
+        }
+
         public Datenstruktur(string pfad)
         {
             datenmodelle = new System.Collections.Generic.List<string>();

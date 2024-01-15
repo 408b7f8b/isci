@@ -14,6 +14,7 @@ namespace isci.Daten
         Bool,
         Float,
         Double,
-        String
+        String,
+        Objekt
     }
 }

@@ -10,7 +10,7 @@ namespace isci.Daten
 
         public dtObjekt(String Identifikation) : base(Identifikation)
         {
-
+            this.type = Datentypen.Objekt;
         }
 
         public new void Lesen()
@@ -33,7 +33,8 @@ namespace isci.Daten
 
         public override string Serialisieren()
         {
-            var r = "{\n";
+            //var r = "{\n";
+            var r = "";
             foreach (var element in ElementeLaufzeit)
             {
                 if (element.type == Datentypen.String)
@@ -41,14 +42,15 @@ namespace isci.Daten
                     r += "\"" + element.Identifikation + "\":\"" + element.ToString() + "\"";
                 } else {
                     r += "\"" + element.Identifikation + "\":" + element.ToString();
-                }                
+                }
 
                 if (ElementeLaufzeit.IndexOf(element) != ElementeLaufzeit.Count-1)
                 {
-                    r += ",\n";
-                } else {
-                    r += "\n";
-                }
+                    //r += ",\n";
+                    r += ",";
+                } //else {
+                    //r += "\n";
+                //}
             }
             r += "}";
 

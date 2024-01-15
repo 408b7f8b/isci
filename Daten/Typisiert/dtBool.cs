@@ -5,6 +5,8 @@ namespace isci.Daten
 {
     public class dtBool : Dateneintrag
     {
+        public new const uint size = 1;
+
         public dtBool(System.Boolean value, String Identifikation, String path = "") : base(Identifikation)
         {
             this.type = Datentypen.Bool;
@@ -41,6 +43,16 @@ namespace isci.Daten
         public override void AusJTokenSpezifisch(Newtonsoft.Json.Linq.JToken token)
         {
             value = token.ToObject<System.Boolean>();
+        }
+
+        public override void AusBytes(byte[] bytes)
+        {
+            value = BitConverter.ToBoolean(bytes, 0);
+        }
+
+        public override byte[] NachBytes()
+        {
+            return BitConverter.GetBytes((System.Boolean)value);
         }
 
         public static bool operator ==(dtBool left, dtBool right)

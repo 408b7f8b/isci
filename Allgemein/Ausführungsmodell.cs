@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace isci.Allgemein
 {
-    public class Ausführungsmodell : System.Collections.Generic.Dictionary<uint, Ausführungsschritt>
+    public class Ausführungsmodell : System.Collections.Generic.SortedDictionary<uint, Ausführungsschritt>
     {
         public Ausführungsmodell() : base()
         {

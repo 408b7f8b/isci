@@ -10,6 +10,16 @@ namespace isci.Daten
         public ListeDateneintraege Dateneinträge;
         public VerweislisteDateneintraege Links;
 
+        public Datenmodell(isci.Allgemein.Parameter parameter, ListeDateneintraege Dateneinträge = null) : base(parameter.Identifikation)
+        {
+            if (this.Dateneinträge == null)
+            {
+                this.Dateneinträge = (Dateneinträge == null ? new ListeDateneintraege() : Dateneinträge);
+            }
+            
+            if (this.Links == null) this.Links = new VerweislisteDateneintraege();
+        }
+
         public Datenmodell(string Identifikation, ListeDateneintraege Dateneinträge = null) : base(Identifikation)
         {
             if (this.Dateneinträge == null)
