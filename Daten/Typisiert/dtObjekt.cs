@@ -13,25 +13,25 @@ namespace isci.Daten
             this.type = Datentypen.Objekt;
         }
 
-        public new void Lesen()
+        public new void WertAusSpeicherLesen()
         {
             foreach (var element in ElementeLaufzeit)
             {
-                element.Lesen();
+                element.WertAusSpeicherLesen();
             }
         }
 
-        public override void LesenSpezifisch(System.IO.BinaryReader reader)
+        public override void WertAusSpeicherLesenSpezifisch(System.IO.BinaryReader reader)
         {
             
         }
 
-        public override void SchreibenSpezifisch(System.IO.BinaryWriter writer)
+        public override void WertInSpeicherSchreibenSpezifisch(System.IO.BinaryWriter writer)
         {
             
         }
 
-        public override string Serialisieren()
+        public override string WertSerialisieren()
         {
             //var r = "{\n";
             var r = "";
@@ -57,18 +57,18 @@ namespace isci.Daten
             return r;
         }
 
-        public override void AusString(System.String s)
+        public override void WertAusString(System.String s)
         {
             var tmp = Newtonsoft.Json.Linq.JToken.Parse(s);
-            AusJTokenSpezifisch(tmp);
+            WertAusJTokenSpezifisch(tmp);
         }
 
-        public override void AusJTokenSpezifisch(Newtonsoft.Json.Linq.JToken token)
+        public override void WertAusJTokenSpezifisch(Newtonsoft.Json.Linq.JToken token)
         {
             foreach (var element in ElementeLaufzeit)
             {
                 try {
-                    element.AusJTokenSpezifisch(token.SelectToken(element.Identifikation));
+                    element.WertAusJTokenSpezifisch(token.SelectToken(element.Identifikation));
                 } catch {
 
                 }

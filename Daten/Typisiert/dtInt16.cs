@@ -14,7 +14,7 @@ namespace isci.Daten
             if (path != "") this.path = path;
         }
 
-        public override void LesenSpezifisch(System.IO.BinaryReader reader)
+        public override void WertAusSpeicherLesenSpezifisch(System.IO.BinaryReader reader)
         {
             var tmp = reader.ReadInt16();
             if (tmp != (System.Int16)value)
@@ -24,23 +24,23 @@ namespace isci.Daten
             }
         }
 
-        public override void SchreibenSpezifisch(System.IO.BinaryWriter writer)
+        public override void WertInSpeicherSchreibenSpezifisch(System.IO.BinaryWriter writer)
         {
             writer.Write((System.Int16)value);
         }
 
-        public override string Serialisieren()
+        public override string WertSerialisieren()
         {
             var s = value.ToString();
             return s;
         }
 
-        public override void AusString(System.String s)
+        public override void WertAusString(System.String s)
         {
             value = System.Int16.Parse(s);
         }
 
-        public override void AusJTokenSpezifisch(Newtonsoft.Json.Linq.JToken token)
+        public override void WertAusJTokenSpezifisch(Newtonsoft.Json.Linq.JToken token)
         {
             value = token.ToObject<System.Int16>();
         }

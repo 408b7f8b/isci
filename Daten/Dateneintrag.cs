@@ -2,7 +2,7 @@
 using System.Linq;
 
 namespace isci.Daten
-{   
+{
     public class Dateneintrag
     {
         public string Identifikation;
@@ -41,7 +41,7 @@ namespace isci.Daten
         {
             ImSpeicherAnlegen();
             MitSpeicherVerknuepfen();
-            Lesen();
+            WertAusSpeicherLesen();
         }
 
         public Dateneintrag(Newtonsoft.Json.Linq.JObject jObject)
@@ -52,17 +52,20 @@ namespace isci.Daten
             if (jObject.ContainsKey("listeDimensionen")) listeDimensionen = jObject.SelectToken("listeDimensionen").ToObject<UInt16>();
             if (jObject.ContainsKey("parentEintrag")) parentEintrag = jObject.SelectToken("parentEintrag").ToString();
 
-            try {
+            try
+            {
                 var value = jObject.SelectToken("Wert");
-                AusJToken(value);
-            } catch {
+                WertAusJToken(value);
+            }
+            catch
+            {
 
             }
         }
 
-        public System.Type Typ()
+        public System.Type GibTyp()
         {
-            switch(this.type)
+            switch (this.type)
             {
                 case Datentypen.UInt8: return typeof(sbyte);
                 case Datentypen.UInt16: return typeof(UInt16);
@@ -78,11 +81,11 @@ namespace isci.Daten
             return null;
         }
 
-        public static Dateneintrag DatafieldTyped(Newtonsoft.Json.Linq.JObject jObject)
+        public static Dateneintrag GibDateneintragTypisiert(Newtonsoft.Json.Linq.JObject jObject)
         {
             var df_ = new Dateneintrag(jObject);
 
-            switch(df_.type)
+            switch (df_.type)
             {
                 case Datentypen.UInt8: return jObject.ToObject<dtUInt8>();
                 case Datentypen.UInt16: return jObject.ToObject<dtUInt16>();
@@ -106,7 +109,9 @@ namespace isci.Daten
                 if (!System.IO.Directory.Exists(dir))
                     System.IO.Directory.CreateDirectory(dir);
 
-            } catch {
+            }
+            catch
+            {
 
             }
 
@@ -117,13 +122,13 @@ namespace isci.Daten
             } catch {
 
             }*/
-            
+
             try
             {
                 if (!System.IO.File.Exists(path))
                 {
                     System.IO.File.Create(path).Close();
-                    Schreiben();
+                    WertInSpeicherSchreiben();
                 }
             }
             catch
@@ -157,7 +162,7 @@ namespace isci.Daten
             catch
             {
                 Console.WriteLine("MutexBlockierenSynchron fehlgeschlagen: " + this.Identifikation);
-            } */           
+            } */
         }
 
         public void MutexFreigeben()
@@ -166,17 +171,20 @@ namespace isci.Daten
             //mutex.ReleaseMutex();
         }
 
-        public void Lesen()
+        public void WertAusSpeicherLesen()
         {
             MutexBlockierenSynchron();
 
             var stream = new System.IO.FileStream(path, System.IO.FileMode.Open);
             var reader = new System.IO.BinaryReader(stream);
 
-            try {
+            try
+            {
                 //var zst = reader.ReadInt64();
-                LesenSpezifisch(reader);
-            } catch {
+                WertAusSpeicherLesenSpezifisch(reader);
+            }
+            catch
+            {
                 Console.WriteLine("Lesen fehlgeschlagen: " + this.Identifikation);
             }
 
@@ -186,56 +194,69 @@ namespace isci.Daten
             MutexFreigeben();
         }
 
-        public virtual void LesenSpezifisch(System.IO.BinaryReader reader)
+        public virtual void WertAusSpeicherLesenSpezifisch(System.IO.BinaryReader reader)
         {
 
         }
 
-        public virtual void SchreibenSpezifisch(System.IO.BinaryWriter writer)
+        public virtual void WertInSpeicherSchreibenSpezifisch(System.IO.BinaryWriter writer)
         {
 
         }
 
-        public void Schreiben()
+        public void WertInSpeicherSchreiben()
         {
             MutexBlockierenSynchron();
 
             var stream = new System.IO.FileStream(path, System.IO.FileMode.Truncate);
             var writer = new System.IO.BinaryWriter(stream);
 
-            SchreibenSpezifisch(writer);
+            WertInSpeicherSchreibenSpezifisch(writer);
 
             writer.Close();
             stream.Close();
-            
+
             MutexFreigeben();
         }
 
-        public virtual string Serialisieren()
+        public virtual string WertSerialisieren()
         {
             return string.Empty;
         }
 
-        public virtual void AusString(System.String s) {}
+        public virtual void WertAusString(System.String s) { }
 
-        public virtual void AusJTokenSpezifisch(Newtonsoft.Json.Linq.JToken token) {}
+        public virtual void WertAusJTokenSpezifisch(Newtonsoft.Json.Linq.JToken token) { }
 
-        public virtual void AusBytes(byte[] bytes) {}
+        public virtual void WertAusBytes(byte[] bytes) { }
 
-        public void AusJToken(Newtonsoft.Json.Linq.JToken token)
+        public void WertAusJToken(Newtonsoft.Json.Linq.JToken token)
         {
-            AusJTokenSpezifisch(token);
+            WertAusJTokenSpezifisch(token);
         }
 
-        public Newtonsoft.Json.Linq.JToken NachJToken()
+        public Newtonsoft.Json.Linq.JToken WertNachJToken()
         {
-            return NachJTokenSpezifisch();
+            return WertNachJTokenSpezifisch();
         }
-        public virtual Newtonsoft.Json.Linq.JToken NachJTokenSpezifisch() { return null; }
+        public virtual Newtonsoft.Json.Linq.JToken WertNachJTokenSpezifisch() { return null; }
 
-        public virtual byte[] NachBytes() { return null; }
+        public virtual byte[] WertNachBytes() { return null; }
 
-        public string getName()
+        public string DateneintragSerialisiert(bool formatiert = false)
+        {
+            var alsJson = DateneintragAlsJToken();
+            if (formatiert) return alsJson.ToString(Newtonsoft.Json.Formatting.Indented);
+            else return alsJson.ToString(Newtonsoft.Json.Formatting.None);
+        }
+
+        public virtual Newtonsoft.Json.Linq.JObject DateneintragAlsJToken()
+        {
+            var alsJson = Newtonsoft.Json.Linq.JObject.FromObject(this);
+            return alsJson;
+        }
+
+        public string gibName()
         {
             if (!this.Identifikation.StartsWith("ns=3;s=")) return Identifikation;
             if (!this.Identifikation.Contains('.')) return this.Identifikation.Substring(7);
@@ -243,13 +264,13 @@ namespace isci.Daten
             return this.Identifikation.Substring(this.Identifikation.LastIndexOf('.') + 1);
         }
 
-        public string getFullname()
+        public string gibVollenNamen()
         {
             if (!this.Identifikation.StartsWith("ns=3;s=")) return Identifikation;
             else return this.Identifikation.Substring(7);
         }
 
-        public int getNamespace()
+        public int gibNamensraum()
         {
             var splits = new string[2];
             splits[0] = "ns=";
@@ -258,24 +279,24 @@ namespace isci.Daten
             return int.Parse(teile[0]);
         }
 
-        public string getDatenmodell()
+        public string gibDatenmodell()
         {
             if (!this.Identifikation.StartsWith("ns=3;s=")) return "";
             if (!this.Identifikation.Contains('.')) return this.Identifikation.Substring(7);
 
-            var teile = this.Identifikation.Split(new char[]{'.'}, StringSplitOptions.RemoveEmptyEntries);
+            var teile = this.Identifikation.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
             if (teile.Length > 1) return teile[0];
             else return "";
         }
 
-        public string getTop()
+        public string gibElterneintrag()
         {
             if (this.parentEintrag != null) return this.parentEintrag;
 
-            if (!this.Identifikation.Contains('.')) return this.getDatenmodell();
+            if (!this.Identifikation.Contains('.')) return this.gibDatenmodell();
 
             var top = this.Identifikation.Substring(0, this.Identifikation.LastIndexOf('.'));
-            
+
             return top;
         }
     }

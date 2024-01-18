@@ -5,8 +5,6 @@ namespace isci.Daten
 {
     public class dtBool : Dateneintrag
     {
-        public new const uint size = 1;
-
         public dtBool(System.Boolean value, String Identifikation, String path = "") : base(Identifikation)
         {
             this.type = Datentypen.Bool;
@@ -14,7 +12,7 @@ namespace isci.Daten
             if (path != "") this.path = path;
         }
 
-        public override void LesenSpezifisch(System.IO.BinaryReader reader)
+        public override void WertAusSpeicherLesenSpezifisch(System.IO.BinaryReader reader)
         {
             var tmp = reader.ReadBoolean();
             if (tmp != (System.Boolean)value)
@@ -24,33 +22,33 @@ namespace isci.Daten
             }
         }
 
-        public override void SchreibenSpezifisch(System.IO.BinaryWriter writer)
+        public override void WertInSpeicherSchreibenSpezifisch(System.IO.BinaryWriter writer)
         {
             writer.Write((System.Boolean)value);
         }
 
-        public override string Serialisieren()
+        public override string WertSerialisieren()
         {
             var s = value.ToString();
             return s;
         }
 
-        public override void AusString(System.String s)
+        public override void WertAusString(System.String s)
         {
             value = System.Boolean.Parse(s);
         }
 
-        public override void AusJTokenSpezifisch(Newtonsoft.Json.Linq.JToken token)
+        public override void WertAusJTokenSpezifisch(Newtonsoft.Json.Linq.JToken token)
         {
             value = token.ToObject<System.Boolean>();
         }
 
-        public override void AusBytes(byte[] bytes)
+        public override void WertAusBytes(byte[] bytes)
         {
             value = BitConverter.ToBoolean(bytes, 0);
         }
 
-        public override byte[] NachBytes()
+        public override byte[] WertNachBytes()
         {
             return BitConverter.GetBytes((System.Boolean)value);
         }

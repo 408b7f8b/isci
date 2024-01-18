@@ -12,7 +12,7 @@ namespace isci.Daten
             if (path != "") this.path = path;
         }
 
-        public override void LesenSpezifisch(System.IO.BinaryReader reader)
+        public override void WertAusSpeicherLesenSpezifisch(System.IO.BinaryReader reader)
         {
             var tmp = (String)reader.ReadString();
             if (tmp != (String)value)
@@ -22,24 +22,34 @@ namespace isci.Daten
             }
         }
 
-        public override void SchreibenSpezifisch(System.IO.BinaryWriter writer)
+        public override void WertInSpeicherSchreibenSpezifisch(System.IO.BinaryWriter writer)
         {
             writer.Write((String)this.value);
         }
 
-        public override string Serialisieren()
+        public override string WertSerialisieren()
         {
             return (String)this.value;
         }
 
-        public override void AusString(System.String s)
+        public override void WertAusString(System.String s)
         {
             value = s;
         }
 
-        public override void AusJTokenSpezifisch(Newtonsoft.Json.Linq.JToken token)
+        public override void WertAusJTokenSpezifisch(Newtonsoft.Json.Linq.JToken token)
         {
             value = token.ToObject<String>();
+        }
+
+        public override void WertAusBytes(byte[] bytes)
+        {
+            value = System.Text.Encoding.UTF8.GetString(bytes);
+        }
+
+        public override byte[] WertNachBytes()
+        {
+            return System.Text.Encoding.UTF8.GetBytes((String)value);
         }
 
         public static bool operator ==(dtString left, dtString right)

@@ -11,6 +11,7 @@ namespace isci.Daten
         public VerweislisteDateneintraegeAktiv verweiseAktiv;
         public string pfad;
         public System.Collections.Generic.List<string> nichtVerteilen;
+        public string identifikation;
 
         public Datenstruktur(isci.Allgemein.Parameter parameter)
         {
@@ -20,6 +21,7 @@ namespace isci.Daten
             verweiseAktiv = new VerweislisteDateneintraegeAktiv();
             nichtVerteilen = new System.Collections.Generic.List<string>();
             this.pfad = parameter.OrdnerDatenstrukturen + "/" + parameter.Anwendung;
+            this.identifikation = parameter.Identifikation;
         }
 
         public Datenstruktur(string pfad)
@@ -109,6 +111,11 @@ namespace isci.Daten
             DatenmodellEinhängen(dm_);
         }
 
+        public void DatenmodelleEinhängen()
+        {
+            this.DatenmodelleEinhängenAusOrdner(this.pfad, this.identifikation);
+        }
+
         public void DatenmodelleEinhängenAusOrdner(string pfade, string excludeown = "")
         {
             if (pfade == null)
@@ -165,7 +172,7 @@ namespace isci.Daten
 
             foreach (var eintrag in dateneinträge)
             {
-                eintrag.Value.Lesen();
+                eintrag.Value.WertLesen();
                 if (eintrag.Value.aenderung)
                 {
                     result.Add(eintrag.Key);
@@ -200,7 +207,7 @@ namespace isci.Daten
             if (this.dateneinträge.ContainsKey(Identifikation))
             {
                 var eintrag = this.dateneinträge[Identifikation];
-                eintrag.Lesen();
+                eintrag.WertLesen();
                 return eintrag.aenderung;
             }
             return false;
