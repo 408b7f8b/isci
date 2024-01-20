@@ -44,7 +44,7 @@ namespace isci.Daten
         }
 
         public System.Collections.Generic.List<string> datenmodelle;
-        public System.Collections.Generic.Dictionary<string, Dateneintrag> dateneinträge;
+        public KarteDateneintraege dateneinträge;
         public VerweislisteDateneintraege verweise;
         public VerweislisteDateneintraegeAktiv verweiseAktiv;        
         public System.Collections.Generic.List<string> nichtVerteilen;
@@ -60,7 +60,7 @@ namespace isci.Daten
         public Datenstruktur(isci.Allgemein.Parameter parameter)
         {
             datenmodelle = new System.Collections.Generic.List<string>();
-            dateneinträge = new System.Collections.Generic.Dictionary<string, Dateneintrag>();
+            dateneinträge = new KarteDateneintraege();
             verweise = new VerweislisteDateneintraege();
             verweiseAktiv = new VerweislisteDateneintraegeAktiv();
             nichtVerteilen = new System.Collections.Generic.List<string>();
@@ -84,7 +84,7 @@ namespace isci.Daten
         public Datenstruktur(string pfad, string identifikation, string automatisierungssystem)
         {
             datenmodelle = new System.Collections.Generic.List<string>();
-            dateneinträge = new System.Collections.Generic.Dictionary<string, Dateneintrag>();
+            dateneinträge = new KarteDateneintraege();
             verweise = new VerweislisteDateneintraege();
             verweiseAktiv = new VerweislisteDateneintraegeAktiv();
             nichtVerteilen = new System.Collections.Generic.List<string>();

@@ -27,6 +27,21 @@ namespace isci.Daten
         }
     }
 
+    public class KarteDateneintraege : System.Collections.Generic.Dictionary<string, Dateneintrag>
+    {
+        public string Serialisieren()
+        {
+            var ret = new Newtonsoft.Json.Linq.JArray();
+
+            foreach (var eintrag in this)
+            {
+                ret.Add(eintrag.Value.DateneintragAlsJToken());
+            }
+
+            return ret.ToString(Newtonsoft.Json.Formatting.None);
+        }
+    }
+
     public class VerweislisteDateneintraege : System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>>
     {
         public void Add(VerweislisteDateneintraege item)

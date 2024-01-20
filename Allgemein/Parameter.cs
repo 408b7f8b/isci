@@ -172,17 +172,22 @@ namespace isci.Allgemein
         public string OrdnerSchnittstellen;
         [IgnoreParse]
         public string OrdnerBeschreibungen;
+        [IgnoreParse]
+        public string OrdnerLogs;
 
         public Parameter(string[] args)
         {
             var param_env = new System.Collections.Generic.Dictionary<string, string>();
 
-            foreach (System.Collections.Generic.KeyValuePair<string, string> variable in Environment.GetEnvironmentVariables())
+            var envVariablen = Environment.GetEnvironmentVariables();
+
+            foreach (System.Collections.DictionaryEntry variable in envVariablen)
             {
-                var name = variable.Key;
+                var name = (string)variable.Key;
+                var wert = (string)variable.Value;
                 if (name.StartsWith("ISCI_"))
                 {
-                    var value = variable.Value;
+                    var value = wert;
                     param_env[name.Substring(5)] = value;
                 }
             }
