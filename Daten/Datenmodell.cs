@@ -63,7 +63,7 @@ namespace isci.Daten
 
             foreach (Newtonsoft.Json.Linq.JObject entry in entries)
             {
-                var de = Dateneintrag.DatafieldTyped(entry);
+                var de = Dateneintrag.GibDateneintragTypisiert(entry);
                 dm.Dateneinträge.Add(de);
             }
 

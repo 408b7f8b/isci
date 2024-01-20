@@ -3,16 +3,60 @@ using System.Linq;
 
 namespace isci.Daten
 {
+    /// <summary>
+    /// This is a summary comment for the MyClass class.
+    /// </summary>
     public class Datenstruktur
     {
+        /// <summary>
+        /// Statische Methode zur Validierung und Korrektur einer Dateneintrag-Identifikation nach dem Muster 'anwendung.datenmodell.spezifischeIdentifikationDateneintrag'.
+        /// </summary>
+        /// <param name="identifikation">Aktuelle Identifikation des Dateneintrags.</param>
+        /// <param name="anwendung">Korrekte Identifikation der Anwendung.</param>
+        /// <param name="datenmodell">Korrekte Identifikation des Datenmodells.</param>
+        /// <returns>Korrekter Identifikations-String.</returns>
+        private static string validiereIdentifikation(string identifikation, string anwendung, string datenmodell)
+        {
+            string correctedString = identifikation;
+
+            if (!correctedString.StartsWith($"{anwendung}.{datenmodell}."))
+            {
+                if (correctedString.Contains('.'))
+                {
+                    correctedString = $"{anwendung}.{datenmodell}.{correctedString.Substring(correctedString.LastIndexOf('.'))}";
+                } else {
+                    correctedString = $"{anwendung}.{datenmodell}.{correctedString}";
+                }
+            }
+
+            return correctedString;
+        }
+
+        /// <summary>
+        /// Statische Methode zur Validierung und Korrektur der Identifikation eines Dateneintrags nach dem Muster 'anwendung.datenmodell.spezifischeIdentifikationDateneintrag'.
+        /// </summary>
+        /// <param name="eintrag">Zu überprüfender und korrigierender Dateneintrag.</param>
+        /// <param name="anwendung">Korrekte Identifikation der Anwendung.</param>
+        /// <param name="datenmodell">Korrekte Identifikation des Datenmodells.</param>
+        private static void validiereIdentifikationEintrag(Dateneintrag eintrag, string anwendung, string datenmodell)
+        {
+            eintrag.Identifikation = validiereIdentifikation(eintrag.Identifikation, anwendung, datenmodell);
+        }
+
         public System.Collections.Generic.List<string> datenmodelle;
         public System.Collections.Generic.Dictionary<string, Dateneintrag> dateneinträge;
         public VerweislisteDateneintraege verweise;
-        public VerweislisteDateneintraegeAktiv verweiseAktiv;
-        public string pfad;
+        public VerweislisteDateneintraegeAktiv verweiseAktiv;        
         public System.Collections.Generic.List<string> nichtVerteilen;
-        public string identifikation;
+        private string pfad;
+        private string identifikation;
+        private string automatisierungssystem;
 
+        /// <summary>
+        /// Konstruktor zur Erstellung eines Datenstrukturobjekts. Standardkonstruktor.
+        /// </summary>
+        /// <param name="parameter">Parameterobjekt, mit dem die nutzende Modulinstanz konfiguriert wird.</param>
+        /// <returns>Das erstellte Datenstrukturobjekt.</returns>
         public Datenstruktur(isci.Allgemein.Parameter parameter)
         {
             datenmodelle = new System.Collections.Generic.List<string>();
@@ -20,11 +64,24 @@ namespace isci.Daten
             verweise = new VerweislisteDateneintraege();
             verweiseAktiv = new VerweislisteDateneintraegeAktiv();
             nichtVerteilen = new System.Collections.Generic.List<string>();
-            this.pfad = parameter.OrdnerDatenstrukturen + "/" + parameter.Anwendung;
+            if (parameter.OrdnerDatenstrukturen.EndsWith(parameter.Anwendung))
+            {
+                this.pfad = parameter.OrdnerDatenstrukturen;
+            } else {
+                this.pfad = parameter.OrdnerDatenstrukturen + "/" + parameter.Anwendung;
+            }            
             this.identifikation = parameter.Identifikation;
+            this.automatisierungssystem = parameter.Anwendung;
         }
 
-        public Datenstruktur(string pfad)
+        /// <summary>
+        /// Konstruktor zur Erstellung eines Datenstrukturobjekts.
+        /// </summary>
+        /// <param name="pfad">Pfad zur Datenstruktur auf dem Dateisystem.</param>
+        /// <param name="identifikation">Identifikation der betreibenden Modulinstanz.</param>
+        /// <param name="automatisierungssystem">Identifikation des übergeordneten Automatisierungssystems.</param>
+        /// <returns>Das erstellte Datenstrukturobjekt.</returns>
+        public Datenstruktur(string pfad, string identifikation, string automatisierungssystem)
         {
             datenmodelle = new System.Collections.Generic.List<string>();
             dateneinträge = new System.Collections.Generic.Dictionary<string, Dateneintrag>();
@@ -32,67 +89,32 @@ namespace isci.Daten
             verweiseAktiv = new VerweislisteDateneintraegeAktiv();
             nichtVerteilen = new System.Collections.Generic.List<string>();
             this.pfad = pfad;
+            this.identifikation = identifikation;
+            this.automatisierungssystem = automatisierungssystem;
         }
 
-        /*public void DatenmodellEinhängen(Datenmodell datenmodell)
-        {
-            try
-            {
-                foreach (var eintrag in datenmodell.Dateneinträge)
-                {
-                    string ident = "ns=" + datenmodell.Identifikation + ";s=" + eintrag.Identifikation;
-                    eintrag.Identifikation = ident;
-                    eintrag.path = pfad + "/" + eintrag.Identifikation;
-                    dateneinträge.Add(ident, eintrag);
-                }
-                foreach (var eintrag in datenmodell.Links)
-                {
-                    var Links_ = new ListeDateneintraege();
-                    var key = eintrag.Key;
-                    var value = new System.Collections.Generic.List<string>();
-                    if (!key.StartsWith("ns="))
-                    {
-                        key = "ns=" + datenmodell.Identifikation + ";s=" + key;
-                    }
-                    foreach (var untereintrag in eintrag.Value)
-                    {
-                        if (untereintrag.StartsWith("ns=")) value.Add(untereintrag);
-                        else value.Add("ns=" + datenmodell.Identifikation + ";s=" + untereintrag);
-                    }
-                    verweise.Add(key, value);
-                }
-                datenmodelle.Add(datenmodell.Identifikation);
-            } catch (Exception)
-            {
-                
-            }            
-        }*/
-
+        /// <summary>
+        /// Einhängen eines Datenmodells in die Datenstruktur.
+        /// </summary>
+        /// <param name="datenmodell">Einzuhängendes Datenmodell.</param>
         public void DatenmodellEinhängen(Datenmodell datenmodell)
         {
-            try
+            try //diese Try-catch-Schleife ist nicht logisch aufgebaut. Ich brauche Debug-Output, um zu erkennen, was schiefläuft und 
             {
                 foreach (var eintrag in datenmodell.Dateneinträge)
                 {
-                    string ident = "ns=3;s=" + datenmodell.Identifikation + "." + eintrag.Identifikation;
-                    eintrag.Identifikation = ident;
+                    validiereIdentifikationEintrag(eintrag, this.automatisierungssystem, datenmodell.Identifikation);
                     eintrag.path = pfad + "/" + eintrag.Identifikation;
-                    dateneinträge.Add(ident, eintrag);
+                    dateneinträge.Add(eintrag.Identifikation, eintrag);
                 }
                 foreach (var eintrag in datenmodell.Links)
                 {
                     var Links_ = new ListeDateneintraege();
                     var key = eintrag.Key;
                     var value = new System.Collections.Generic.List<string>();
-                    if (!key.StartsWith("ns="))
-                    {
-                        key = "ns=3;s=" + datenmodell.Identifikation + "." + key;
-                    }
                     foreach (var untereintrag in eintrag.Value)
                     {
                         var eintrag_ = "";
-                        if (untereintrag.StartsWith("ns=")) eintrag_ = untereintrag;
-                        else eintrag_ = "ns=3;s=" + datenmodell.Identifikation + "." + untereintrag;
                         value.Add(eintrag_);
                         if (!nichtVerteilen.Contains(eintrag_)) nichtVerteilen.Add(eintrag_);
                     }
@@ -105,17 +127,29 @@ namespace isci.Daten
             }            
         }
 
+        /// <summary>
+        /// Einhängen eines bestimmten Datenmodells über seine Datei.
+        /// </summary>
+        /// <param name="pfad">Pfad zur Datei des Datenmodells.</param>
         public void DatenmodellEinhängenAusDatei(string pfad)
         {
             var dm_ = Datenmodell.AusDatei(pfad);
             DatenmodellEinhängen(dm_);
         }
 
+        /// <summary>
+        /// Alle als Dateien abgelegte Datenmodelle aus dem internen Pfad-Ordner einhängen.
+        /// </summary>
         public void DatenmodelleEinhängen()
         {
             this.DatenmodelleEinhängenAusOrdner(this.pfad, this.identifikation);
         }
 
+        /// <summary>
+        /// Alle als Dateien abgelegte Datenmodelle aus einem Ordner einhängen.
+        /// </summary>
+        /// <param name="param1">Pfad, der verarbeitet werden soll. Unterordner werden nicht beachtet.</param>
+        /// <param name="excludeown">Angabe der Modulinstanz-Identifikation, falls ein Datenmodell mit dieser Identifikation ignoriert werden soll.</param>
         public void DatenmodelleEinhängenAusOrdner(string pfade, string excludeown = "")
         {
             if (pfade == null)
@@ -135,6 +169,11 @@ namespace isci.Daten
             }
         }
 
+        /// <summary>
+        /// Alle als Dateien abgelegte Datenmodelle aus mehreren Ordnern einhängen.
+        /// </summary>
+        /// <param name="pfade">Liste, der Pfade, die verarbeitet werden sollen. Unterordner werden nicht beachtet.</param>
+        /// <param name="excludeown">Angabe der Modulinstanz-Identifikation, falls ein Datenmodell mit dieser Identifikation ignoriert werden soll.</param>
         public void DatenmodelleEinhängenAusOrdnern(string[] pfade, string excludeown = "")
         {
             foreach (var pfad in pfade)
@@ -143,6 +182,9 @@ namespace isci.Daten
             }
         }
 
+        /// <summary>
+        /// Laufzeitverweise zwischen Dateneinträgen aus dem Datenmodellangaben erzeugen.
+        /// </summary>
         public void VerweiseErzeugen()
         {
             foreach (var eintrag in verweise)
@@ -158,6 +200,9 @@ namespace isci.Daten
             }
         }
 
+        /// <summary>
+        /// Verbindung der programmatischen Datenstruktur mit der Datenstruktur auf dem Dateisystem herstellen.
+        /// </summary>
         public void Start()
         {
             foreach (var eintrag in dateneinträge)
@@ -166,13 +211,17 @@ namespace isci.Daten
             }
         }
 
+        /// <summary>
+        /// Lesen aller Dateneinträge vom Dateisystem.
+        /// </summary>
+        /// <returns>Liste der Identifikationen der Dateneinträge mit Werteänderung.</returns>
         public System.Collections.Generic.List<string> Lesen()
         {
             var result = new System.Collections.Generic.List<string>();
 
             foreach (var eintrag in dateneinträge)
             {
-                eintrag.Value.WertLesen();
+                eintrag.Value.WertAusSpeicherLesen();
                 if (eintrag.Value.aenderung)
                 {
                     result.Add(eintrag.Key);
@@ -182,6 +231,26 @@ namespace isci.Daten
             return result;
         }
 
+        /// <summary>
+        /// Lesen eines bestimmten Dateneintrags vom Dateisystem anhand seiner Identifikation.
+        /// </summary>
+        /// <param name="Identifikation">Identifikation des zu lesenden Dateneintrags.</param>
+        /// <returns>True, wenn eine Werteänderung bei ihm vorliegt oder der Dateneintrag nicht existiert, ansonsten false.</returns>
+        public bool Lesen(string Identifikation)
+        {
+            if (this.dateneinträge.ContainsKey(Identifikation))
+            {
+                var eintrag = this.dateneinträge[Identifikation];
+                eintrag.WertAusSpeicherLesen();
+                return eintrag.aenderung;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Abfrage ob Änderung bei einem oder mehreren Dateneinträgen vorhanden sind.
+        /// </summary>
+        /// <returns>Rückgabe true, wenn einer oder mehrere Dateneinträge eine gesetzte Änderungsmarkierung hat, ansonsten false.</returns>
         public bool AenderungVorhanden()
         {
             foreach (var eintrag in dateneinträge)
@@ -190,43 +259,46 @@ namespace isci.Daten
             return false;
         }
 
+        /// <summary>
+        /// Änderungsmarkierungen aller Dateneinträge zurücksetzen.
+        /// </summary>
         public void AenderungenZuruecksetzen()
         {
             foreach (var eintrag in dateneinträge)
                 if (eintrag.Value.aenderung) eintrag.Value.aenderung = false;
         }
 
+        /// <summary>
+        /// Änderungsmarkierungen zurücksetzen anhand einer gegebenen Liste
+        /// </summary>
+        /// <param name="liste">Liste der Identifikationen der Dateneinträge, deren Änderungsmarkierungen zurückgesetzt werden sollen.</param>
         public void AenderungenZuruecksetzen(System.Collections.Generic.List<string> liste)
         {
             foreach (var eintrag in liste)
                 if (dateneinträge[eintrag].aenderung)dateneinträge[eintrag].aenderung = false;
         }
 
-        public bool Lesen(string Identifikation)
-        {
-            if (this.dateneinträge.ContainsKey(Identifikation))
-            {
-                var eintrag = this.dateneinträge[Identifikation];
-                eintrag.WertLesen();
-                return eintrag.aenderung;
-            }
-            return false;
-        }
-
+        /// <summary>
+        /// Aktuelle Werte aller Dateneinträge auf das Dateisystem übernehmen.
+        /// </summary>
         public void Schreiben()
         {
             foreach (var eintrag in dateneinträge)
             {
-                eintrag.Value.Schreiben();
+                eintrag.Value.WertInSpeicherSchreiben();
             }
         }
 
+        /// <summary>
+        /// Aktuellen Wert eines bestimmten Dateneintrags auf das Dateisystem übernehmen.
+        /// </summary>
+        /// <param name="Identifikation">Identifikation des Dateneintrags als string.</param>
         public void Schreiben(string Identifikation)
         {
             if (this.dateneinträge.ContainsKey(Identifikation))
             {
                 var eintrag = this.dateneinträge[Identifikation];
-                eintrag.Schreiben();
+                eintrag.WertInSpeicherSchreiben();
             }
         }
     }
