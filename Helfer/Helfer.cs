@@ -45,14 +45,16 @@ namespace isci
             INFO,
             ERROR
         }
-
-        private static string pfad;
-        private static string identifikation;
+        private static string identifikation = "";
+        
+        public static void temporärKonfigurieren(string identifikation)
+        {
+            Logger.identifikation = identifikation;
+        }
 
         public static void Konfigurieren(Allgemein.Parameter parameter)
         {
             identifikation = parameter.Identifikation;
-            pfad = parameter.OrdnerLogs + "/" + identifikation + ".log";
         }
 
         public static void Loggen(Qualität qualität, string nachricht)
@@ -60,10 +62,7 @@ namespace isci
             var timeStamp = DateTime.Now.ToString("O");
             var eintrag = "{" + $"\"Zeitstempel\":\"{timeStamp}\",\"Qualität\":\"{qualität.ToString()}\",\"Inhalt\":\"{nachricht}\",\"Modulinstanz\":\"{identifikation}\"" + "}";
 
-            using (System.IO.StreamWriter writer = new System.IO.StreamWriter(pfad, true))
-            {
-                writer.WriteLine(eintrag);
-            }
+            System.Console.WriteLine(eintrag);
         }
     }
 }

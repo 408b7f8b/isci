@@ -147,7 +147,17 @@ namespace isci.Allgemein
         {
             if (var == null) 
             {
-                System.Console.WriteLine("'" + Name + "' undefiniert, Umgebungsvariable ('AUTOMATISIERUNG_${" + Name.ToUpper() + "}) anlegen oder als '" + Name + "' in konfiguration.json vorgeben."); System.Environment.Exit(-1);
+                Logger.Loggen(Logger.Qualität.ERROR, "'" + Name + "' undefiniert, Umgebungsvariable ('ISCI_${" + Name.ToUpper() + "}) anlegen oder als '" + Name + "' als Startparameter oder über die Konfigurationsdatei vorgeben.");
+                System.Environment.Exit(-1);
+            }
+        }
+
+        static void LeerPruefen(string var, string Name)
+        {
+            if (var.Trim() == "")
+            {
+                Logger.Loggen(Logger.Qualität.ERROR, "'" + Name + "' leer, Umgebungsvariable ('ISCI_${" + Name.ToUpper() + "}) anlegen oder als '" + Name + "' als Startparameter oder über die Konfigurationsdatei vorgeben.");
+                System.Environment.Exit(-1);
             }
         }
 
@@ -161,6 +171,8 @@ namespace isci.Allgemein
         public string OrdnerDatenstrukturen = "";
         [fromArgs, fromEnv]
         public string Anwendung = "";
+        [fromArgs, fromEnv]
+        public uint PauseArbeitsschleifeUs = 100;
 
         [IgnoreParse]
         public string OrdnerDatenmodelle;
@@ -219,7 +231,7 @@ namespace isci.Allgemein
                 try
                 {
                     var t = Newtonsoft.Json.Linq.JToken.Parse(System.IO.File.ReadAllText(konfigurationsdatei));
-                    Console.WriteLine("Konfigdatei: " + konfigurationsdatei);
+                    Logger.Loggen(Logger.Qualität.INFO, "Konfigdatei: " + konfigurationsdatei);
 
                     foreach (var f in felder)
                     {
@@ -275,13 +287,30 @@ namespace isci.Allgemein
                             }
 
                             try {
-                                Console.WriteLine("Konfigparam " + feld.Name + ": " + feld.GetValue(this).ToString());
-                            } catch { }
+                                Logger.Loggen(Logger.Qualität.INFO, "Konfigparam " + feld.Name + ": " + feld.GetValue(this).ToString());
+                            } catch (System.Exception e) {
+                                Logger.Loggen(Logger.Qualität.ERROR, "Fehler beim Lesen und Setzen des Konfigurationsparameters " + feld.Name + ": " + e.Message);
+                            }
                         }
                         catch { }
                     }
                 } catch { }
+            } else {
+                Logger.Loggen(Logger.Qualität.INFO, "Konfigdatei: " + konfigurationsdatei + " existiert nicht.");
             }
+
+            NullPruefen(Ressource, "Ressource");
+            NullPruefen(Identifikation, "Identifikation");
+            NullPruefen(OrdnerAnwendungen, "OrdnerAnwendungen");
+            NullPruefen(OrdnerDatenstrukturen, "OrdnerDatenstrukturen");
+            NullPruefen(Anwendung, "Anwendung");
+            LeerPruefen(Ressource, "Ressource");
+            LeerPruefen(Identifikation, "Identifikation");
+            LeerPruefen(OrdnerAnwendungen, "OrdnerAnwendungen");
+            LeerPruefen(OrdnerDatenstrukturen, "OrdnerDatenstrukturen");
+            LeerPruefen(Anwendung, "Anwendung");
+
+            Logger.Konfigurieren(this);
 
             OrdnerDatenmodelle = (OrdnerAnwendungen + "/" + Anwendung + "/Datenmodelle").Replace("//", "/");
             OrdnerEreignismodelle = (OrdnerAnwendungen + "/" + Anwendung + "/Ereignismodelle").Replace("//", "/");

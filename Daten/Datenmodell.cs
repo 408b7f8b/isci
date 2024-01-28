@@ -40,6 +40,11 @@ namespace isci.Daten
             return datamodel;
         }
 
+        public void Speichern(Parameter parameter)
+        {
+            Speichern(parameter.OrdnerDatenmodelle + "/" + Identifikation + ".json");
+        }
+
         public override string ToString()
         {
             var settings = new Newtonsoft.Json.JsonSerializerSettings();

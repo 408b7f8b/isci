@@ -5,23 +5,48 @@ namespace isci.Allgemein
 {
     public class Ausführungsmodell : System.Collections.Generic.SortedDictionary<uint, Ausführungsschritt>
     {
+        public Daten.dtUInt16 Zustand;
+
         public Ausführungsmodell() : base()
         {
             
         }
 
-        public Ausführungsmodell(Parameter konfiguration) : base()
+        public Ausführungsmodell(Parameter konfiguration, Daten.dtUInt16 zustand = null) : base()
         {
-            var datei = (konfiguration.OrdnerAnwendungen + "/" + konfiguration.Anwendung + "/Ausführungsmodell.json").Replace("//", "/");
-            var geparst = Newtonsoft.Json.Linq.JObject.Parse(System.IO.File.ReadAllText(datei));
+            Newtonsoft.Json.Linq.JObject geparst = null;
 
-            foreach (Newtonsoft.Json.Linq.JProperty child in geparst.Properties())
-            {
-                var identifikation_ = child.Value.SelectToken("Modulidentifikation").ToObject<string>();
-                if (identifikation_ != konfiguration.Identifikation) continue;
-                var index = uint.Parse(child.Name);
-                Add(index, child.Value.ToObject<Ausführungsschritt>());
+            try {
+                var datei = (konfiguration.OrdnerAnwendungen + "/" + konfiguration.Anwendung + "/Ausführungsmodell.json").Replace("//", "/");
+                geparst = Newtonsoft.Json.Linq.JObject.Parse(System.IO.File.ReadAllText(datei));
+            } catch (System.Exception e) {
+                Logger.Loggen(Logger.Qualität.ERROR, "Ausführungsmodell ist nicht vorhanden oder konnte nicht gelesen werden: " + e.Message);
+                System.Environment.Exit(-1);
             }
+
+            try
+            {
+                foreach (Newtonsoft.Json.Linq.JProperty child in geparst.Properties())
+                {
+                    var identifikation_ = child.Value.SelectToken("Modulidentifikation").ToObject<string>();
+                    if (identifikation_ != konfiguration.Identifikation) continue;
+                    var index = uint.Parse(child.Name);
+                    Add(index, child.Value.ToObject<Ausführungsschritt>());
+                }
+            }
+            catch (System.Exception e)
+            {
+                Logger.Loggen(Logger.Qualität.ERROR, "JSON-Verarbeitung des Ausführungsmodells fehlgeschlagen für die Modulinstanz: " + konfiguration.Identifikation + ", " + e.Message);
+                System.Environment.Exit(-1);
+            }
+
+            if (this.Count() == 0)
+            {
+                Logger.Loggen(Logger.Qualität.ERROR, "Kein Eintrag im Ausführungsmodell für die Modulinstanz: " + konfiguration.Identifikation);
+                System.Environment.Exit(-1);
+            }
+
+            if (zustand != null) this.Zustand = zustand;
         }
 
         public static Ausführungsmodell ausDatei(string modell)
@@ -62,6 +87,26 @@ namespace isci.Allgemein
             }
 
             return ret;            
+        }
+
+        public bool AktuellerZustandModulAktivieren()
+        {
+            return ContainsKey(Zustand.Value());
+        }
+
+        public bool AktuellerZustandModulAktivieren(Daten.dtUInt16 Zustand)
+        {
+            return ContainsKey(Zustand.Value());
+        }
+
+        public object ParameterAktuellerZustand()
+        {
+            return this[Zustand.Value()].Parametrierung;
+        }
+
+        public object ParameterAktuellerZustand(Daten.dtUInt16 Zustand)
+        {
+            return this[Zustand.Value()].Parametrierung;
         }
     }
 }

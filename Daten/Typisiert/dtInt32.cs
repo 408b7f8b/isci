@@ -6,6 +6,15 @@ namespace isci.Daten
     public class dtInt32 : Dateneintrag
     {
         //public new System.Int32 value;
+        public Int32 Value()
+        {
+            return (Int32)value;
+        }
+
+        public void Value(Int32 val)
+        {
+            this.value = val;
+        }
 
         public dtInt32(System.Int32 value, String Identifikation, String path = "") : base(Identifikation)
         {

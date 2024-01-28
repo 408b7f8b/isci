@@ -7,6 +7,16 @@ namespace isci.Daten
     {
         //public new System.Int32 value;
 
+        public UInt16 Value()
+        {
+            return (UInt16)value;
+        }
+
+        public void Value(UInt16 val)
+        {
+            this.value = val;
+        }
+
         public dtUInt16(System.UInt16 value, String Identifikation, String path = "") : base(Identifikation)
         {
             this.type = Datentypen.UInt16;
@@ -63,6 +73,12 @@ namespace isci.Daten
         public static bool operator !=(dtUInt16 left, System.UInt16 right)
         {
             return (System.UInt16)left.value != right;
+        }
+
+        public static dtUInt16 operator ++(dtUInt16 element)
+        {
+            element.value = (UInt16)element.value + 1;
+            return element;
         }
 
         public override bool Equals(object obj)

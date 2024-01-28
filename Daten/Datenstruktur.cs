@@ -4,7 +4,7 @@ using System.Linq;
 namespace isci.Daten
 {
     /// <summary>
-    /// This is a summary comment for the MyClass class.
+    /// Datenstrukturklasse zur Abbildung einer Dateisystem-Datenstruktur in einem programmatischen Objekt.
     /// </summary>
     public class Datenstruktur
     {
@@ -51,6 +51,7 @@ namespace isci.Daten
         private string pfad;
         private string identifikation;
         private string automatisierungssystem;
+        public dtUInt16 Zustand;
 
         /// <summary>
         /// Konstruktor zur Erstellung eines Datenstrukturobjekts. Standardkonstruktor.
@@ -72,6 +73,8 @@ namespace isci.Daten
             }            
             this.identifikation = parameter.Identifikation;
             this.automatisierungssystem = parameter.Anwendung;
+            this.ZustandsdateneintragAnlegen(parameter);
+            Logger.Loggen(Logger.Qualität.INFO, "Datenstruktur erstellt.");
         }
 
         /// <summary>
@@ -91,6 +94,8 @@ namespace isci.Daten
             this.pfad = pfad;
             this.identifikation = identifikation;
             this.automatisierungssystem = automatisierungssystem;
+            //this.ZustandsdateneintragAnlegen(parameter);
+            Logger.Loggen(Logger.Qualität.INFO, "Datenstruktur erstellt.");
         }
 
         /// <summary>
@@ -133,6 +138,7 @@ namespace isci.Daten
         /// <param name="pfad">Pfad zur Datei des Datenmodells.</param>
         public void DatenmodellEinhängenAusDatei(string pfad)
         {
+            Logger.Loggen(Logger.Qualität.INFO, $"Datenstruktur: Datenmodell {pfad} wird eingehängt.");
             var dm_ = Datenmodell.AusDatei(pfad);
             DatenmodellEinhängen(dm_);
         }
@@ -187,17 +193,24 @@ namespace isci.Daten
         /// </summary>
         public void VerweiseErzeugen()
         {
+            Logger.Loggen(Logger.Qualität.INFO, "Datenstruktur: Verweise werden erzeugt.");
             foreach (var eintrag in verweise)
             {
                 foreach (var subentry in eintrag.Value)
                 {
                     try {
                         verweiseAktiv.Add(dateneinträge[eintrag.Key], dateneinträge[subentry]);
-                    } catch {
-
+                    } catch (System.Exception e) {
+                        Logger.Loggen(Logger.Qualität.ERROR, "Datenstruktur: Fehler beim Erzeugen der Verweise: " + e.Message);
                     }
                 }
             }
+        }
+
+        public void ZustandsdateneintragAnlegen(isci.Allgemein.Parameter parameter)
+        {
+            Zustand = new dtUInt16(0, "Zustand", parameter.OrdnerDatenstrukturen + "/" + parameter.Anwendung + "/Zustand");
+            this.dateneinträge.Add(Zustand.Identifikation, Zustand);
         }
 
         /// <summary>
@@ -205,6 +218,7 @@ namespace isci.Daten
         /// </summary>
         public void Start()
         {
+            Logger.Loggen(Logger.Qualität.INFO, "Datenstruktur wird gestartet.");
             foreach (var eintrag in dateneinträge)
             {
                 eintrag.Value.Start();

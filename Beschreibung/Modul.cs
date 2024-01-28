@@ -30,5 +30,10 @@ namespace isci.Beschreibung
             this.Ereignisse = (Ereignisse == null ? new List<Ereignis>() : Ereignisse);
             this.Funktionen = (Funktionen == null ? new List<Funktion>() : Funktionen);
         }
+
+        public void Speichern(Parameter parameter)
+        {
+            Speichern(parameter.OrdnerBeschreibungen + "/" + parameter.Identifikation + ".json");
+        }
     }
 }
