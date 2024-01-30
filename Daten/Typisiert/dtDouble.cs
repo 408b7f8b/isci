@@ -20,7 +20,7 @@ namespace isci.Daten
             if (tmp != (Double)value)
             {
                 value = tmp;
-                aenderung = true;
+                aenderungExtern = true;
             }
         }
 

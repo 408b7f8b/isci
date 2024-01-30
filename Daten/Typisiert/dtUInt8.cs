@@ -20,7 +20,7 @@ namespace isci.Daten
             if (tmp != (System.Byte)value)
             {
                 value = tmp;
-                aenderung = true;
+                aenderungExtern = true;
             }
         }
 

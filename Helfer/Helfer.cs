@@ -6,6 +6,9 @@ namespace isci
 {
     public static class Helfer
     {
+        [System.Runtime.InteropServices.DllImport("lib_wait_us.so")]
+        public static extern void WaitForMicroseconds(uint microseconds);
+        
         private static System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>> Cache = null;
 
         public static System.Collections.Generic.List<string> ChangedFiles(string path)

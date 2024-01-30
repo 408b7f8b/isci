@@ -5,17 +5,7 @@ namespace isci.Daten
 {
     public class dtUInt16 : Dateneintrag
     {
-        //public new System.Int32 value;
-
-        public UInt16 Value()
-        {
-            return (UInt16)value;
-        }
-
-        public void Value(UInt16 val)
-        {
-            this.value = val;
-        }
+        public new System.UInt32 value;
 
         public dtUInt16(System.UInt16 value, String Identifikation, String path = "") : base(Identifikation)
         {
@@ -27,16 +17,16 @@ namespace isci.Daten
         public override void WertAusSpeicherLesenSpezifisch(System.IO.BinaryReader reader)
         {
             var tmp = reader.ReadUInt16();
-            if (tmp != (System.UInt16)value)
+            if (tmp != value)
             {
                 value = tmp;
-                aenderung = true;
+                aenderungExtern = true;
             }
         }
 
         public override void WertInSpeicherSchreibenSpezifisch(System.IO.BinaryWriter writer)
         {
-            writer.Write((System.UInt16)value);
+            writer.Write(value);
         }
 
         public override string WertSerialisieren()
@@ -57,27 +47,27 @@ namespace isci.Daten
 
         public static bool operator ==(dtUInt16 left, dtUInt16 right)
         {
-            return (System.UInt16)left.value == (System.UInt16)right.value;
+            return left.value == right.value;
         }
 
         public static bool operator !=(dtUInt16 left, dtUInt16 right)
         {
-            return (System.UInt16)left.value != (System.UInt16)right.value;
+            return left.value != right.value;
         }
 
         public static bool operator ==(dtUInt16 left, System.UInt16 right)
         {
-            return (System.UInt16)left.value == right;
+            return left.value == right;
         }
 
         public static bool operator !=(dtUInt16 left, System.UInt16 right)
         {
-            return (System.UInt16)left.value != right;
+            return left.value != right;
         }
 
         public static dtUInt16 operator ++(dtUInt16 element)
         {
-            element.value = (UInt16)element.value + 1;
+            element.value++;
             return element;
         }
 

@@ -18,7 +18,7 @@ namespace isci.Daten
             if (tmp != (String)value)
             {
                 value = tmp;
-                aenderung = true;
+                aenderungExtern = true;
             }
         }
 

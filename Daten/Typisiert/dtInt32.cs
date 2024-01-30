@@ -5,15 +5,17 @@ namespace isci.Daten
 {
     public class dtInt32 : Dateneintrag
     {
-        //public new System.Int32 value;
-        public Int32 Value()
+        public new System.Int32 value
         {
-            return (Int32)value;
-        }
-
-        public void Value(Int32 val)
-        {
-            this.value = val;
+            get
+            {
+                return this.value;
+            }
+            set
+            {
+                this.value = value;
+                this.aenderungIntern = true;
+            }
         }
 
         public dtInt32(System.Int32 value, String Identifikation, String path = "") : base(Identifikation)
@@ -26,16 +28,16 @@ namespace isci.Daten
         public override void WertAusSpeicherLesenSpezifisch(System.IO.BinaryReader reader)
         {
             var tmp = reader.ReadInt32();
-            if (tmp != (System.Int32)value)
+            if (tmp != value)
             {
                 value = tmp;
-                aenderung = true;
+                aenderungExtern = true;
             }
         }
 
         public override void WertInSpeicherSchreibenSpezifisch(System.IO.BinaryWriter writer)
         {
-            writer.Write((System.Int32)value);
+            writer.Write(value);
         }
 
         public override string WertSerialisieren()
@@ -56,22 +58,22 @@ namespace isci.Daten
 
         public static bool operator ==(dtInt32 left, dtInt32 right)
         {
-            return (System.Int32)left.value == (System.Int32)right.value;
+            return left.value == right.value;
         }
 
         public static bool operator !=(dtInt32 left, dtInt32 right)
         {
-            return (System.Int32)left.value != (System.Int32)right.value;
+            return left.value != right.value;
         }
 
         public static bool operator ==(dtInt32 left, System.Int32 right)
         {
-            return (System.Int32)left.value == right;
+            return left.value == right;
         }
 
         public static bool operator !=(dtInt32 left, System.Int32 right)
         {
-            return (System.Int32)left.value != right;
+            return left.value != right;
         }
 
         public override bool Equals(object obj)

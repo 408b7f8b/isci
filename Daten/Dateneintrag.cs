@@ -8,9 +8,34 @@ namespace isci.Daten
         public string Identifikation;
         //[Newtonsoft.Json.JsonIgnore]
         //private System.Threading.Mutex mutex;
-        public object value;
+        public virtual object value
+        {
+            get
+            {
+                return this.value;
+            }
+            set
+            {
+                this.value = value;
+                this.aenderungIntern = true;
+            }
+        }
+
         [Newtonsoft.Json.JsonIgnore]
-        public bool aenderung;
+        public bool aenderungExtern
+        {
+            get
+            {
+                return this.aenderungExtern;
+            }
+            set
+            {
+                this.aenderungExtern = value;
+                if (value) this.aenderungIntern = false;
+            }
+        }
+        [Newtonsoft.Json.JsonIgnore]
+        public bool aenderungIntern;
         [Newtonsoft.Json.JsonIgnore]
         public string path;
         [Newtonsoft.Json.JsonIgnore]
@@ -21,8 +46,6 @@ namespace isci.Daten
         public UInt16 listeDimensionen;
         //public System.Collections.Generic.List<string> components;
         public string parentEintrag; //ist für den Bau von Bäumen
-        [Newtonsoft.Json.JsonIgnore]
-        public const uint size = 4;
 
         //parent, children? oder relationen?
         //dimensionen array?
@@ -108,7 +131,6 @@ namespace isci.Daten
                 var dir = System.IO.Path.GetDirectoryName(path);
                 if (!System.IO.Directory.Exists(dir))
                     System.IO.Directory.CreateDirectory(dir);
-
             }
             catch
             {

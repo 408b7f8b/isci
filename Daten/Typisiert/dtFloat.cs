@@ -3,14 +3,6 @@ using System.Linq;
 
 namespace isci.Daten
 {
-    public class UniList<T> : Dateneintrag
-    {
-        public UniList(System.Collections.Generic.List<T> values)
-        {
-
-        }
-    }
-
     public class dtFloat : Dateneintrag
     {
         //public new float value;
@@ -28,7 +20,7 @@ namespace isci.Daten
             if (tmp != (float)value)
             {
                 value = tmp;
-                aenderung = true;
+                aenderungExtern = true;
             }
         }
 

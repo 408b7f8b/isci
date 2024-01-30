@@ -18,7 +18,7 @@ namespace isci.Daten
             if (tmp != (System.Boolean)value)
             {
                 value = tmp;
-                aenderung = true;
+                aenderungExtern = true;
             }
         }
 

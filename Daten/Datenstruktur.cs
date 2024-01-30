@@ -236,7 +236,7 @@ namespace isci.Daten
             foreach (var eintrag in dateneinträge)
             {
                 eintrag.Value.WertAusSpeicherLesen();
-                if (eintrag.Value.aenderung)
+                if (eintrag.Value.aenderungExtern)
                 {
                     result.Add(eintrag.Key);
                 }
@@ -256,7 +256,7 @@ namespace isci.Daten
             {
                 var eintrag = this.dateneinträge[Identifikation];
                 eintrag.WertAusSpeicherLesen();
-                return eintrag.aenderung;
+                return eintrag.aenderungExtern;
             }
             return false;
         }
@@ -268,7 +268,7 @@ namespace isci.Daten
         public bool AenderungVorhanden()
         {
             foreach (var eintrag in dateneinträge)
-                if (eintrag.Value.aenderung) return true;
+                if (eintrag.Value.aenderungExtern) return true;
 
             return false;
         }
@@ -279,7 +279,7 @@ namespace isci.Daten
         public void AenderungenZuruecksetzen()
         {
             foreach (var eintrag in dateneinträge)
-                if (eintrag.Value.aenderung) eintrag.Value.aenderung = false;
+                if (eintrag.Value.aenderungExtern) eintrag.Value.aenderungExtern = false;
         }
 
         /// <summary>
@@ -289,7 +289,7 @@ namespace isci.Daten
         public void AenderungenZuruecksetzen(System.Collections.Generic.List<string> liste)
         {
             foreach (var eintrag in liste)
-                if (dateneinträge[eintrag].aenderung)dateneinträge[eintrag].aenderung = false;
+                if (dateneinträge[eintrag].aenderungExtern) dateneinträge[eintrag].aenderungExtern = false;
         }
 
         /// <summary>
@@ -299,7 +299,11 @@ namespace isci.Daten
         {
             foreach (var eintrag in dateneinträge)
             {
-                eintrag.Value.WertInSpeicherSchreiben();
+                if (eintrag.Value.aenderungIntern)
+                {
+                    eintrag.Value.WertInSpeicherSchreiben();
+                }
+                eintrag.Value.aenderungExtern = false;
             }
         }
 
