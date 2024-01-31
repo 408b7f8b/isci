@@ -10,4 +10,19 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
+  <Target Name="BuildCppLibraryLinux" BeforeTargets="BeforeBuild" Condition="'$(OS)' == 'Unix'">
+    <Message Importance="high" Text="Baue wait_us-Library" />
+    <Message Importance="high" Text="'$(OS)'" />
+    <Message Importance="high" Text="'$(PLATFORM)'" />
+    <Exec Command="g++ -c -fPIC Helfer/wait_us.cpp -o Helfer/wait_us.o" />
+    <Exec Command="g++ -shared -o Helfer/lib_wait_us-linux-x64.so Helfer/wait_us.o" />
+  </Target>
+
+  <Target Name="BuildCppLibraryWin" BeforeTargets="BeforeBuild" Condition="'$(OS)' == 'Windows'">
+    <Message Importance="high" Text="Baue wait_us-Library" />
+    <Message Importance="high" Text="'$(OS)'" />
+    <Exec Command="g++ -c -fPIC Helfer/wait_us.cpp -o Helfer/wait_us.o" />
+    <Exec Command="g++ -shared -o Helfer/lib_wait_us-linux-x64.so Helfer/wait_us.o" />
+  </Target>
+
 </Project>
