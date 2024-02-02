@@ -2,10 +2,7 @@
 using System.Linq;
 using Common.Logging.Factory;
 
-namespace isci
-{
-    public static class Helfer
-    {
+/*
 #if X64
 #if WINDOWS
 [System.Runtime.InteropServices.DllImport("lib_wait_us-win-x64.dll")]
@@ -30,7 +27,61 @@ public static extern void WaitForMicroseconds(uint microseconds);
 #endif
 public static extern void WaitForMicroseconds(uint microseconds);
 
+#elif ANYCPU
+#if WINDOWS
+[System.Runtime.InteropServices.DllImport("lib_wait_us-win-arm.dll")]
+#else
+[System.Runtime.InteropServices.DllImport("lib_wait_us-linux-arm.so")]
 #endif
+public static extern void WaitForMicroseconds(uint microseconds);
+
+#endif*/
+
+namespace isci
+{
+    public static class Helfer
+    {
+        [System.Runtime.InteropServices.DllImport("lib_wait_us.so")]
+        public static extern void SleepForMicroseconds(uint microseconds);
+        public static uint OptimiereSleepForMicroseconds(uint ZieldauerInUs, uint maximumIterationen = 100, double zulFehler = 0.01)
+        {
+            int iteration = 0;
+            double adjustmentFactor = 1.0;
+            double errorPercentage = 0.0;
+
+            long ticksPerSecond = System.Diagnostics.Stopwatch.Frequency;
+            var fuer1Us = (double)(TimeSpan.TicksPerMillisecond / 1000);
+
+            uint adjustedMicroseconds;
+
+            do
+            {
+                // Calculate adjusted sleep duration based on the adjustment factor
+                adjustedMicroseconds = (uint)(ZieldauerInUs * adjustmentFactor);
+
+                // Get the start time
+                var start = System.DateTime.Now.Ticks;
+
+                // Sleep for the adjusted duration
+                isci.Helfer.SleepForMicroseconds(adjustedMicroseconds);
+
+                // Get the actual sleep duration
+                var end = System.DateTime.Now.Ticks;
+                var actualDuration = end - start;
+
+                // Calculate the error percentage
+                errorPercentage = (actualDuration - ZieldauerInUs * fuer1Us) / (ZieldauerInUs * fuer1Us);
+
+                // Adjust the factor based on the error percentage
+                adjustmentFactor = 1.0 - (errorPercentage * zulFehler);
+
+                // Increment the iteration count
+                iteration++;
+            } while (Math.Abs(errorPercentage) > zulFehler && iteration < maximumIterationen);
+
+            return adjustedMicroseconds;
+        }
+
         private static System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>> Cache = null;
 
         public static System.Collections.Generic.List<string> ChangedFiles(string path)
