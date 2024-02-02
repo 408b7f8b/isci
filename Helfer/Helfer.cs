@@ -47,9 +47,8 @@ namespace isci
         {
             int iteration = 0;
             double adjustmentFactor = 1.0;
-            double errorPercentage = 0.0;
+            double errorPercentage;
 
-            long ticksPerSecond = System.Diagnostics.Stopwatch.Frequency;
             var fuer1Us = (double)(TimeSpan.TicksPerMillisecond / 1000);
 
             uint adjustedMicroseconds;
