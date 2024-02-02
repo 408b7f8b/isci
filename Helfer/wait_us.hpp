@@ -2,7 +2,7 @@
 #define WAIT_US_HPP
 
 #ifdef _WIN32
-extern "C" __declspec(dllexport) void WaitForMicroseconds(unsigned int microseconds);
+extern "C" __declspec(dllexport) void SleepForMicroseconds(unsigned int microseconds);
 #elif __linux__
 extern "C" void SleepForMicroseconds(unsigned int microseconds);
 #else
