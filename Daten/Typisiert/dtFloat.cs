@@ -5,78 +5,78 @@ namespace isci.Daten
 {
     public class dtFloat : Dateneintrag
     {
-        //public new float value;
+        //public new float Wert;
 
-        public dtFloat(float value, String Identifikation, String path = "") : base(Identifikation)
+        public dtFloat(float Wert, String Identifikation, String path = "") : base(Identifikation)
         {
             this.type = Datentypen.Float;
-            this.value = value;
+            this.Wert = Wert;
             if (path != "") this.path = path;
         }
 
         public override void WertAusSpeicherLesenSpezifisch(System.IO.BinaryReader reader)
         {
             var tmp = (float)reader.ReadDouble();
-            if (tmp != (float)value)
+            if (tmp != (float)Wert)
             {
-                value = tmp;
+                Wert = tmp;
                 aenderungExtern = true;
             }
         }
 
         public override void WertInSpeicherSchreibenSpezifisch(System.IO.BinaryWriter writer)
         {
-            writer.Write((double)((float)value));
+            writer.Write((double)((float)Wert));
         }
 
         public override string WertSerialisieren()
         {
-            var s = value.ToString();
+            var s = Wert.ToString();
             return s;
         }
 
         public override void WertAusString(System.String s)
         {
-            value = float.Parse(s);
+            Wert = float.Parse(s);
         }
 
         public override void WertAusJTokenSpezifisch(Newtonsoft.Json.Linq.JToken token)
         {
-            value = token.ToObject<float>();
+            Wert = token.ToObject<float>();
         }
 
         public static bool operator ==(dtFloat left, dtFloat right)
         {
-            return (float)left.value == (float)right.value;
+            return (float)left.Wert == (float)right.Wert;
         }
 
         public static bool operator !=(dtFloat left, dtFloat right)
         {
-            return (float)left.value != (float)right.value;
+            return (float)left.Wert != (float)right.Wert;
         }
 
         public static bool operator ==(dtFloat left, float right)
         {
-            return (float)left.value == right;
+            return (float)left.Wert == right;
         }
 
         public static bool operator !=(dtFloat left, float right)
         {
-            return (float)left.value != right;
+            return (float)left.Wert != right;
         }
 
         public override bool Equals(object obj)
         {
             if (obj is dtFloat other)
             {
-                return value == other.value;
+                return Wert == other.Wert;
             }
             return false;
         }
 
         public override int GetHashCode()
         {
-            return value.GetHashCode();
+            return Wert.GetHashCode();
         }
     }
 }

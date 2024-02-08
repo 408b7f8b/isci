@@ -91,22 +91,22 @@ namespace isci.Allgemein
 
         public bool AktuellerZustandModulAktivieren()
         {
-            return ContainsKey(Zustand.value);
+            return ContainsKey(Zustand.Wert);
         }
 
         public bool AktuellerZustandModulAktivieren(Daten.dtUInt16 Zustand)
         {
-            return ContainsKey(Zustand.value);
+            return ContainsKey(Zustand.Wert);
         }
 
         public object ParameterAktuellerZustand()
         {
-            return this[Zustand.value].Parametrierung;
+            return this[Zustand.Wert].Parametrierung;
         }
 
         public object ParameterAktuellerZustand(Daten.dtUInt16 Zustand)
         {
-            return this[Zustand.value].Parametrierung;
+            return this[Zustand.Wert].Parametrierung;
         }
     }
 }

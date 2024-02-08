@@ -5,78 +5,78 @@ namespace isci.Daten
 {
     public class dtInt8 : Dateneintrag
     {
-        //public new System.Int32 value;
+        //public new System.Int32 Wert;
 
-        public dtInt8(System.SByte value, String Identifikation, String path = "") : base(Identifikation)
+        public dtInt8(System.SByte Wert, String Identifikation, String path = "") : base(Identifikation)
         {
             this.type = Datentypen.Int8;
-            this.value = value;
+            this.Wert = Wert;
             if (path != "") this.path = path;
         }
 
         public override void WertAusSpeicherLesenSpezifisch(System.IO.BinaryReader reader)
         {
             var tmp = reader.ReadSByte();
-            if (tmp != (System.SByte)value)
+            if (tmp != (System.SByte)Wert)
             {
-                value = tmp;
+                Wert = tmp;
                 aenderungExtern = true;
             }
         }
 
         public override void WertInSpeicherSchreibenSpezifisch(System.IO.BinaryWriter writer)
         {
-            writer.Write((System.SByte)value);
+            writer.Write((System.SByte)Wert);
         }
 
         public override string WertSerialisieren()
         {
-            var s = value.ToString();
+            var s = Wert.ToString();
             return s;
         }
 
         public override void WertAusString(System.String s)
         {
-            value = System.SByte.Parse(s);
+            Wert = System.SByte.Parse(s);
         }
 
         public override void WertAusJTokenSpezifisch(Newtonsoft.Json.Linq.JToken token)
         {
-            value = token.ToObject<System.SByte>();
+            Wert = token.ToObject<System.SByte>();
         }
 
         public static bool operator ==(dtInt8 left, dtInt8 right)
         {
-            return (System.SByte)left.value == (System.SByte)right.value;
+            return (System.SByte)left.Wert == (System.SByte)right.Wert;
         }
 
         public static bool operator !=(dtInt8 left, dtInt8 right)
         {
-            return (System.SByte)left.value != (System.SByte)right.value;
+            return (System.SByte)left.Wert != (System.SByte)right.Wert;
         }
 
         public static bool operator ==(dtInt8 left, System.SByte right)
         {
-            return (System.SByte)left.value == right;
+            return (System.SByte)left.Wert == right;
         }
 
         public static bool operator !=(dtInt8 left, System.SByte right)
         {
-            return (System.SByte)left.value != right;
+            return (System.SByte)left.Wert != right;
         }
 
         public override bool Equals(object obj)
         {
             if (obj is dtInt8 other)
             {
-                return value == other.value;
+                return Wert == other.Wert;
             }
             return false;
         }
 
         public override int GetHashCode()
         {
-            return value.GetHashCode();
+            return Wert.GetHashCode();
         }
     }
 }

@@ -8,32 +8,35 @@ namespace isci.Daten
         public string Identifikation;
         //[Newtonsoft.Json.JsonIgnore]
         //private System.Threading.Mutex mutex;
-        public virtual object value
+        protected object Wert_;
+        public virtual object Wert
         {
             get
             {
-                return this.value;
+                return Wert_;
             }
             set
             {
-                this.value = value;
+                Wert_ = value;
                 this.aenderungIntern = true;
             }
         }
 
+        protected bool aenderungExtern_;
         [Newtonsoft.Json.JsonIgnore]
         public bool aenderungExtern
         {
             get
             {
-                return this.aenderungExtern;
+                return this.aenderungExtern_;
             }
             set
             {
-                this.aenderungExtern = value;
+                this.aenderungExtern_ = value;
                 if (value) this.aenderungIntern = false;
             }
         }
+        
         [Newtonsoft.Json.JsonIgnore]
         public bool aenderungIntern;
         [Newtonsoft.Json.JsonIgnore]
@@ -49,6 +52,8 @@ namespace isci.Daten
 
         //parent, children? oder relationen?
         //dimensionen array?
+
+        public EinheitenKodierung Einheit = EinheitenKodierung.keine;
 
         public Dateneintrag()
         {
@@ -74,11 +79,12 @@ namespace isci.Daten
             if (jObject.ContainsKey("istListe")) istListe = jObject.SelectToken("istListe").ToObject<bool>();
             if (jObject.ContainsKey("listeDimensionen")) listeDimensionen = jObject.SelectToken("listeDimensionen").ToObject<UInt16>();
             if (jObject.ContainsKey("parentEintrag")) parentEintrag = jObject.SelectToken("parentEintrag").ToString();
+            if (jObject.ContainsKey("Einheit")) Einheit = (isci.Daten.EinheitenKodierung)jObject.SelectToken("Einheit").ToObject<int>();
 
             try
             {
-                var value = jObject.SelectToken("Wert");
-                WertAusJToken(value);
+                var Wert = jObject.SelectToken("Wert");
+                WertAusJToken(Wert);
             }
             catch
             {
@@ -99,6 +105,7 @@ namespace isci.Daten
                 case Datentypen.Float: return typeof(float);
                 case Datentypen.Double: return typeof(double);
                 case Datentypen.Bool: return typeof(bool);
+                case Datentypen.String: return typeof(string);
             }
 
             return null;
@@ -119,6 +126,8 @@ namespace isci.Daten
                 case Datentypen.Float: return jObject.ToObject<dtFloat>();
                 case Datentypen.Double: return jObject.ToObject<dtDouble>();
                 case Datentypen.Bool: return jObject.ToObject<dtBool>();
+                case Datentypen.String: return jObject.ToObject<dtString>();
+                case Datentypen.Objekt: return jObject.ToObject<dtObjekt>();
             }
 
             return null;

@@ -5,69 +5,80 @@ namespace isci.Daten
 {
     public class dtUInt16 : Dateneintrag
     {
-        public new System.UInt32 value;
+        public new System.UInt16 Wert
+        {
+            get
+            {
+                return Wert;
+            }
+            set
+            {
+                this.Wert = value;
+                this.aenderungIntern = true;
+            }
+        }
 
         public dtUInt16(System.UInt16 value, String Identifikation, String path = "") : base(Identifikation)
         {
             this.type = Datentypen.UInt16;
-            this.value = value;
+            this.Wert = value;
             if (path != "") this.path = path;
         }
 
         public override void WertAusSpeicherLesenSpezifisch(System.IO.BinaryReader reader)
         {
             var tmp = reader.ReadUInt16();
-            if (tmp != value)
+            if (tmp != Wert)
             {
-                value = tmp;
+                Wert = tmp;
                 aenderungExtern = true;
             }
         }
 
         public override void WertInSpeicherSchreibenSpezifisch(System.IO.BinaryWriter writer)
         {
-            writer.Write(value);
+            writer.Write(Wert);
         }
 
         public override string WertSerialisieren()
         {
-            var s = value.ToString();
+            var s = Wert.ToString();
             return s;
         }
 
         public override void WertAusString(System.String s)
         {
-            value = System.UInt16.Parse(s);
+            Wert = System.UInt16.Parse(s);
         }
 
         public override void WertAusJTokenSpezifisch(Newtonsoft.Json.Linq.JToken token)
         {
-            value = token.ToObject<System.UInt16>();
+            Wert = token.ToObject<System.UInt16>();
         }
 
         public static bool operator ==(dtUInt16 left, dtUInt16 right)
         {
-            return left.value == right.value;
+            return left.Wert == right.Wert;
         }
 
         public static bool operator !=(dtUInt16 left, dtUInt16 right)
         {
-            return left.value != right.value;
+            return left.Wert != right.Wert;
         }
 
         public static bool operator ==(dtUInt16 left, System.UInt16 right)
         {
-            return left.value == right;
+            return left.Wert == right;
         }
 
         public static bool operator !=(dtUInt16 left, System.UInt16 right)
         {
-            return left.value != right;
+            return left.Wert != right;
         }
 
         public static dtUInt16 operator ++(dtUInt16 element)
         {
-            element.value++;
+            element.Wert++;
             return element;
         }
 
@@ -75,14 +86,14 @@ namespace isci.Daten
         {
             if (obj is dtUInt16 other)
             {
-                return value == other.value;
+                return Wert == other.Wert;
             }
             return false;
         }
 
         public override int GetHashCode()
         {
-            return value.GetHashCode();
+            return Wert.GetHashCode();
         }
     }
 }

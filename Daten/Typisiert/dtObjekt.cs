@@ -5,6 +5,7 @@ namespace isci.Daten
 {
     public class dtObjekt : Dateneintrag
     {
+        private new EinheitenKodierung Einheit;
         public List<string> Elemente;
         public List<Dateneintrag> ElementeLaufzeit;
 
@@ -94,14 +95,14 @@ namespace isci.Daten
         {
             if (obj is dtObjekt other)
             {
-                return value == other.value; //implementierung nicht korrekt!
+                return Wert == other.Wert; //implementierung nicht korrekt!
             }
             return false;
         }
 
         public override int GetHashCode()
         {
-            return value.GetHashCode();
+            return Wert.GetHashCode();
         }
     }
 }

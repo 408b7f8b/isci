@@ -5,89 +5,89 @@ namespace isci.Daten
 {
     public class dtInt32 : Dateneintrag
     {
-        public new System.Int32 value
+        public new System.Int32 Wert
         {
             get
             {
-                return this.value;
+                return Wert;
             }
             set
             {
-                this.value = value;
+                this.Wert = value;
                 this.aenderungIntern = true;
             }
         }
 
-        public dtInt32(System.Int32 value, String Identifikation, String path = "") : base(Identifikation)
+        public dtInt32(System.Int32 Wert, String Identifikation, String path = "") : base(Identifikation)
         {
             this.type = Datentypen.Int32;
-            this.value = value;
+            this.Wert = Wert;
             if (path != "") this.path = path;
         }
 
         public override void WertAusSpeicherLesenSpezifisch(System.IO.BinaryReader reader)
         {
             var tmp = reader.ReadInt32();
-            if (tmp != value)
+            if (tmp != Wert)
             {
-                value = tmp;
+                Wert = tmp;
                 aenderungExtern = true;
             }
         }
 
         public override void WertInSpeicherSchreibenSpezifisch(System.IO.BinaryWriter writer)
         {
-            writer.Write(value);
+            writer.Write(Wert);
         }
 
         public override string WertSerialisieren()
         {
-            var s = value.ToString();
+            var s = Wert.ToString();
             return s;
         }
 
         public override void WertAusString(System.String s)
         {
-            value = System.Int32.Parse(s);
+            Wert = System.Int32.Parse(s);
         }
 
         public override void WertAusJTokenSpezifisch(Newtonsoft.Json.Linq.JToken token)
         {
-            value = token.ToObject<System.Int32>();
+            Wert = token.ToObject<System.Int32>();
         }
 
         public static bool operator ==(dtInt32 left, dtInt32 right)
         {
-            return left.value == right.value;
+            return left.Wert == right.Wert;
         }
 
         public static bool operator !=(dtInt32 left, dtInt32 right)
         {
-            return left.value != right.value;
+            return left.Wert != right.Wert;
         }
 
         public static bool operator ==(dtInt32 left, System.Int32 right)
         {
-            return left.value == right;
+            return left.Wert == right;
         }
 
         public static bool operator !=(dtInt32 left, System.Int32 right)
         {
-            return left.value != right;
+            return left.Wert != right;
         }
 
         public override bool Equals(object obj)
         {
             if (obj is dtInt32 other)
             {
-                return value == other.value;
+                return Wert == other.Wert;
             }
             return false;
         }
 
         public override int GetHashCode()
         {
-            return value.GetHashCode();
+            return Wert.GetHashCode();
         }
     }
 }

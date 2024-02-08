@@ -127,7 +127,7 @@ namespace isci.Daten
             {
                 foreach (var subItem in this[item1])
                 {
-                    subItem.value = item1.value;
+                    subItem.Wert = item1.Wert;
                 }
             }
         }

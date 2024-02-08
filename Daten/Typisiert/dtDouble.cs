@@ -5,78 +5,78 @@ namespace isci.Daten
 {
     public class dtDouble : Dateneintrag
     {
-        //public new Double value;
+        //public new Double Wert;
 
-        public dtDouble(Double value, String Identifikation, String path = "") : base(Identifikation)
+        public dtDouble(Double Wert, String Identifikation, String path = "") : base(Identifikation)
         {
             this.type = Datentypen.Double;
-            this.value = value;
+            this.Wert = Wert;
             if (path != "") this.path = path;
         }
 
         public override void WertAusSpeicherLesenSpezifisch(System.IO.BinaryReader reader)
         {
             var tmp = (Double)reader.ReadDouble();
-            if (tmp != (Double)value)
+            if (tmp != (Double)Wert)
             {
-                value = tmp;
+                Wert = tmp;
                 aenderungExtern = true;
             }
         }
 
         public override void WertInSpeicherSchreibenSpezifisch(System.IO.BinaryWriter writer)
         {
-            writer.Write((double)((Double)value));
+            writer.Write((double)((Double)Wert));
         }
 
         public override string WertSerialisieren()
         {
-            var s = value.ToString();
+            var s = Wert.ToString();
             return s;
         }
 
         public override void WertAusString(System.String s)
         {
-            value = Double.Parse(s);
+            Wert = Double.Parse(s);
         }
 
         public override void WertAusJTokenSpezifisch(Newtonsoft.Json.Linq.JToken token)
         {
-            value = token.ToObject<Double>();
+            Wert = token.ToObject<Double>();
         }
 
         public static bool operator ==(dtDouble left, dtDouble right)
         {
-            return (Double)left.value == (Double)right.value;
+            return (Double)left.Wert == (Double)right.Wert;
         }
 
         public static bool operator !=(dtDouble left, dtDouble right)
         {
-            return (Double)left.value != (Double)right.value;
+            return (Double)left.Wert != (Double)right.Wert;
         }
 
         public static bool operator ==(dtDouble left, Double right)
         {
-            return (Double)left.value == right;
+            return (Double)left.Wert == right;
         }
 
         public static bool operator !=(dtDouble left, Double right)
         {
-            return (Double)left.value != right;
+            return (Double)left.Wert != right;
         }
         
         public override bool Equals(object obj)
         {
             if (obj is dtDouble other)
             {
-                return value == other.value;
+                return Wert == other.Wert;
             }
             return false;
         }
 
         public override int GetHashCode()
         {
-            return value.GetHashCode();
+            return Wert.GetHashCode();
         }
     }
 }

@@ -5,86 +5,86 @@ namespace isci.Daten
 {
     public class dtBool : Dateneintrag
     {
-        public dtBool(System.Boolean value, String Identifikation, String path = "") : base(Identifikation)
+        public dtBool(System.Boolean Wert, String Identifikation, String path = "") : base(Identifikation)
         {
             this.type = Datentypen.Bool;
-            this.value = value;
+            this.Wert = Wert;
             if (path != "") this.path = path;
         }
 
         public override void WertAusSpeicherLesenSpezifisch(System.IO.BinaryReader reader)
         {
             var tmp = reader.ReadBoolean();
-            if (tmp != (System.Boolean)value)
+            if (tmp != (System.Boolean)Wert)
             {
-                value = tmp;
+                Wert = tmp;
                 aenderungExtern = true;
             }
         }
 
         public override void WertInSpeicherSchreibenSpezifisch(System.IO.BinaryWriter writer)
         {
-            writer.Write((System.Boolean)value);
+            writer.Write((System.Boolean)Wert);
         }
 
         public override string WertSerialisieren()
         {
-            var s = value.ToString();
+            var s = Wert.ToString();
             return s;
         }
 
         public override void WertAusString(System.String s)
         {
-            value = System.Boolean.Parse(s);
+            Wert = System.Boolean.Parse(s);
         }
 
         public override void WertAusJTokenSpezifisch(Newtonsoft.Json.Linq.JToken token)
         {
-            value = token.ToObject<System.Boolean>();
+            Wert = token.ToObject<System.Boolean>();
         }
 
         public override void WertAusBytes(byte[] bytes)
         {
-            value = BitConverter.ToBoolean(bytes, 0);
+            Wert = BitConverter.ToBoolean(bytes, 0);
         }
 
         public override byte[] WertNachBytes()
         {
-            return BitConverter.GetBytes((System.Boolean)value);
+            return BitConverter.GetBytes((System.Boolean)Wert);
         }
 
         public static bool operator ==(dtBool left, dtBool right)
         {
-            return (System.Boolean)left.value == (System.Boolean)right.value;
+            return (System.Boolean)left.Wert == (System.Boolean)right.Wert;
         }
 
         public static bool operator !=(dtBool left, dtBool right)
         {
-            return (System.Boolean)left.value != (System.Boolean)right.value;
+            return (System.Boolean)left.Wert != (System.Boolean)right.Wert;
         }
 
         public static bool operator ==(dtBool left, System.Boolean right)
         {
-            return (System.Boolean)left.value == right;
+            return (System.Boolean)left.Wert == right;
         }
 
         public static bool operator !=(dtBool left, System.Boolean right)
         {
-            return (System.Boolean)left.value != right;
+            return (System.Boolean)left.Wert != right;
         }
 
         public override bool Equals(object obj)
         {
             if (obj is dtBool other)
             {
-                return value == other.value;
+                return Wert == other.Wert;
             }
             return false;
         }
 
         public override int GetHashCode()
         {
-            return value.GetHashCode();
+            return Wert.GetHashCode();
         }
     }
 }

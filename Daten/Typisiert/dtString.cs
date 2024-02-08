@@ -5,85 +5,98 @@ namespace isci.Daten
 {
     public class dtString : Dateneintrag
     {
-        public dtString(String value, String Identifikation, String path = "") : base(Identifikation)
+        public new System.String Wert
+        {
+            get
+            {
+                return (string)Wert_;
+            }
+            set
+            {
+                Wert_ = value;
+                this.aenderungIntern = true;
+            }
+        }
+
+        public dtString(String Wert, String Identifikation, String path = "") : base(Identifikation)
         {
             this.type = Datentypen.String;
-            this.value = value;
+            this.Wert = Wert;
             if (path != "") this.path = path;
         }
 
         public override void WertAusSpeicherLesenSpezifisch(System.IO.BinaryReader reader)
         {
             var tmp = (String)reader.ReadString();
-            if (tmp != (String)value)
+            if (tmp != (String)Wert)
             {
-                value = tmp;
+                Wert = tmp;
                 aenderungExtern = true;
             }
         }
 
         public override void WertInSpeicherSchreibenSpezifisch(System.IO.BinaryWriter writer)
         {
-            writer.Write((String)this.value);
+            writer.Write((String)this.Wert);
         }
 
         public override string WertSerialisieren()
         {
-            return (String)this.value;
+            return (String)this.Wert;
         }
 
         public override void WertAusString(System.String s)
         {
-            value = s;
+            Wert = s;
         }
 
         public override void WertAusJTokenSpezifisch(Newtonsoft.Json.Linq.JToken token)
         {
-            value = token.ToObject<String>();
+            Wert = token.ToObject<String>();
         }
 
         public override void WertAusBytes(byte[] bytes)
         {
-            value = System.Text.Encoding.UTF8.GetString(bytes);
+            Wert = System.Text.Encoding.UTF8.GetString(bytes);
         }
 
         public override byte[] WertNachBytes()
         {
-            return System.Text.Encoding.UTF8.GetBytes((String)value);
+            return System.Text.Encoding.UTF8.GetBytes((String)Wert);
         }
 
         public static bool operator ==(dtString left, dtString right)
         {
-            return (String)left.value == (String)right.value;
+            return (String)left.Wert == (String)right.Wert;
         }
 
         public static bool operator !=(dtString left, dtString right)
         {
-            return (String)left.value != (String)right.value;
+            return (String)left.Wert != (String)right.Wert;
         }
 
         public static bool operator ==(dtString left, String right)
         {
-            return (String)left.value == right;
+            return (String)left.Wert == right;
         }
 
         public static bool operator !=(dtString left, String right)
         {
-            return (String)left.value != right;
+            return (String)left.Wert != right;
         }
         
         public override bool Equals(object obj)
         {
             if (obj is dtString other)
             {
-                return value == other.value;
+                return Wert == other.Wert;
             }
             return false;
         }
 
         public override int GetHashCode()
         {
-            return value.GetHashCode();
+            return Wert.GetHashCode();
         }
     }
 }
