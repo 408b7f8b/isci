@@ -5,7 +5,18 @@ namespace isci.Daten
 {
     public class dtInt8 : Dateneintrag
     {
-        //public new System.Int32 Wert;
+        public new System.SByte Wert
+        {
+            get
+            {
+                return (sbyte)Wert_;
+            }
+            set
+            {
+                Wert_ = value;
+                this.aenderungIntern = true;
+            }
+        }
 
         public dtInt8(System.SByte Wert, String Identifikation, String path = "") : base(Identifikation)
         {

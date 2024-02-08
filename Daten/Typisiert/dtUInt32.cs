@@ -5,7 +5,18 @@ namespace isci.Daten
 {
     public class dtUInt32 : Dateneintrag
     {
-        //public new System.UInt32 Wert;
+        public new System.UInt32 Wert
+        {
+            get
+            {
+                return (UInt32)Wert_;
+            }
+            set
+            {
+                Wert_ = value;
+                this.aenderungIntern = true;
+            }
+        }
 
         public dtUInt32(System.UInt32 Wert, String Identifikation, String path = "") : base(Identifikation)
         {

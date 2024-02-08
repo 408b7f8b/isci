@@ -5,7 +5,18 @@ namespace isci.Daten
 {
     public class dtDouble : Dateneintrag
     {
-        //public new Double Wert;
+        public new System.Double Wert
+        {
+            get
+            {
+                return (double)Wert_;
+            }
+            set
+            {
+                Wert_ = value;
+                this.aenderungIntern = true;
+            }
+        }
 
         public dtDouble(Double Wert, String Identifikation, String path = "") : base(Identifikation)
         {

@@ -5,6 +5,19 @@ namespace isci.Daten
 {
     public class dtBool : Dateneintrag
     {
+        public new System.Boolean Wert
+        {
+            get
+            {
+                return (System.Boolean)Wert_;
+            }
+            set
+            {
+                Wert_ = value;
+                this.aenderungIntern = true;
+            }
+        }
+
         public dtBool(System.Boolean Wert, String Identifikation, String path = "") : base(Identifikation)
         {
             this.type = Datentypen.Bool;

@@ -5,7 +5,18 @@ namespace isci.Daten
 {
     public class dtFloat : Dateneintrag
     {
-        //public new float Wert;
+        public new float Wert
+        {
+            get
+            {
+                return (float)Wert_;
+            }
+            set
+            {
+                Wert_ = value;
+                this.aenderungIntern = true;
+            }
+        }
 
         public dtFloat(float Wert, String Identifikation, String path = "") : base(Identifikation)
         {

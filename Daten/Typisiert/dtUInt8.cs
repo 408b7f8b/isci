@@ -5,7 +5,18 @@ namespace isci.Daten
 {
     public class dtUInt8 : Dateneintrag
     {
-        //public new System.Int32 Wert;
+        public new System.Byte Wert
+        {
+            get
+            {
+                return (byte)Wert_;
+            }
+            set
+            {
+                Wert_ = value;
+                this.aenderungIntern = true;
+            }
+        }
 
         public dtUInt8(System.Byte Wert, String Identifikation, String path = "") : base(Identifikation)
         {
@@ -37,7 +48,7 @@ namespace isci.Daten
 
         public override void WertAusString(System.String s)
         {
-            Wert = System.UInt16.Parse(s);
+            Wert = System.Byte.Parse(s);
         }
 
         public override void WertAusJTokenSpezifisch(Newtonsoft.Json.Linq.JToken token)

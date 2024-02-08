@@ -5,7 +5,18 @@ namespace isci.Daten
 {
     public class dtInt16 : Dateneintrag
     {
-        //public new System.Int32 Wert;
+        public new System.Int16 Wert
+        {
+            get
+            {
+                return (Int16)Wert_;
+            }
+            set
+            {
+                Wert_ = value;
+                this.aenderungIntern = true;
+            }
+        }
 
         public dtInt16(System.Int16 Wert, String Identifikation, String path = "") : base(Identifikation)
         {

@@ -9,11 +9,11 @@ namespace isci.Daten
         {
             get
             {
-                return Wert;
+                return (UInt16)Wert_;
             }
             set
             {
-                this.Wert = value;
+                Wert_ = value;
                 this.aenderungIntern = true;
             }
         }
