@@ -25,6 +25,15 @@ namespace isci.Daten
                 this.Add(item);
             }
         }
+
+        public Dateneintrag this[string key]
+        {
+            get {
+                Dateneintrag ret = null;
+                ret = this.First(a => a.Identifikation == key);
+                return ret;
+            }
+        }
     }
 
     public class KarteDateneintraege : System.Collections.Generic.Dictionary<string, Dateneintrag>

@@ -91,17 +91,14 @@ namespace isci.Daten
             return dm;
         }
 
-        public void AddEvaluationSet(int size, string identifikation)
+        public Dateneintrag this[string key]
         {
-            for(int i = 0; i < size; ++i)
+            get
             {
-                Dateneinträge.Add(new dtInt32(0, identifikation + i.ToString()));
+                Dateneintrag ret = null;
+                ret = this.Dateneinträge.First(a => a.Identifikation == key);
+                return ret;
             }
-        }
-
-        public void AddEvaluationLead(int size)
-        {
-            AddEvaluationSet(size, "evalLead_");
         }
     }
 }
