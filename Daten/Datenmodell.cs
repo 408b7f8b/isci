@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using isci.Allgemein;
 
 namespace isci.Daten
@@ -99,6 +101,18 @@ namespace isci.Daten
                 ret = this.Dateneinträge.First(a => a.Identifikation == key);
                 return ret;
             }
+        }
+
+        public void Add(Dateneintrag dateneintrag)
+        {
+            dateneintrag.korrigiereIdentifikationFallsNotw(this.Identifikation);
+
+            this.Dateneinträge.Add(dateneintrag);
+        }
+
+        public List<string> Identifikatoren()
+        {
+            return this.Dateneinträge.Identifikatoren();
         }
     }
 }

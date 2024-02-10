@@ -5,14 +5,14 @@ namespace isci.Allgemein
 {
     public class Ausführungsmodell : System.Collections.Generic.SortedDictionary<uint, Ausführungsschritt>
     {
-        public Daten.dtUInt16 Zustand;
+        public Daten.dtZustand Zustand;
 
         public Ausführungsmodell() : base()
         {
             
         }
 
-        public Ausführungsmodell(Parameter konfiguration, Daten.dtUInt16 zustand = null) : base()
+        public Ausführungsmodell(Parameter konfiguration, Daten.dtZustand zustand = null) : base()
         {
             Newtonsoft.Json.Linq.JObject geparst = null;
 
@@ -94,7 +94,7 @@ namespace isci.Allgemein
             return ContainsKey(Zustand.Wert);
         }
 
-        public bool AktuellerZustandModulAktivieren(Daten.dtUInt16 Zustand)
+        public bool AktuellerZustandModulAktivieren(Daten.dtZustand Zustand)
         {
             return ContainsKey(Zustand.Wert);
         }
@@ -104,7 +104,7 @@ namespace isci.Allgemein
             return this[Zustand.Wert].Parametrierung;
         }
 
-        public object ParameterAktuellerZustand(Daten.dtUInt16 Zustand)
+        public object ParameterAktuellerZustand(Daten.dtZustand Zustand)
         {
             return this[Zustand.Wert].Parametrierung;
         }

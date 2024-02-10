@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace isci.Daten
@@ -7,7 +8,10 @@ namespace isci.Daten
     {
         public new void Add(Dateneintrag item)
         {
-            if (this.Where(entry => entry.Identifikation == item.Identifikation).Count() > 0) return;
+            if (this.Where(entry => entry.Identifikation == item.Identifikation).Count() > 0)
+            {
+                throw new Exception();
+            }
             /*foreach (var entry in this)
             {
                 if (entry.Identifikation == item.Identifikation)
@@ -33,6 +37,24 @@ namespace isci.Daten
                 ret = this.First(a => a.Identifikation == key);
                 return ret;
             }
+        }
+
+        public List<string> Identifikatoren()
+        {
+            var ret = new List<string>();
+
+            foreach (var item in this)
+            {
+                ret.Add(item.Identifikation);
+            }
+
+            return ret;
+        }
+
+        public bool IdentifikationBereitsEnthalten(string Identifikation)
+        {
+            if (this.Where(entry => entry.Identifikation == Identifikation).Count() > 0) return true;
+            return false;
         }
     }
 

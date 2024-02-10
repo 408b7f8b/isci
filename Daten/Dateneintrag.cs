@@ -330,5 +330,62 @@ namespace isci.Daten
 
             return top;
         }
+
+        /// <summary>
+        /// Methode zur Korrektur der eigenen Identifikation nach dem Muster 'anwendung.datenmodell.spezifischeIdentifikationDateneintrag'.
+        /// </summary>
+        /// <param name="datenmodell">Korrekte Identifikation des Datenmodells.</param>
+        /// <param name="anwendung">Korrekte Identifikation der Anwendung.</param>
+        public void korrigiereIdentifikationFallsNotw(string datenmodell, string anwendung = null)
+        {
+            string correctedString = this.Identifikation;
+            datenmodell = datenmodell.Replace(" ", "");
+
+            if (anwendung == null)
+            {
+                if (!correctedString.StartsWith($"{datenmodell}."))
+                {
+                    if (correctedString.Contains('.'))
+                    {
+                        correctedString = $"{datenmodell}.{correctedString.Substring(correctedString.LastIndexOf('.')+1)}";
+                    }
+                    else
+                    {
+                        correctedString = $"{datenmodell}.{correctedString}";
+                    }
+                }
+            } else {
+                anwendung = anwendung.Replace(" ", "");
+
+                if (anwendung == "")
+                {
+                    if (!correctedString.StartsWith($"{datenmodell}."))
+                    {
+                        if (correctedString.Contains('.'))
+                        {
+                            correctedString = $"{datenmodell}.{correctedString.Substring(correctedString.LastIndexOf('.')+1)}";
+                        }
+                        else
+                        {
+                            correctedString = $"{datenmodell}.{correctedString}";
+                        }
+                    }
+                } else {
+                    if (!correctedString.StartsWith($"{anwendung}.{datenmodell}."))
+                    {
+                        if (correctedString.Contains('.'))
+                        {
+                            correctedString = $"{anwendung}.{datenmodell}.{correctedString.Substring(correctedString.LastIndexOf('.')+1)}";
+                        }
+                        else
+                        {
+                            correctedString = $"{anwendung}.{datenmodell}.{correctedString}";
+                        }
+                    }
+                }
+            }
+
+            this.Identifikation = correctedString;
+        }
     }
 }

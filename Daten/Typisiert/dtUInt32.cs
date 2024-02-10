@@ -76,6 +76,12 @@ namespace isci.Daten
             return (System.UInt32)left.Wert != right;
         }
 
+        public static dtUInt32 operator ++(dtUInt32 element)
+        {
+            element.Wert++;
+            return element;
+        }
+
         public override bool Equals(object obj)
         {
             if (obj is dtUInt32 other)

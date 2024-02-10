@@ -8,31 +8,7 @@ namespace isci.Daten
     /// </summary>
     public class Datenstruktur
     {
-        /// <summary>
-        /// Statische Methode zur Validierung und Korrektur einer Dateneintrag-Identifikation nach dem Muster 'anwendung.datenmodell.spezifischeIdentifikationDateneintrag'.
-        /// </summary>
-        /// <param name="identifikation">Aktuelle Identifikation des Dateneintrags.</param>
-        /// <param name="anwendung">Korrekte Identifikation der Anwendung.</param>
-        /// <param name="datenmodell">Korrekte Identifikation des Datenmodells.</param>
-        /// <returns>Korrekter Identifikations-String.</returns>
-        private static string validiereIdentifikation(string identifikation, string anwendung, string datenmodell)
-        {
-            string correctedString = identifikation;
-
-            if (!correctedString.StartsWith($"{anwendung}.{datenmodell}."))
-            {
-                if (correctedString.Contains('.'))
-                {
-                    correctedString = $"{anwendung}.{datenmodell}.{correctedString.Substring(correctedString.LastIndexOf('.'))}";
-                } else {
-                    correctedString = $"{anwendung}.{datenmodell}.{correctedString}";
-                }
-            }
-
-            return correctedString;
-        }
-
-        /// <summary>
+        /* /// <summary>
         /// Statische Methode zur Validierung und Korrektur der Identifikation eines Dateneintrags nach dem Muster 'anwendung.datenmodell.spezifischeIdentifikationDateneintrag'.
         /// </summary>
         /// <param name="eintrag">Zu überprüfender und korrigierender Dateneintrag.</param>
@@ -41,14 +17,14 @@ namespace isci.Daten
         private static void validiereIdentifikationEintrag(Dateneintrag eintrag, string anwendung, string datenmodell)
         {
             eintrag.Identifikation = validiereIdentifikation(eintrag.Identifikation, anwendung, datenmodell);
-        }
+        } */
 
         public System.Collections.Generic.List<string> datenmodelle;
         public KarteDateneintraege dateneinträge;
         public VerweislisteDateneintraege verweise;
         public VerweislisteDateneintraegeAktiv verweiseAktiv;        
         public System.Collections.Generic.List<string> nichtVerteilen;
-        private string OrdnerDatenstrukturen;
+        private string OrdnerDatenstruktur;
         private string Modulidentifikation;
         private string Automatisierungssystem;
         public dtZustand Zustand;
@@ -67,34 +43,41 @@ namespace isci.Daten
             nichtVerteilen = new System.Collections.Generic.List<string>();
             if (parameter.OrdnerDatenstrukturen.EndsWith(parameter.Anwendung))
             {
-                this.OrdnerDatenstrukturen = parameter.OrdnerDatenstrukturen;
+                this.OrdnerDatenstruktur = parameter.OrdnerDatenstrukturen;
             } else {
-                this.OrdnerDatenstrukturen = parameter.OrdnerDatenstrukturen + "/" + parameter.Anwendung;
-            }            
+                this.OrdnerDatenstruktur = parameter.OrdnerDatenstrukturen + "/" + parameter.Anwendung;
+            }
             this.Modulidentifikation = parameter.Identifikation;
             this.Automatisierungssystem = parameter.Anwendung;
-            this.ZustandsdateneintragAnlegen(parameter);
+            this.ZustandsdateneintragAnlegen();
             Logger.Loggen(Logger.Qualität.INFO, "Datenstruktur erstellt.");
         }
 
         /// <summary>
         /// Konstruktor zur Erstellung eines Datenstrukturobjekts.
         /// </summary>
-        /// <param name="OrdnerDatenstrukturen">OrdnerDatenstrukturen zur Datenstruktur auf dem Dateisystem.</param>
+        /// <param name="OrdnerDatenstruktur">OrdnerDatenstrukturen zur Datenstruktur auf dem Dateisystem.</param>
         /// <param name="identifikation">Identifikation der betreibenden Modulinstanz.</param>
         /// <param name="automatisierungssystem">Identifikation des übergeordneten Automatisierungssystems.</param>
         /// <returns>Das erstellte Datenstrukturobjekt.</returns>
-        public Datenstruktur(string OrdnerDatenstrukturen, string identifikation, string automatisierungssystem)
+        public Datenstruktur(string OrdnerDatenstruktur, string identifikation, string automatisierungssystem)
         {
             datenmodelle = new System.Collections.Generic.List<string>();
             dateneinträge = new KarteDateneintraege();
             verweise = new VerweislisteDateneintraege();
             verweiseAktiv = new VerweislisteDateneintraegeAktiv();
             nichtVerteilen = new System.Collections.Generic.List<string>();
-            this.OrdnerDatenstrukturen = OrdnerDatenstrukturen;
+            if (OrdnerDatenstruktur.EndsWith(automatisierungssystem))
+            {
+                this.OrdnerDatenstruktur = OrdnerDatenstruktur;
+            }
+            else
+            {
+                this.OrdnerDatenstruktur = OrdnerDatenstruktur + "/" + automatisierungssystem;
+            }
             this.Modulidentifikation = identifikation;
             this.Automatisierungssystem = automatisierungssystem;
-            this.ZustandsdateneintragAnlegen(OrdnerDatenstrukturen, automatisierungssystem);
+            this.ZustandsdateneintragAnlegen();
             Logger.Loggen(Logger.Qualität.INFO, "Datenstruktur erstellt.");
         }
 
@@ -108,8 +91,8 @@ namespace isci.Daten
             {
                 foreach (var eintrag in datenmodell.Dateneinträge)
                 {
-                    validiereIdentifikationEintrag(eintrag, this.Automatisierungssystem, datenmodell.Identifikation);
-                    eintrag.path = OrdnerDatenstrukturen + "/" + eintrag.Identifikation;
+                    eintrag.korrigiereIdentifikationFallsNotw(datenmodell.Identifikation, this.Automatisierungssystem);
+                    eintrag.path = OrdnerDatenstruktur + "/" + eintrag.Identifikation;
                     dateneinträge.Add(eintrag.Identifikation, eintrag);
                 }
                 foreach (var eintrag in datenmodell.Links)
@@ -135,11 +118,11 @@ namespace isci.Daten
         /// <summary>
         /// Einhängen eines bestimmten Datenmodells über seine Datei.
         /// </summary>
-        /// <param name="OrdnerDatenstrukturen">OrdnerDatenstrukturen zur Datei des Datenmodells.</param>
-        public void DatenmodellEinhängenAusDatei(string OrdnerDatenstrukturen)
+        /// <param name="PfadDatenmodell">Pfad zur Datei des Datenmodells.</param>
+        public void DatenmodellEinhängenAusDatei(string PfadDatenmodell)
         {
-            Logger.Loggen(Logger.Qualität.INFO, $"Datenstruktur: Datenmodell {OrdnerDatenstrukturen} wird eingehängt.");
-            var dm_ = Datenmodell.AusDatei(OrdnerDatenstrukturen);
+            Logger.Loggen(Logger.Qualität.INFO, $"Datenstruktur: Datenmodell {PfadDatenmodell} wird eingehängt.");
+            var dm_ = Datenmodell.AusDatei(PfadDatenmodell);
             DatenmodellEinhängen(dm_);
         }
 
@@ -154,17 +137,17 @@ namespace isci.Daten
         /// <summary>
         /// Alle als Dateien abgelegte Datenmodelle aus einem Ordner einhängen.
         /// </summary>
-        /// <param name="param1">OrdnerDatenstrukturen, der verarbeitet werden soll. Unterordner werden nicht beachtet.</param>
+        /// <param name="OrdnerDatenmodelle">Ordner, der verarbeitet werden soll. Unterordner werden nicht beachtet.</param>
         /// <param name="excludeown">Angabe der Modulinstanz-Identifikation, falls ein Datenmodell mit dieser Identifikation ignoriert werden soll.</param>
-        public void DatenmodelleEinhängenAusOrdner(string OrdnerDatenstrukturene, string excludeown = "")
+        public void DatenmodelleEinhängenAusOrdner(string OrdnerDatenmodelle, string excludeown = "")
         {
-            if (OrdnerDatenstrukturene == null)
+            if (OrdnerDatenmodelle == null)
             {
-                Console.WriteLine("DatenmodelleEinhängenAusOrdner: OrdnerDatenstrukturene ist NULL");
+                Console.WriteLine("DatenmodelleEinhängenAusOrdner: OrdnerDatenmodelle ist NULL");
                 return;
             }
             
-            var dms_ = System.IO.Directory.GetFiles(OrdnerDatenstrukturene);
+            var dms_ = System.IO.Directory.GetFiles(OrdnerDatenmodelle);
             foreach (var dm_ in dms_)
             {
                 if (excludeown != "")
@@ -178,13 +161,13 @@ namespace isci.Daten
         /// <summary>
         /// Alle als Dateien abgelegte Datenmodelle aus mehreren Ordnern einhängen.
         /// </summary>
-        /// <param name="OrdnerDatenstrukturene">Liste, der OrdnerDatenstrukturene, die verarbeitet werden sollen. Unterordner werden nicht beachtet.</param>
+        /// <param name="OrdnerDatenmodelle">Liste, der Ordner, die verarbeitet werden sollen. Unterordner werden nicht beachtet.</param>
         /// <param name="excludeown">Angabe der Modulinstanz-Identifikation, falls ein Datenmodell mit dieser Identifikation ignoriert werden soll.</param>
-        public void DatenmodelleEinhängenAusOrdnern(string[] OrdnerDatenstrukturene, string excludeown = "")
+        public void DatenmodelleEinhängenAusOrdnern(string[] OrdnerDatenmodelle, string excludeown = "")
         {
-            foreach (var OrdnerDatenstrukturen in OrdnerDatenstrukturene)
+            foreach (var OrdnerDatenmodell in OrdnerDatenmodelle)
             {
-                DatenmodelleEinhängenAusOrdner(OrdnerDatenstrukturen, excludeown);
+                DatenmodelleEinhängenAusOrdner(OrdnerDatenmodell, excludeown);
             }
         }
 
@@ -207,14 +190,15 @@ namespace isci.Daten
             }
         }
 
-        public void ZustandsdateneintragAnlegen(isci.Allgemein.Parameter parameter)
+        public void ZustandsdateneintragAnlegen()
         {
-            ZustandsdateneintragAnlegen(parameter.OrdnerDatenstrukturen, parameter.Anwendung);
+            ZustandsdateneintragAnlegen(this.OrdnerDatenstruktur);
         }
 
-        public void ZustandsdateneintragAnlegen(string OrdnerDatenstrukturen, string Anwendung)
+        public void ZustandsdateneintragAnlegen(string Ordner)
         {
-            Zustand = new dtZustand(OrdnerDatenstrukturen + "/" + Anwendung);
+            Zustand = new dtZustand();
+            Zustand.path = Ordner + "/" + Zustand.Identifikation;
             this.dateneinträge.Add(Zustand.Identifikation, Zustand);
         }
 
@@ -330,6 +314,7 @@ namespace isci.Daten
             get
             {
                 Dateneintrag ret = null;
+                if (!key.StartsWith(Automatisierungssystem)) key = Automatisierungssystem + "." + key;
                 ret = this.dateneinträge[key];
                 return ret;
             }
