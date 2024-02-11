@@ -7,5 +7,6 @@ namespace isci.Allgemein
     {
         public string Modulidentifikation;
         public object Parametrierung;
+        public int Folgezustand = -1;
     }
 }

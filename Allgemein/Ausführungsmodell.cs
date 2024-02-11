@@ -12,7 +12,7 @@ namespace isci.Allgemein
             
         }
 
-        public Ausführungsmodell(Parameter konfiguration, Daten.dtZustand zustand = null) : base()
+        public Ausführungsmodell(Parameter konfiguration, Daten.dtZustand zustand) : base()
         {
             Newtonsoft.Json.Linq.JObject geparst = null;
 
@@ -46,7 +46,7 @@ namespace isci.Allgemein
                 System.Environment.Exit(-1);
             }
 
-            if (zustand != null) this.Zustand = zustand;
+            this.Zustand = zustand;
         }
 
         public static Ausführungsmodell ausDatei(string modell)
@@ -107,6 +107,18 @@ namespace isci.Allgemein
         public object ParameterAktuellerZustand(Daten.dtZustand Zustand)
         {
             return this[Zustand.Wert].Parametrierung;
+        }
+
+        public void Folgezustand()
+        {
+            if (this[Zustand.Wert].Folgezustand == -1) Zustand.Wert++;
+            else Zustand.Wert = (ushort)(this[Zustand.Wert].Folgezustand);
+        }
+
+        public void Folgezustand(Daten.dtZustand Zustand)
+        {
+            if (this[Zustand.Wert].Folgezustand == -1) Zustand.Wert++;
+            else Zustand.Wert = (ushort)(this[Zustand.Wert].Folgezustand);
         }
     }
 }

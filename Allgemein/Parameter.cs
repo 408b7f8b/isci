@@ -8,17 +8,17 @@ namespace isci.Allgemein
     public class Parameter
     {
         [AttributeUsage(AttributeTargets.Field)]
-        class IgnoreParse : Attribute
+        public class IgnoreParse : Attribute
         {
             public IgnoreParse(){}
         }
 
-        class fromArgs : Attribute
+        public class fromArgs : Attribute
         {
             public fromArgs(){}
         }
 
-        class fromEnv : Attribute
+        public class fromEnv : Attribute
         {
             public fromEnv(){}
         }
@@ -221,82 +221,142 @@ namespace isci.Allgemein
             var felder = GetType().GetFields();
             foreach (var f in felder)
             {
-                if (param_env.ContainsKey(f.Name) && Attribute.IsDefined(f, attributeType: typeof(fromEnv))) this.GetType().GetField(f.Name).SetValue(this, param_env[key: f.Name]);
-                else if (param_args.ContainsKey(f.Name) && Attribute.IsDefined(f, attributeType: typeof(fromArgs))) this.GetType().GetField(f.Name).SetValue(this, param_args[f.Name]);
+                if (param_env.ContainsKey(f.Name) && Attribute.IsDefined(f, attributeType: typeof(fromEnv)) && f.FieldType == typeof(string)) this.GetType().GetField(f.Name).SetValue(this, param_env[key: f.Name]);
+                else if (param_args.ContainsKey(f.Name) && Attribute.IsDefined(f, attributeType: typeof(fromArgs)) && f.FieldType == typeof(string)) this.GetType().GetField(f.Name).SetValue(this, param_args[f.Name]);
             }
 
+            var param_file = new Newtonsoft.Json.Linq.JObject();
             var konfigurationsdatei = (OrdnerAnwendungen + "/" + Anwendung + "/Konfigurationen/" + Identifikation + ".json").Replace("//", "/");
             if (System.IO.File.Exists(konfigurationsdatei))
             {
-                try
-                {
-                    var t = Newtonsoft.Json.Linq.JToken.Parse(System.IO.File.ReadAllText(konfigurationsdatei));
-                    Logger.Loggen(Logger.Qualität.INFO, "Konfigdatei: " + konfigurationsdatei);
-
-                    foreach (var f in felder)
-                    {
-                        if (Attribute.IsDefined(f, attributeType: typeof(IgnoreParse))) continue;
-
-                        try
-                        {
-                            var feld = GetType().GetField(f.Name);
-                            var feldtyp = feld.FieldType;
-
-                            if (feldtyp == typeof(string))
-                            {
-                                var o = t.SelectToken(f.Name).ToObject<string>();
-                                feld.SetValue(this, o);
-                            }
-                            else if (feldtyp == typeof(int))
-                            {
-                                var o = t.SelectToken(f.Name).ToObject<int>();
-                                feld.SetValue(this, o);
-                            }
-                            else if (feldtyp == typeof(uint))
-                            {
-                                var o = t.SelectToken(f.Name).ToObject<uint>();
-                                feld.SetValue(this, o);
-                            }
-                            else if (feldtyp == typeof(bool))
-                            {
-                                var o = t.SelectToken(f.Name).ToObject<bool>();
-                                feld.SetValue(this, o);
-                            }
-                            else if (feldtyp == typeof(double))
-                            {
-                                var o = t.SelectToken(f.Name).ToObject<double>();
-                                feld.SetValue(this, o);
-                            }
-                            else if (feldtyp == typeof(Int32[]))
-                            {
-                                var o = t.SelectToken(f.Name).ToObject<Int32[]>();
-                                feld.SetValue(this, o);
-                            }
-                            else if (feldtyp == typeof(string[]))
-                            {
-                                var o = t.SelectToken(f.Name).ToObject<string[]>();
-                                feld.SetValue(this, o);
-                            }
-                            else if (feldtyp == typeof(Ausführungstransition[]))
-                            {
-                                var o = t.SelectToken(f.Name).ToObject<Ausführungstransition[]>();
-                                feld.SetValue(this, o);
-                            } else {
-                                var o = t.SelectToken(f.Name).ToObject<object>();
-                                feld.SetValue(this, o);
-                            }
-
-                            try {
-                                Logger.Loggen(Logger.Qualität.INFO, "Konfigparam " + feld.Name + ": " + feld.GetValue(this).ToString());
-                            } catch (System.Exception e) {
-                                Logger.Loggen(Logger.Qualität.ERROR, "Fehler beim Lesen und Setzen des Konfigurationsparameters " + feld.Name + ": " + e.Message);
-                            }
-                        }
-                        catch { }
-                    }
-                } catch { }
+                Logger.Loggen(Logger.Qualität.INFO, "Konfigdatei: " + konfigurationsdatei);
+                param_file = Newtonsoft.Json.Linq.JObject.Parse(System.IO.File.ReadAllText(konfigurationsdatei));
             } else {
                 Logger.Loggen(Logger.Qualität.INFO, "Konfigdatei: " + konfigurationsdatei + " existiert nicht.");
+            }
+
+            foreach (var f in felder)
+            {
+                var in_env_vorhanden = param_env.ContainsKey(f.Name);
+                var in_args_vorhanden = param_args.ContainsKey(f.Name);
+                var in_datei_vorhanden = (param_file[f.Name] != null);
+                //if (Attribute.IsDefined(f, attributeType: typeof(IgnoreParse))) continue;
+
+                try
+                {
+                    var feld = GetType().GetField(f.Name);
+                    var feldtyp = feld.FieldType;
+
+                    if (feldtyp == typeof(string))
+                    {
+                        if (in_datei_vorhanden)
+                        {
+                            var o = param_file.SelectToken(f.Name).ToObject<string>();
+                            feld.SetValue(this, o);
+                        }
+                    }
+                    else if (feldtyp == typeof(int))
+                    {
+                        int o;
+                        if (in_datei_vorhanden) {
+                            o = param_file.SelectToken(f.Name).ToObject<int>();
+                        } else if (in_env_vorhanden) {
+                            o = int.Parse(param_env[f.Name]);
+                        } else if (in_args_vorhanden) {
+                            o = int.Parse(param_args[f.Name]);
+                        } else {
+                            Logger.Loggen(Logger.Qualität.ERROR, "Konfiguration: " + f.Name + " ist weder durch Parameter, Umgebungsvariablen noch Konfigurationsdatei definiert.");
+                            continue;
+                        }
+                        feld.SetValue(this, o);
+                    }
+                    else if (feldtyp == typeof(uint))
+                    {
+                        uint o;
+                        if (in_datei_vorhanden) {
+                            o = param_file.SelectToken(f.Name).ToObject<uint>();
+                        } else if (in_env_vorhanden) {
+                            o = uint.Parse(param_env[f.Name]);
+                        } else if (in_args_vorhanden) {
+                            o = uint.Parse(param_args[f.Name]);
+                        } else {
+                            Logger.Loggen(Logger.Qualität.ERROR, "Konfiguration: " + f.Name + " ist weder durch Parameter, Umgebungsvariablen noch Konfigurationsdatei definiert.");
+                            continue;
+                        }
+                        feld.SetValue(this, o);
+                    }
+                    else if (feldtyp == typeof(bool))
+                    {
+                        bool o;
+                        if (in_datei_vorhanden) {
+                            o = param_file.SelectToken(f.Name).ToObject<bool>();
+                        } else if (in_env_vorhanden) {
+                            o = bool.Parse(param_env[f.Name]);
+                        } else if (in_args_vorhanden) {
+                            o = bool.Parse(param_args[f.Name]);
+                        } else {
+                            Logger.Loggen(Logger.Qualität.ERROR, "Konfiguration: " + f.Name + " ist weder durch Parameter, Umgebungsvariablen noch Konfigurationsdatei definiert.");
+                            continue;
+                        }
+                        feld.SetValue(this, o);
+                    }
+                    else if (feldtyp == typeof(double))
+                    {
+                        double o;
+                        if (in_datei_vorhanden) {
+                            o = param_file.SelectToken(f.Name).ToObject<double>();
+                        } else if (in_env_vorhanden) {
+                            o = double.Parse(param_env[f.Name]);
+                        } else if (in_args_vorhanden) {
+                            o = double.Parse(param_args[f.Name]);
+                        } else {
+                            Logger.Loggen(Logger.Qualität.ERROR, "Konfiguration: " + f.Name + " ist weder durch Parameter, Umgebungsvariablen noch Konfigurationsdatei definiert.");
+                            continue;
+                        }
+                        feld.SetValue(this, o);
+                    }
+                    else if (feldtyp == typeof(Int32[]))
+                    {
+                        Int32[] o;
+                        if (in_datei_vorhanden) {
+                            o = param_file.SelectToken(f.Name).ToObject<Int32[]>();
+                        } else if (in_env_vorhanden) {
+                            var als_token = Newtonsoft.Json.Linq.JArray.Parse(param_env[f.Name]);
+                            o = als_token.Select(jt => (int)jt).ToArray();
+                        } else if (in_args_vorhanden) {
+                            var als_token = Newtonsoft.Json.Linq.JArray.Parse(param_args[f.Name]);
+                            o = als_token.Select(jt => (int)jt).ToArray();
+                        } else {
+                            Logger.Loggen(Logger.Qualität.ERROR, "Konfiguration: " + f.Name + " ist weder durch Parameter, Umgebungsvariablen noch Konfigurationsdatei definiert.");
+                            continue;
+                        }
+                        feld.SetValue(this, o);
+                    }
+                    else if (feldtyp == typeof(string[]))
+                    {
+                        string[] o;
+                        if (in_datei_vorhanden) {
+                            o = param_file.SelectToken(f.Name).ToObject<string[]>();
+                        } else if (in_env_vorhanden) {
+                            var als_token = Newtonsoft.Json.Linq.JArray.Parse(param_env[f.Name]);
+                            o = als_token.Select(jt => (string)jt).ToArray();
+                        } else if (in_args_vorhanden) {
+                            var als_token = Newtonsoft.Json.Linq.JArray.Parse(param_args[f.Name]);
+                            o = als_token.Select(jt => (string)jt).ToArray();
+                        } else {
+                            Logger.Loggen(Logger.Qualität.ERROR, "Konfiguration: " + f.Name + " ist weder durch Parameter, Umgebungsvariablen noch Konfigurationsdatei definiert.");
+                            continue;
+                        }
+                        feld.SetValue(this, o);
+                    }
+
+                    try {
+                        Logger.Loggen(Logger.Qualität.INFO, "Konfiguration: " + feld.Name + ": " + feld.GetValue(this).ToString());
+                    } catch (System.Exception e) {
+                        Logger.Loggen(Logger.Qualität.ERROR, "Fehler beim Lesen und Setzen des Konfigurationsparameters " + feld.Name + ": " + e.Message);
+                    }
+                }
+                catch { }
             }
 
             NullPruefen(Ressource, "Ressource");
