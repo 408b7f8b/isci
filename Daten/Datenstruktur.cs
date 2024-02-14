@@ -199,7 +199,7 @@ namespace isci.Daten
         {
             Zustand = new dtZustand();
             Zustand.path = Ordner + "/" + Zustand.Identifikation;
-            this.dateneinträge.Add(Zustand.Identifikation, Zustand); //sollte wahrscheinlich auskommentiert/entfernt werden
+            //this.dateneinträge.Add(Zustand.Identifikation, Zustand); //sollte wahrscheinlich auskommentiert/entfernt werden
         }
 
         /// <summary>

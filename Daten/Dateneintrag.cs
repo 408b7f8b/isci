@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Linq;
 
 namespace isci.Daten
@@ -99,9 +100,11 @@ namespace isci.Daten
                 case Datentypen.UInt8: return typeof(sbyte);
                 case Datentypen.UInt16: return typeof(UInt16);
                 case Datentypen.UInt32: return typeof(UInt32);
+                case Datentypen.UInt64: return typeof(UInt64);
                 case Datentypen.Int8: return typeof(byte);
                 case Datentypen.Int16: return typeof(Int16);
                 case Datentypen.Int32: return typeof(Int32);
+                case Datentypen.Int64: return typeof(Int64);
                 case Datentypen.Float: return typeof(float);
                 case Datentypen.Double: return typeof(double);
                 case Datentypen.Bool: return typeof(bool);
@@ -120,9 +123,11 @@ namespace isci.Daten
                 case Datentypen.UInt8: return jObject.ToObject<dtUInt8>();
                 case Datentypen.UInt16: return jObject.ToObject<dtUInt16>();
                 case Datentypen.UInt32: return jObject.ToObject<dtUInt32>();
+                case Datentypen.UInt64: return jObject.ToObject<dtUInt64>();
                 case Datentypen.Int8: return jObject.ToObject<dtInt8>();
                 case Datentypen.Int16: return jObject.ToObject<dtInt16>();
                 case Datentypen.Int32: return jObject.ToObject<dtInt32>();
+                case Datentypen.Int64: return jObject.ToObject<dtInt64>();
                 case Datentypen.Float: return jObject.ToObject<dtFloat>();
                 case Datentypen.Double: return jObject.ToObject<dtDouble>();
                 case Datentypen.Bool: return jObject.ToObject<dtBool>();
@@ -287,7 +292,7 @@ namespace isci.Daten
             return alsJson;
         }
 
-        public string gibName()
+        /* public string gibName()
         {
             if (!this.Identifikation.StartsWith("ns=3;s=")) return Identifikation;
             if (!this.Identifikation.Contains('.')) return this.Identifikation.Substring(7);
@@ -308,7 +313,7 @@ namespace isci.Daten
             splits[1] = ";";
             var teile = this.Identifikation.Split(splits, StringSplitOptions.RemoveEmptyEntries);
             return int.Parse(teile[0]);
-        }
+        } 
 
         public string gibDatenmodell()
         {
@@ -318,17 +323,12 @@ namespace isci.Daten
             var teile = this.Identifikation.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
             if (teile.Length > 1) return teile[0];
             else return "";
-        }
+        }*/
 
         public string gibElterneintrag()
         {
             if (this.parentEintrag != null) return this.parentEintrag;
-
-            if (!this.Identifikation.Contains('.')) return this.gibDatenmodell();
-
-            var top = this.Identifikation.Substring(0, this.Identifikation.LastIndexOf('.'));
-
-            return top;
+            return "";
         }
 
         /// <summary>
@@ -386,6 +386,80 @@ namespace isci.Daten
             }
 
             this.Identifikation = correctedString;
+        }
+
+        public T TypisiertAls<T>() {
+
+            if (
+                typeof(T) == typeof(dtUInt8) ||
+                typeof(T) == typeof(dtUInt16) ||
+                typeof(T) == typeof(dtUInt32) ||
+                typeof(T) == typeof(dtUInt64) ||
+                typeof(T) == typeof(dtInt8) ||
+                typeof(T) == typeof(dtInt16) ||
+                typeof(T) == typeof(dtInt32) ||
+                typeof(T) == typeof(dtInt64) ||
+                typeof(T) == typeof(dtDouble) ||
+                typeof(T) == typeof(dtFloat) ||
+                typeof(T) == typeof(dtString) ||
+                typeof(T) == typeof(dtZustand) ||
+                typeof(T) == typeof(dtObjekt) ||
+                typeof(T) == typeof(dtBool)
+            )
+            {
+                return (T)this.AlsObjekt(typeof(T));
+            }
+
+            return default(T);
+        }
+
+        public object AlsObjekt(Type objectType)
+        {
+            if (objectType == typeof(dtUInt8))
+            {
+                return (dtUInt8)this;
+            } else if (objectType == typeof(dtUInt16))
+            {
+                return (dtUInt16)this;
+            } else if (objectType == typeof(dtUInt32))
+            {
+                return (dtUInt32)this;
+            } else if (objectType == typeof(dtUInt64))
+            {
+                return (dtUInt64)this;
+            } else if (objectType == typeof(dtInt8))
+            {
+                return (dtInt8)this;
+            } else if (objectType == typeof(dtInt16))
+            {
+                return (dtInt16)this;
+            } else if (objectType == typeof(dtInt32))
+            {
+                return (dtInt32)this;
+            } else if (objectType == typeof(dtInt64))
+            {
+                return (dtInt64)this;
+            } else if (objectType == typeof(dtDouble))
+            {
+                return (dtDouble)this;
+            } else if (objectType == typeof(dtFloat))
+            {
+                return (dtFloat)this;
+            } else if (objectType == typeof(dtString))
+            {
+                return (dtString)this;
+            } else if (objectType == typeof(dtZustand))
+            {
+                return (dtZustand)this;
+            } else if (objectType == typeof(dtObjekt))
+            {
+                return (dtObjekt)this;
+            } else if (objectType == typeof(dtBool))
+            {
+                return (dtBool)this;
+            }
+
+            return null;
         }
     }
 }
