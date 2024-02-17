@@ -211,21 +211,23 @@ namespace isci.Daten
         {
             MutexBlockierenSynchron();
 
-            var stream = new System.IO.FileStream(path, System.IO.FileMode.Open);
-            var reader = new System.IO.BinaryReader(stream);
+            System.IO.FileStream stream = null;
+            System.IO.BinaryReader reader = null;
 
             try
             {
-                //var zst = reader.ReadInt64();
+                stream = new System.IO.FileStream(path, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite);
+                reader = new System.IO.BinaryReader(stream);
                 WertAusSpeicherLesenSpezifisch(reader);
             }
             catch
             {
                 Console.WriteLine("Lesen fehlgeschlagen: " + this.Identifikation);
             }
-
-            reader.Close();
-            stream.Close();
+            finally {
+                if (reader != null) reader.Dispose();
+                if (stream != null) stream.Dispose();
+            }
 
             MutexFreigeben();
         }
@@ -244,13 +246,24 @@ namespace isci.Daten
         {
             MutexBlockierenSynchron();
 
-            var stream = new System.IO.FileStream(path, System.IO.FileMode.Truncate);
-            var writer = new System.IO.BinaryWriter(stream);
+            System.IO.FileStream stream = null;
+            System.IO.BinaryWriter writer = null;
 
-            WertInSpeicherSchreibenSpezifisch(writer);
-
-            writer.Close();
-            stream.Close();
+            try
+            {
+                stream = new System.IO.FileStream(path, System.IO.FileMode.Truncate, System.IO.FileAccess.ReadWrite, System.IO.FileShare.ReadWrite);
+                writer = new System.IO.BinaryWriter(stream);
+                WertInSpeicherSchreibenSpezifisch(writer);
+            }
+            catch
+            {
+                Console.WriteLine("Schreiben fehlgeschlagen: " + this.Identifikation);
+            }
+            finally
+            {
+                if (writer != null) writer.Dispose();
+                if (stream != null) stream.Dispose();
+            }
 
             MutexFreigeben();
         }
