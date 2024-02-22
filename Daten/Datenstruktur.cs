@@ -212,6 +212,7 @@ namespace isci.Daten
             {
                 eintrag.Value.Start();
             }
+            Zustand.Start();
         }
 
         /// <summary>
