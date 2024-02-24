@@ -56,6 +56,16 @@ namespace isci.Daten
             Wert = token.ToObject<System.UInt32>();
         }
 
+        public override void WertAusBytes(byte[] bytes)
+        {
+            Wert = BitConverter.ToUInt32(bytes, 0);
+        }
+
+        public override byte[] WertNachBytes()
+        {
+            return BitConverter.GetBytes(Wert);
+        }
+
         public static bool operator ==(dtUInt32 left, dtUInt32 right)
         {
             return (System.UInt32)left.Wert == (System.UInt32)right.Wert;

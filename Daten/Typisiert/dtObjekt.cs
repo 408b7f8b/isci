@@ -76,6 +76,17 @@ namespace isci.Daten
             }
         }
 
+        public override void WertAusBytes(byte[] bytes)
+        {
+            //Wert = BitConverter.ToInt16(bytes, 0);
+        }
+
+        public override byte[] WertNachBytes()
+        {
+            //return BitConverter.GetBytes(Wert);
+            return null;
+        }
+
         public static bool operator ==(dtObjekt left, dtObjekt right)
         {
             if (left.Elemente.Count != right.Elemente.Count) return false;

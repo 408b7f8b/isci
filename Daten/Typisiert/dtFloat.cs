@@ -56,6 +56,16 @@ namespace isci.Daten
             Wert = token.ToObject<float>();
         }
 
+        public override void WertAusBytes(byte[] bytes)
+        {
+            Wert = BitConverter.ToSingle(bytes, 0);
+        }
+
+        public override byte[] WertNachBytes()
+        {
+            return BitConverter.GetBytes(Wert);
+        }
+
         public static bool operator ==(dtFloat left, dtFloat right)
         {
             return (float)left.Wert == (float)right.Wert;
