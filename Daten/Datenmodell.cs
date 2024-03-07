@@ -8,7 +8,7 @@ namespace isci.Daten
 {
     public class Datenmodell : Header
     {
-        public string Stand;
+        public long Stand;
         public ListeDateneintraege Dateneinträge;
         public VerweislisteDateneintraege Links;
 
@@ -20,6 +20,8 @@ namespace isci.Daten
             }
             
             if (this.Links == null) this.Links = new VerweislisteDateneintraege();
+
+            this.Stand = DateTime.Now.Ticks;
         }
 
         public Datenmodell(string Identifikation, ListeDateneintraege Dateneinträge = null) : base(Identifikation)
@@ -30,6 +32,7 @@ namespace isci.Daten
             }
             
             if (this.Links == null) this.Links = new VerweislisteDateneintraege();
+            this.Stand = DateTime.Now.Ticks;
         }
 
         public static Datenmodell AusDatei(string path)
@@ -85,7 +88,7 @@ namespace isci.Daten
             var stand = datamodel_.SelectToken("Stand");
 
             try {
-                dm.Stand = stand.ToObject<string>();
+                dm.Stand = stand.ToObject<long>();
             } catch {
 
             }
