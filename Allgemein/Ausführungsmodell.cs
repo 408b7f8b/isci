@@ -47,6 +47,13 @@ namespace isci.Allgemein
             }
 
             this.Zustand = zustand;
+
+            zustand.WertAusSpeicherLesen();
+            if (!geparst.ContainsKey(zustand.WertSerialisieren()))
+            {
+                zustand.Wert = 0;
+                zustand.WertInSpeicherSchreiben();
+            }
         }
 
         public static Ausführungsmodell ausDatei(string modell)
