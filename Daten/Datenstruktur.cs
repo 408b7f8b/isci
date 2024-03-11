@@ -143,7 +143,7 @@ namespace isci.Daten
         {
             if (OrdnerDatenmodelle == null)
             {
-                Console.WriteLine("DatenmodelleEinhängenAusOrdner: OrdnerDatenmodelle ist NULL");
+                Logger.Loggen(Logger.Qualität.ERROR, "DatenmodelleEinhängenAusOrdner: OrdnerDatenmodelle ist NULL");
                 return;
             }
             
