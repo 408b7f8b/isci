@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace isci.Daten
 {
@@ -12,6 +13,45 @@ namespace isci.Daten
         public dtObjekt(String Identifikation) : base(Identifikation)
         {
             this.type = Datentypen.Objekt;
+
+            if (ElementeLaufzeit != null)
+            {
+                foreach (var Element in ElementeLaufzeit)
+                {
+                    if (!Elemente.Contains(Element.Identifikation)) Elemente.Add(Element.Identifikation);
+                }
+            } else {
+
+                ElementeLaufzeit = new List<Dateneintrag>();
+            }
+
+            if (Elemente == null) Elemente = new List<string>();
+
+            var typ = this.GetType();
+            var felder = typ.GetRuntimeFields();
+            
+
+            foreach (var feld in felder)
+            {
+                var typ2 = feld.FieldType;
+                var typ3 = typ2.BaseType;
+                if (typ3 == typeof(Dateneintrag))
+                {
+                    if (!Elemente.Contains(feld.Name))
+                    {
+                        Elemente.Add(feld.Name);
+                    }
+                    var instanz = feld.GetValue(this);
+                    if (instanz != null)
+                    {
+                        var instanz_typisiert = (Dateneintrag)instanz;
+                        instanz_typisiert.Identifikation = this.Identifikation + "." + feld.Name;
+                        instanz_typisiert.parentEintrag = this.Identifikation;
+                        ElementeLaufzeit.Add(instanz_typisiert);
+                    }
+                    Console.WriteLine("a");
+                }
+            }
         }
 
         public new void WertAusSpeicherLesen()

@@ -17,6 +17,8 @@ namespace isci.Daten
         Float,
         Double,
         String,
-        Objekt
+        Objekt,
+        Methode,
+        Methodenantwort
     }
 }

@@ -108,6 +108,17 @@ namespace isci.Daten
             dateneintrag.korrigiereIdentifikationFallsNotw(this.Identifikation);
 
             this.Dateneinträge.Add(dateneintrag);
+
+            if (dateneintrag.type == Datentypen.Objekt)
+            {
+                var dt_tmp = (dtObjekt)dateneintrag;
+                foreach (var Element in dt_tmp.ElementeLaufzeit)
+                {
+                    dt_tmp.Elemente.Remove(Element.Identifikation);
+                    this.Add(Element);
+                    dt_tmp.Elemente.Add(Element.Identifikation);                    
+                }
+            }
         }
 
         public List<string> Identifikatoren()
