@@ -169,7 +169,7 @@ namespace isci.Daten
             }
             catch
             {
-                Logger.Loggen(Logger.Qualität.ERROR, "ImSpeicherAnlagen fehlgeschlagen: " + this.Identifikation);
+                Logger.Fehler("ImSpeicherAnlagen fehlgeschlagen: " + this.Identifikation);
             }
         }
 
@@ -222,7 +222,7 @@ namespace isci.Daten
             }
             catch
             {
-                Logger.Loggen(Logger.Qualität.ERROR, "WertAusSpeicherLesen fehlgeschlagen: " + this.Identifikation);
+                Logger.Fehler("WertAusSpeicherLesen fehlgeschlagen: " + this.Identifikation);
             }
             finally {
                 if (reader != null) reader.Dispose();
@@ -257,7 +257,7 @@ namespace isci.Daten
             }
             catch
             {
-                Logger.Loggen(Logger.Qualität.ERROR, "WertInSpeicherSchreiben fehlgeschlagen: " + this.Identifikation);
+                Logger.Fehler("WertInSpeicherSchreiben fehlgeschlagen: " + this.Identifikation);
             }
             finally
             {

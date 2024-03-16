@@ -109,35 +109,13 @@ namespace isci
 
         public static void OrdnerPruefenErstellen(string pfad)
         {
-            if (!System.IO.Directory.Exists(pfad)) System.IO.Directory.CreateDirectory(pfad);
-        }
-    }
-
-    public static class Logger
-    {
-        public enum Qualität
-        {
-            INFO,
-            ERROR
-        }
-        private static string identifikation = "";
-        
-        public static void temporärKonfigurieren(string identifikation)
-        {
-            Logger.identifikation = identifikation;
-        }
-
-        public static void Konfigurieren(Allgemein.Parameter parameter)
-        {
-            identifikation = parameter.Identifikation;
-        }
-
-        public static void Loggen(Qualität qualität, string nachricht)
-        {
-            var timeStamp = DateTime.Now.ToString("O");
-            var eintrag = "{" + $"\"Zeitstempel\":\"{timeStamp}\",\"Qualität\":\"{qualität.ToString()}\",\"Inhalt\":\"{nachricht}\",\"Modulinstanz\":\"{identifikation}\"" + "}";
-
-            System.Console.WriteLine(eintrag);
+            if (!System.IO.Directory.Exists(pfad))
+            {
+                Logger.Debug($"Ordner {pfad} existiert nicht. Erstelle Ordner.");
+                System.IO.Directory.CreateDirectory(pfad);
+            } else {
+                Logger.Debug($"Ordner {pfad} existiert bereits.");
+            }
         }
     }
 }

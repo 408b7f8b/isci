@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Serilog;
 
 namespace isci.Allgemein
 {
@@ -22,132 +23,12 @@ namespace isci.Allgemein
         {
             public fromEnv(){}
         }
-/*
-        static Parameter ausDatei(string datei)
-        {
-            var ret = new Parameter();
-
-            Identifikation = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_IDENTIFIKATION");
-
-            var tmp = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_RESSOURCE");
-            if (tmp == null) Ressource = System.Environment.MachineName;
-            else Ressource = tmp;
-
-            Anwendung = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNG");
-
-            OrdnerAnwendung = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNGEN");
-            OrdnerDatenstruktur = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_DATENSTRUKTUREN");
-            OrdnerDatenmodelle = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNGEN");
-            OrdnerEreignismodelle = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNGEN");
-            OrdnerFunktionsmodelle = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNGEN");
-            OrdnerSchnittstellen = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNGEN");
-            OrdnerBeschreibungen = Environment.GetEnvironmentVariable("AUTOMATISIERUNG_ANWENDUNGEN");
-
-            if (!System.IO.File.Exists(datei))
-            {
-                System.Console.WriteLine("Konfigurationsdatei " + datei + " existiert nicht. Erstelle Beispieldatei, falls noch nicht vorhanden.");
-                if (!System.IO.File.Exists("konfiguration_beispiel.json")) System.IO.File.WriteAllText("konfiguration_beispiel.json", Newtonsoft.Json.JsonConvert.SerializeObject(this));
-            }
-            else
-            {
-                try
-                {
-                    var t = Newtonsoft.Json.Linq.JToken.Parse(System.IO.File.ReadAllText(datei));
-                    Console.WriteLine("Konfigdatei: " + datei);
-
-                    var felder = GetType().GetFields();
-
-                    foreach (var f in felder)
-                    {
-                        try
-                        {
-                            var feld = GetType().GetField(f.Name);
-                            var feldtyp = feld.FieldType;
-
-                            if (feldtyp == typeof(string))
-                            {
-                                var o = t.SelectToken(f.Name).ToObject<string>();
-                                feld.SetValue(this, o);
-                            }
-                            else if (feldtyp == typeof(int))
-                            {
-                                var o = t.SelectToken(f.Name).ToObject<int>();
-                                feld.SetValue(this, o);
-                            }
-                            else if (feldtyp == typeof(uint))
-                            {
-                                var o = t.SelectToken(f.Name).ToObject<uint>();
-                                feld.SetValue(this, o);
-                            }
-                            else if (feldtyp == typeof(bool))
-                            {
-                                var o = t.SelectToken(f.Name).ToObject<bool>();
-                                feld.SetValue(this, o);
-                            }
-                            else if (feldtyp == typeof(double))
-                            {
-                                var o = t.SelectToken(f.Name).ToObject<double>();
-                                feld.SetValue(this, o);
-                            }
-                            else if (feldtyp == typeof(Int32[]))
-                            {
-                                var o = t.SelectToken(f.Name).ToObject<Int32[]>();
-                                feld.SetValue(this, o);
-                            }
-                            else if (feldtyp == typeof(string[]))
-                            {
-                                var o = t.SelectToken(f.Name).ToObject<string[]>();
-                                feld.SetValue(this, o);
-                            }
-                            else if (feldtyp == typeof(Ausführungstransition[]))
-                            {
-                                var o = t.SelectToken(f.Name).ToObject<Ausführungstransition[]>();
-                                feld.SetValue(this, o);
-                            }
-
-                            try {
-                                Console.WriteLine("Konfigparam " + feld.Name + ": " + feld.GetValue(this).ToString());
-                            } catch { }
-                        }
-                        catch { }
-                    }
-                } catch { }
-            }
-            
-            NullPruefen(Identifikation, "Identifikation");
-            NullPruefen(Anwendung, "Anwendung");
-            NullPruefen(OrdnerAnwendung, "OrdnerAnwendung");
-            NullPruefen(OrdnerDatenstruktur, "OrdnerDatenstruktur");
-            NullPruefen(OrdnerDatenmodelle, "OrdnerDatenmodelle");
-            NullPruefen(OrdnerEreignismodelle, "OrdnerEreignismodelle");
-            NullPruefen(OrdnerFunktionsmodelle, "OrdnerFunktionsmodelle");
-            NullPruefen(OrdnerSchnittstellen, "OrdnerSchnittstellen");
-            NullPruefen(OrdnerBeschreibungen, "OrdnerBeschreibungen");
-
-            if (!OrdnerAnwendung.EndsWith(Anwendung)) OrdnerAnwendung = (OrdnerAnwendung + "/" + Anwendung).Replace("//", "/");
-            if (!OrdnerDatenstruktur.EndsWith(Anwendung)) OrdnerDatenstruktur = (OrdnerDatenstruktur + "/" + Anwendung).Replace("//", "/");
-            if (!OrdnerDatenmodelle.EndsWith(Anwendung + "/Datenmodelle")) OrdnerDatenmodelle = (OrdnerDatenmodelle + "/" + Anwendung + "/Datenmodelle").Replace("//", "/");
-            if (!OrdnerEreignismodelle.EndsWith(Anwendung + "/Ereignismodelle")) OrdnerEreignismodelle = (OrdnerEreignismodelle + "/" + Anwendung + "/Ereignismodelle").Replace("//", "/");
-            if (!OrdnerFunktionsmodelle.EndsWith(Anwendung + "/Funktionsmodelle")) OrdnerFunktionsmodelle = (OrdnerFunktionsmodelle + "/" + Anwendung + "/Funktionsmodelle").Replace("//", "/");
-            if (!OrdnerSchnittstellen.EndsWith(Anwendung + "/Schnittstellen")) OrdnerSchnittstellen = (OrdnerSchnittstellen + "/" + Anwendung + "/Schnittstellen").Replace("//", "/");
-            if (!OrdnerBeschreibungen.EndsWith(Anwendung + "/Beschreibungen")) OrdnerBeschreibungen = (OrdnerBeschreibungen + "/" + Anwendung + "/Beschreibungen").Replace("//", "/");
-
-            Helfer.OrdnerPruefenErstellen(OrdnerAnwendung);
-            Helfer.OrdnerPruefenErstellen(OrdnerDatenstruktur);
-            Helfer.OrdnerPruefenErstellen(OrdnerDatenmodelle);
-            Helfer.OrdnerPruefenErstellen(OrdnerEreignismodelle);
-            Helfer.OrdnerPruefenErstellen(OrdnerFunktionsmodelle);
-            Helfer.OrdnerPruefenErstellen(OrdnerSchnittstellen);
-            Helfer.OrdnerPruefenErstellen(OrdnerBeschreibungen);
-
-
-        }*/
 
         static void NullPruefen(object var, string Name)
         {
             if (var == null) 
             {
-                Logger.Loggen(Logger.Qualität.ERROR, "'" + Name + "' undefiniert, Umgebungsvariable ('ISCI_${" + Name.ToUpper() + "}) anlegen oder als '" + Name + "' als Startparameter oder über die Konfigurationsdatei vorgeben.");
+                Logger.Fatal("'" + Name + "' undefiniert, Umgebungsvariable ('ISCI_${" + Name.ToUpper() + "}) anlegen oder als '" + Name + "' als Startparameter oder über die Konfigurationsdatei vorgeben.");
                 System.Environment.Exit(-1);
             }
         }
@@ -156,7 +37,7 @@ namespace isci.Allgemein
         {
             if (var.Trim() == "")
             {
-                Logger.Loggen(Logger.Qualität.ERROR, "'" + Name + "' leer, Umgebungsvariable ('ISCI_${" + Name.ToUpper() + "}) anlegen oder als '" + Name + "' als Startparameter oder über die Konfigurationsdatei vorgeben.");
+                Logger.Fatal("'" + Name + "' leer, Umgebungsvariable ('ISCI_${" + Name.ToUpper() + "}) anlegen oder als '" + Name + "' als Startparameter oder über die Konfigurationsdatei vorgeben.");
                 System.Environment.Exit(-1);
             }
         }
@@ -173,6 +54,16 @@ namespace isci.Allgemein
         public string Anwendung = "";
         [fromArgs, fromEnv]
         public uint PauseArbeitsschleifeUs = 100;
+        [fromArgs, fromEnv]
+        public bool LoggingInKonsoleAktiv = false;
+        [fromArgs, fromEnv]
+        public Logger.Stufe LoggingInKonsoleMindeststufe = Logger.Stufe.INFORMATION;
+        [fromArgs, fromEnv]
+        public bool LoggingInDateiAktiv = true;
+        [fromArgs, fromEnv]        
+        public Logger.Stufe LoggingInDateiMindeststufe = Logger.Stufe.INFORMATION;
+        [fromArgs, fromEnv]
+        public uint LoggingInDateiMaxDateiGroesseInMb = 1;
 
         [IgnoreParse]
         public string OrdnerDatenmodelle;
@@ -195,12 +86,14 @@ namespace isci.Allgemein
 
             foreach (System.Collections.DictionaryEntry variable in envVariablen)
             {
-                var name = (string)variable.Key;
+                var envName = (string)variable.Key;
                 var wert = (string)variable.Value;
-                if (name.StartsWith("ISCI_"))
+                if (envName.StartsWith("ISCI_"))
                 {
                     var value = wert;
-                    param_env[name.Substring(5)] = value;
+                    var name = envName.Substring(5);
+                    param_env[name] = value;
+                    Logger.Information($"Umgebungsvariable {envName} als {name}={value} hinzugefügt");
                 }
             }
 
@@ -211,48 +104,86 @@ namespace isci.Allgemein
                 if (i + 1 < args.Length)
                 {
                     param_args[args[i]] = args[i + 1];
+                    Logger.Information($"Startargument {args[i]} als {args[i]}={args[i + 1]} hinzugefügt");
                 }
                 else
                 {
                     param_args[args[i]] = null;
+                    Logger.Warnung($"Startargument {args[i]} als {args[i]}=null hinzugefügt");
                 }
             }
 
+            Logger.Debug("Versuche initiale Konfiguration aus Umgebungsvariablen und Startargumenten zu befüllen. Umgebungsvariablen werden bevorzugt.");
             var felder = GetType().GetFields();
             foreach (var f in felder)
             {
-                if (param_env.ContainsKey(f.Name) && Attribute.IsDefined(f, attributeType: typeof(fromEnv)) && f.FieldType == typeof(string)) this.GetType().GetField(f.Name).SetValue(this, param_env[key: f.Name]);
-                else if (param_args.ContainsKey(f.Name) && Attribute.IsDefined(f, attributeType: typeof(fromArgs)) && f.FieldType == typeof(string)) this.GetType().GetField(f.Name).SetValue(this, param_args[f.Name]);
+                if (f.FieldType != typeof(string)) continue;
+
+                Logger.Debug($"Versuche {f.Name} zu befüllen.");
+
+                string wert;
+                if (param_env.ContainsKey(f.Name) && Attribute.IsDefined(f, attributeType: typeof(fromEnv)))
+                {
+                    wert = param_env[f.Name];
+                    Logger.Debug($"{f.Name} ist definiert in Umgebungsvariable: {wert}");
+                } else if (param_args.ContainsKey(f.Name) && Attribute.IsDefined(f, attributeType: typeof(fromArgs)))
+                {
+                    wert = param_args[f.Name];
+                    Logger.Debug($"{f.Name} ist definiert über Startargument: {wert}");                    
+                } else {
+                    Logger.Debug($"{f.Name} ist nicht initial definiert.");
+                    continue;
+                }
+
+                Logger.Information($"Konfigurationsparameter aus Startargument oder Umgebungsvariable: {f.Name}={wert}");
+                this.GetType().GetField(f.Name).SetValue(this, wert);
             }
+            Logger.Debug("Ende Versuch initiale Konfiguration aus Umgebungsvariablen und Startargumenten zu befüllen.");
 
             var param_file = new Newtonsoft.Json.Linq.JObject();
             var konfigurationsdatei = (OrdnerAnwendungen + "/" + Anwendung + "/Konfigurationen/" + Identifikation + ".json").Replace("//", "/");
             if (System.IO.File.Exists(konfigurationsdatei))
             {
-                Logger.Loggen(Logger.Qualität.INFO, "Konfigdatei: " + konfigurationsdatei);
-                param_file = Newtonsoft.Json.Linq.JObject.Parse(System.IO.File.ReadAllText(konfigurationsdatei));
+                Logger.Information("Konfigurationsdatei: " + konfigurationsdatei);
+                try {
+                    param_file = Newtonsoft.Json.Linq.JObject.Parse(System.IO.File.ReadAllText(konfigurationsdatei));
+                } catch (System.Exception e){
+                    Logger.Fatal($"Ausnahme beim Verarbeiten der Konfigurationsdatei: {e.Message}");
+                    System.Environment.Exit(-1);
+                }
             } else {
-                Logger.Loggen(Logger.Qualität.INFO, "Konfigdatei: " + konfigurationsdatei + " existiert nicht.");
+                Logger.Warnung("Konfigurationsdatei " + konfigurationsdatei + " existiert nicht.");
             }
 
+            Logger.Debug("Versuche gesamte Konfiguration aus Umgebungsvariablen, Startargumenten und Konfigurationsdatei zu befüllen. Konfigurationsdatei > Startargument > Umgebungsvariable.");
             foreach (var f in felder)
             {
                 var in_env_vorhanden = param_env.ContainsKey(f.Name);
                 var in_args_vorhanden = param_args.ContainsKey(f.Name);
-                var in_datei_vorhanden = (param_file[f.Name] != null);
-                //if (Attribute.IsDefined(f, attributeType: typeof(IgnoreParse))) continue;
+                var in_datei_vorhanden = param_file[f.Name] != null;
+
+                Logger.Debug($"Konfigurationsparameter {f.Name} in Umgebungsvariablen {(in_env_vorhanden ? "vorhanden" : "nicht vorhanden")}.");
+                Logger.Debug($"Konfigurationsparameter {f.Name} in Umgebungsvariablen {(in_args_vorhanden ? "vorhanden" : "nicht vorhanden")}.");
+                Logger.Debug($"Konfigurationsparameter {f.Name} in Umgebungsvariablen {(in_datei_vorhanden ? "vorhanden" : "nicht vorhanden")}.");
 
                 try
                 {
+                    Logger.Debug($"Suche Konfigurationsparameter {f.Name}");
                     var feld = GetType().GetField(f.Name);
                     var feldtyp = feld.FieldType;
+                    Logger.Debug($"Erwarteter Typ für Konfigurationsparameter: " + feldtyp.Name);
 
                     if (feldtyp == typeof(string))
                     {
-                        if (in_datei_vorhanden)
+                        if (in_env_vorhanden || in_args_vorhanden) {
+                            //bereits zuvor verarbeitet
+                        } else if (in_datei_vorhanden)
                         {
                             var o = param_file.SelectToken(f.Name).ToObject<string>();
                             feld.SetValue(this, o);
+                        } else {
+                            Logger.Warnung("Konfigurationsparameter " + f.Name + " ist weder durch Startargument, Umgebungsvariablen noch Konfigurationsdatei definiert.");
+                            continue;
                         }
                     }
                     else if (feldtyp == typeof(int))
@@ -265,7 +196,7 @@ namespace isci.Allgemein
                         } else if (in_args_vorhanden) {
                             o = int.Parse(param_args[f.Name]);
                         } else {
-                            Logger.Loggen(Logger.Qualität.ERROR, "Konfiguration: " + f.Name + " ist weder durch Parameter, Umgebungsvariablen noch Konfigurationsdatei definiert.");
+                            Logger.Warnung("Konfigurationsparameter " + f.Name + " ist weder durch Startargument, Umgebungsvariablen noch Konfigurationsdatei definiert.");
                             continue;
                         }
                         feld.SetValue(this, o);
@@ -280,7 +211,7 @@ namespace isci.Allgemein
                         } else if (in_args_vorhanden) {
                             o = uint.Parse(param_args[f.Name]);
                         } else {
-                            Logger.Loggen(Logger.Qualität.ERROR, "Konfiguration: " + f.Name + " ist weder durch Parameter, Umgebungsvariablen noch Konfigurationsdatei definiert.");
+                            Logger.Warnung("Konfigurationsparameter " + f.Name + " ist weder durch Startargument, Umgebungsvariablen noch Konfigurationsdatei definiert.");
                             continue;
                         }
                         feld.SetValue(this, o);
@@ -295,7 +226,7 @@ namespace isci.Allgemein
                         } else if (in_args_vorhanden) {
                             o = bool.Parse(param_args[f.Name]);
                         } else {
-                            Logger.Loggen(Logger.Qualität.ERROR, "Konfiguration: " + f.Name + " ist weder durch Parameter, Umgebungsvariablen noch Konfigurationsdatei definiert.");
+                            Logger.Warnung("Konfigurationsparameter " + f.Name + " ist weder durch Startargument, Umgebungsvariablen noch Konfigurationsdatei definiert.");
                             continue;
                         }
                         feld.SetValue(this, o);
@@ -310,7 +241,7 @@ namespace isci.Allgemein
                         } else if (in_args_vorhanden) {
                             o = double.Parse(param_args[f.Name]);
                         } else {
-                            Logger.Loggen(Logger.Qualität.ERROR, "Konfiguration: " + f.Name + " ist weder durch Parameter, Umgebungsvariablen noch Konfigurationsdatei definiert.");
+                            Logger.Warnung("Konfigurationsparameter " + f.Name + " ist weder durch Startargument, Umgebungsvariablen noch Konfigurationsdatei definiert.");
                             continue;
                         }
                         feld.SetValue(this, o);
@@ -327,7 +258,7 @@ namespace isci.Allgemein
                             var als_token = Newtonsoft.Json.Linq.JArray.Parse(param_args[f.Name]);
                             o = als_token.Select(jt => (int)jt).ToArray();
                         } else {
-                            Logger.Loggen(Logger.Qualität.ERROR, "Konfiguration: " + f.Name + " ist weder durch Parameter, Umgebungsvariablen noch Konfigurationsdatei definiert.");
+                            Logger.Warnung("Konfigurationsparameter " + f.Name + " ist weder durch Startargument, Umgebungsvariablen noch Konfigurationsdatei definiert.");
                             continue;
                         }
                         feld.SetValue(this, o);
@@ -344,21 +275,43 @@ namespace isci.Allgemein
                             var als_token = Newtonsoft.Json.Linq.JArray.Parse(param_args[f.Name]);
                             o = als_token.Select(jt => (string)jt).ToArray();
                         } else {
-                            Logger.Loggen(Logger.Qualität.ERROR, "Konfiguration: " + f.Name + " ist weder durch Parameter, Umgebungsvariablen noch Konfigurationsdatei definiert.");
+                            Logger.Warnung("Konfigurationsparameter " + f.Name + " ist weder durch Startargument, Umgebungsvariablen noch Konfigurationsdatei definiert.");
                             continue;
                         }
                         feld.SetValue(this, o);
                     }
-
-                    try {
-                        Logger.Loggen(Logger.Qualität.INFO, "Konfiguration: " + feld.Name + ": " + feld.GetValue(this).ToString());
-                    } catch (System.Exception e) {
-                        Logger.Loggen(Logger.Qualität.ERROR, "Fehler beim Lesen und Setzen des Konfigurationsparameters " + feld.Name + ": " + e.Message);
+                    else if (feldtyp == typeof(Logger.Stufe))
+                    {
+                        Logger.Stufe o;
+                        if (in_datei_vorhanden) {
+                            o = param_file.SelectToken(f.Name).ToObject<Logger.Stufe>();
+                        } else if (in_env_vorhanden) {
+                            if (!Enum.TryParse<Logger.Stufe>(param_args[f.Name], out o) )
+                            {
+                                Logger.Fehler("Fehler bei der Verarbeitung der Loggingstufe bei Konfigurationsparameter " + f.Name);
+                                continue;
+                            }
+                            var als_token = Enum.Parse(typeof(Logger.Stufe), param_args[f.Name]);
+                        } else if (in_args_vorhanden) {
+                            if (!Enum.TryParse<Logger.Stufe>(param_args[f.Name], out o) )
+                            {
+                                Logger.Fehler("Fehler bei der Verarbeitung der Loggingstufe bei Konfigurationsparameter " + f.Name);
+                                continue;
+                            }
+                            var als_token = Enum.Parse(typeof(Logger.Stufe), param_args[f.Name]);
+                        } else {
+                            Logger.Warnung("Konfigurationsparameter " + f.Name + " ist weder durch Startargument, Umgebungsvariablen noch Konfigurationsdatei definiert.");
+                            continue;
+                        }
                     }
+
+                    Logger.Information("Konfigurationsparameter " + feld.Name + "=" + feld.GetValue(this).ToString());
+                } catch (System.Exception e) {
+                    Logger.Fehler($"Ausnahme bei der Verarbeitung des Konfigurationsparameters {f.Name}: {e.Message}");
                 }
-                catch { }
             }
 
+            Logger.Debug("Prüfe kritische Konfigurationsparameter.");
             NullPruefen(Ressource, "Ressource");
             NullPruefen(Identifikation, "Identifikation");
             NullPruefen(OrdnerAnwendungen, "OrdnerAnwendungen");
@@ -370,6 +323,7 @@ namespace isci.Allgemein
             LeerPruefen(OrdnerDatenstrukturen, "OrdnerDatenstrukturen");
             LeerPruefen(Anwendung, "Anwendung");
 
+            Logger.Information("Richte Logging anhand Konfiguration ein.");
             Logger.Konfigurieren(this);
 
             OrdnerDatenmodelle = (OrdnerAnwendungen + "/" + Anwendung + "/Datenmodelle").Replace("//", "/");
@@ -377,75 +331,15 @@ namespace isci.Allgemein
             OrdnerFunktionsmodelle = (OrdnerAnwendungen + "/" + Anwendung + "/Funktionsmodelle").Replace("//", "/");
             OrdnerSchnittstellen = (OrdnerAnwendungen + "/" + Anwendung + "/Schnittstellen").Replace("//", "/");
             OrdnerBeschreibungen = (OrdnerAnwendungen + "/" + Anwendung + "/Beschreibungen").Replace("//", "/");
+            OrdnerLogs = (OrdnerAnwendungen + "/" + Anwendung + "/Logs").Replace("//", "/");
 
+            Logger.Debug("Prüfe und erstelle nach Notwendigkeit Ordner.");
             Helfer.OrdnerPruefenErstellen(OrdnerDatenmodelle);
             Helfer.OrdnerPruefenErstellen(OrdnerEreignismodelle);
             Helfer.OrdnerPruefenErstellen(OrdnerFunktionsmodelle);
             Helfer.OrdnerPruefenErstellen(OrdnerSchnittstellen);
             Helfer.OrdnerPruefenErstellen(OrdnerBeschreibungen);
+            Helfer.OrdnerPruefenErstellen(OrdnerLogs);
         }
-        /*public Parameter()
-        {
-            var felder = GetType().GetFields();
-
-            foreach (var f in felder)
-            {
-                try
-                {
-                    string var_string = "";
-                    var feld = GetType().GetField(f.Name);
-                    var feldtyp = feld.FieldType;
-
-                    try {
-                        var_string = Environment.GetEnvironmentVariable(f.Name);
-                    } catch {
-                        Environment.SetEnvironmentVariable(f.Name, feld.GetValue(this).ToString());
-                        continue;
-                    }
-
-                    if (feldtyp == typeof(string))
-                    {
-                        feld.SetValue(this, var_string);
-                    }
-                    else if (feldtyp == typeof(int))
-                    {
-                        feld.SetValue(this, Int32.Parse(var_string));
-                    }
-                    else if (feldtyp == typeof(uint))
-                    {
-                        feld.SetValue(this, UInt32.Parse(var_string));
-                    }
-                    else if (feldtyp == typeof(bool))
-                    {
-                        feld.SetValue(this, Boolean.Parse(var_string));
-                    }
-                    else if (feldtyp == typeof(double))
-                    {
-                        feld.SetValue(this, Double.Parse(var_string));
-                    } else {
-                        if (!var_string.StartsWith("{")) var_string = "{" + var_string;
-                        if (!var_string.EndsWith("}")) var_string += "}";
-
-                        if (feldtyp == typeof(Int32[]))
-                        {
-                            feld.SetValue(this, Newtonsoft.Json.JsonToken.Parse(typeof(Int32[]), var_string));
-                        }
-                        else if (feldtyp == typeof(string[]))
-                        {
-                            feld.SetValue(this, Newtonsoft.Json.JsonToken.Parse(typeof(string[]), var_string));
-                        }
-                        else if (feldtyp == typeof(Ausführungstransition[]))
-                        {
-                            feld.SetValue(this, Newtonsoft.Json.JsonToken.Parse(typeof(Ausführungstransition[]), var_string));
-                        }
-                    }
-
-                    try {
-                        Console.WriteLine("Konfigparam " + feld.Name + ": " + feld.GetValue(this).ToString());
-                    } catch { }
-                }
-                catch { }
-            }
-        }*/
     }
 }

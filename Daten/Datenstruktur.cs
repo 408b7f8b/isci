@@ -50,7 +50,7 @@ namespace isci.Daten
             this.Modulidentifikation = parameter.Identifikation;
             this.Automatisierungssystem = parameter.Anwendung;
             this.ZustandsdateneintragAnlegen();
-            Logger.Loggen(Logger.Qualität.INFO, "Datenstruktur erstellt.");
+            Logger.Information("Datenstruktur erstellt.");
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace isci.Daten
             this.Modulidentifikation = identifikation;
             this.Automatisierungssystem = automatisierungssystem;
             this.ZustandsdateneintragAnlegen();
-            Logger.Loggen(Logger.Qualität.INFO, "Datenstruktur erstellt.");
+            Logger.Information("Datenstruktur erstellt.");
         }
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace isci.Daten
         /// <param name="PfadDatenmodell">Pfad zur Datei des Datenmodells.</param>
         public void DatenmodellEinhängenAusDatei(string PfadDatenmodell)
         {
-            Logger.Loggen(Logger.Qualität.INFO, $"Datenstruktur: Datenmodell {PfadDatenmodell} wird eingehängt.");
+            Logger.Information($"Datenstruktur: Datenmodell {PfadDatenmodell} wird eingehängt.");
             var dm_ = Datenmodell.AusDatei(PfadDatenmodell);
             DatenmodellEinhängen(dm_);
         }
@@ -143,7 +143,7 @@ namespace isci.Daten
         {
             if (OrdnerDatenmodelle == null)
             {
-                Logger.Loggen(Logger.Qualität.ERROR, "DatenmodelleEinhängenAusOrdner: OrdnerDatenmodelle ist NULL");
+                Logger.Fehler("DatenmodelleEinhängenAusOrdner: OrdnerDatenmodelle ist NULL");
                 return;
             }
             
@@ -176,7 +176,7 @@ namespace isci.Daten
         /// </summary>
         public void VerweiseErzeugen()
         {
-            Logger.Loggen(Logger.Qualität.INFO, "Datenstruktur: Verweise werden erzeugt.");
+            Logger.Information("Datenstruktur: Verweise werden erzeugt.");
             foreach (var eintrag in verweise)
             {
                 foreach (var subentry in eintrag.Value)
@@ -184,7 +184,7 @@ namespace isci.Daten
                     try {
                         verweiseAktiv.Add(dateneinträge[eintrag.Key], dateneinträge[subentry]);
                     } catch (System.Exception e) {
-                        Logger.Loggen(Logger.Qualität.ERROR, "Datenstruktur: Fehler beim Erzeugen der Verweise: " + e.Message);
+                        Logger.Fehler("Datenstruktur: Fehler beim Erzeugen der Verweise: " + e.Message);
                     }
                 }
             }
@@ -207,7 +207,7 @@ namespace isci.Daten
         /// </summary>
         public void Start()
         {
-            Logger.Loggen(Logger.Qualität.INFO, "Datenstruktur wird gestartet.");
+            Logger.Information("Datenstruktur wird gestartet.");
             foreach (var eintrag in dateneinträge)
             {
                 eintrag.Value.Start();

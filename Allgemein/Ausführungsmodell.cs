@@ -20,7 +20,7 @@ namespace isci.Allgemein
                 var datei = (konfiguration.OrdnerAnwendungen + "/" + konfiguration.Anwendung + "/Ausführungsmodell.json").Replace("//", "/");
                 geparst = Newtonsoft.Json.Linq.JObject.Parse(System.IO.File.ReadAllText(datei));
             } catch (System.Exception e) {
-                Logger.Loggen(Logger.Qualität.ERROR, "Ausführungsmodell ist nicht vorhanden oder konnte nicht gelesen werden: " + e.Message);
+                Logger.Fatal("Ausführungsmodell ist nicht vorhanden oder konnte nicht gelesen werden: " + e.Message);
                 System.Environment.Exit(-1);
             }
 
@@ -36,13 +36,13 @@ namespace isci.Allgemein
             }
             catch (System.Exception e)
             {
-                Logger.Loggen(Logger.Qualität.ERROR, "JSON-Verarbeitung des Ausführungsmodells fehlgeschlagen für die Modulinstanz: " + konfiguration.Identifikation + ", " + e.Message);
+                Logger.Fatal("JSON-Verarbeitung des Ausführungsmodells fehlgeschlagen für die Modulinstanz: " + konfiguration.Identifikation + ", " + e.Message);
                 System.Environment.Exit(-1);
             }
 
             if (this.Count() == 0)
             {
-                Logger.Loggen(Logger.Qualität.ERROR, "Kein Eintrag im Ausführungsmodell für die Modulinstanz: " + konfiguration.Identifikation);
+                Logger.Fatal("Kein Eintrag im Ausführungsmodell für die Modulinstanz: " + konfiguration.Identifikation);
                 System.Environment.Exit(-1);
             }
 
