@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO.Pipes;
 using System.Reflection;
 
 namespace isci.Daten
@@ -12,6 +13,7 @@ namespace isci.Daten
 
         public dtObjekt(String Identifikation) : base(Identifikation)
         {
+            this.Identifikation = Identifikation;
             this.type = Datentypen.Objekt;
 
             if (ElementeLaufzeit != null)
@@ -29,7 +31,6 @@ namespace isci.Daten
 
             var typ = this.GetType();
             var felder = typ.GetRuntimeFields();
-            
 
             foreach (var feld in felder)
             {
@@ -37,19 +38,19 @@ namespace isci.Daten
                 var typ3 = typ2.BaseType;
                 if (typ3 == typeof(Dateneintrag))
                 {
-                    if (!Elemente.Contains(feld.Name))
-                    {
-                        Elemente.Add(feld.Name);
-                    }
                     var instanz = feld.GetValue(this);
-                    if (instanz != null)
+                    if (instanz == null)
                     {
-                        var instanz_typisiert = (Dateneintrag)instanz;
-                        instanz_typisiert.Identifikation = this.Identifikation + "." + feld.Name;
-                        instanz_typisiert.parentEintrag = this.Identifikation;
-                        ElementeLaufzeit.Add(instanz_typisiert);
+                        var instanz_typisiert = Activator.CreateInstance(typ2, this.Identifikation + "." + feld.Name, "");
+                        feld.SetValue(this, instanz_typisiert);
+                        instanz = instanz_typisiert;
                     }
-                    Console.WriteLine("a");
+
+                    ((Dateneintrag)instanz).Identifikation = this.Identifikation + "." + feld.Name;
+                    ((Dateneintrag)instanz).parentEintrag = this.Identifikation;
+                    if (!ElementeLaufzeit.Contains((Dateneintrag)instanz)) ElementeLaufzeit.Add((Dateneintrag)instanz);
+
+                    if (!Elemente.Contains(this.Identifikation + "." + feld.Name)) Elemente.Add(this.Identifikation + "." + feld.Name);
                 }
             }
         }

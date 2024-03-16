@@ -18,10 +18,19 @@ namespace isci.Daten
             }
         }
 
+        public dtBool(String Identifikation, String path = "") : base(Identifikation)
+        {
+            this.type = Datentypen.Bool;
+            this.Wert = false;
+            this.aenderungIntern = false;
+            if (path != "") this.path = path;
+        }
+
         public dtBool(System.Boolean Wert, String Identifikation, String path = "") : base(Identifikation)
         {
             this.type = Datentypen.Bool;
             this.Wert = Wert;
+            this.aenderungIntern = false;
             if (path != "") this.path = path;
         }
 

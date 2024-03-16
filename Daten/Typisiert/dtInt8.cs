@@ -18,10 +18,19 @@ namespace isci.Daten
             }
         }
 
+        public dtInt8(String Identifikation, String path = "") : base(Identifikation)
+        {
+            this.type = Datentypen.Int8;
+            this.Wert = 0;
+            this.aenderungIntern = false;
+            if (path != "") this.path = path;
+        }
+
         public dtInt8(System.SByte Wert, String Identifikation, String path = "") : base(Identifikation)
         {
             this.type = Datentypen.Int8;
             this.Wert = Wert;
+            this.aenderungIntern = false;
             if (path != "") this.path = path;
         }
 

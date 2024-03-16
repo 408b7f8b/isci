@@ -115,8 +115,9 @@ namespace isci.Daten
                 foreach (var Element in dt_tmp.ElementeLaufzeit)
                 {
                     dt_tmp.Elemente.Remove(Element.Identifikation);
+                    Element.parentEintrag = dt_tmp.Identifikation;
                     this.Add(Element);
-                    dt_tmp.Elemente.Add(Element.Identifikation);                    
+                    dt_tmp.Elemente.Add(Element.Identifikation);
                 }
             }
         }

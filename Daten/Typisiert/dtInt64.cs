@@ -18,10 +18,19 @@ namespace isci.Daten
             }
         }
 
+        public dtInt64(String Identifikation, String path = "") : base(Identifikation)
+        {
+            this.type = Datentypen.Int64;
+            this.Wert = 0;
+            this.aenderungIntern = false;
+            if (path != "") this.path = path;
+        }
+
         public dtInt64(System.Int64 Wert, String Identifikation, String path = "") : base(Identifikation)
         {
             this.type = Datentypen.Int64;
             this.Wert = Wert;
+            this.aenderungIntern = false;
             if (path != "") this.path = path;
         }
 

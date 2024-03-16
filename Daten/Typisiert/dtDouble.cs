@@ -18,10 +18,19 @@ namespace isci.Daten
             }
         }
 
+        public dtDouble(String Identifikation, String path = "") : base(Identifikation)
+        {
+            this.type = Datentypen.Double;
+            this.Wert = 0.0;
+            this.aenderungIntern = false;
+            if (path != "") this.path = path;
+        }
+
         public dtDouble(Double Wert, String Identifikation, String path = "") : base(Identifikation)
         {
             this.type = Datentypen.Double;
             this.Wert = Wert;
+            this.aenderungIntern = false;
             if (path != "") this.path = path;
         }
 

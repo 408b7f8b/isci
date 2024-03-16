@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace isci.Daten
 {
-    public class dtAusfuehrungsdauer : dtObjekt
+    public class dtAusfuehrungsanalyse : dtObjekt
     {
         private dtDouble LetzteDauer;
         private dtDouble MaximaleDauer;
@@ -13,14 +13,14 @@ namespace isci.Daten
         public uint AnzahlElementeSchnittbildung;
         private uint PositionSchnittbildung;
 
-        public dtAusfuehrungsdauer() : base("Ausfuehrungsdauer")
+        public dtAusfuehrungsanalyse() : base("Ausfuehrungsanalyse")
         {
             Schnittbildung = new List<double>();
             AnzahlElementeSchnittbildung = 100;
 
-            LetzteDauer = new dtDouble(0.0, "LetzteDauer");
+            /* LetzteDauer = new dtDouble(0.0, "LetzteDauer");
             MaximaleDauer = new dtDouble(0.0, "MaximaleDauer");
-            SchnittDauer = new dtDouble(0.0, "SchnittDauer");
+            SchnittDauer = new dtDouble(0.0, "SchnittDauer"); */
 
             ElementeLaufzeit = new List<Dateneintrag>()
             {

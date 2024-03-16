@@ -354,18 +354,33 @@ namespace isci.Daten
             string correctedString = this.Identifikation;
             datenmodell = datenmodell.Replace(" ", "");
 
+            if (parentEintrag != "" && parentEintrag != null)
+            {
+                if (!correctedString.StartsWith(parentEintrag))
+                {
+                    if (correctedString.Contains('.'))
+                    {
+                        correctedString = $"{parentEintrag}.{correctedString.Substring(correctedString.LastIndexOf('.') + 1)}";
+                    }
+                    else
+                    {
+                        correctedString = $"{parentEintrag}.{correctedString}";
+                    }
+                }
+            }
+
             if (anwendung == null)
             {
                 if (!correctedString.StartsWith($"{datenmodell}."))
                 {
-                    if (correctedString.Contains('.'))
+                    /* if (correctedString.Contains('.'))
                     {
                         correctedString = $"{datenmodell}.{correctedString.Substring(correctedString.LastIndexOf('.')+1)}";
                     }
                     else
-                    {
+                    { */
                         correctedString = $"{datenmodell}.{correctedString}";
-                    }
+                    /* } */
                 }
             } else {
                 anwendung = anwendung.Replace(" ", "");
@@ -374,26 +389,26 @@ namespace isci.Daten
                 {
                     if (!correctedString.StartsWith($"{datenmodell}."))
                     {
-                        if (correctedString.Contains('.'))
-                        {
-                            correctedString = $"{datenmodell}.{correctedString.Substring(correctedString.LastIndexOf('.')+1)}";
-                        }
-                        else
-                        {
-                            correctedString = $"{datenmodell}.{correctedString}";
-                        }
+                        /* if (correctedString.Contains('.'))
+                    {
+                        correctedString = $"{datenmodell}.{correctedString.Substring(correctedString.LastIndexOf('.')+1)}";
+                    }
+                    else
+                    { */
+                        correctedString = $"{datenmodell}.{correctedString}";
+                        /* } */
                     }
                 } else {
                     if (!correctedString.StartsWith($"{anwendung}.{datenmodell}."))
                     {
-                        if (correctedString.Contains('.'))
+                        /* if (correctedString.Contains('.'))
                         {
                             correctedString = $"{anwendung}.{datenmodell}.{correctedString.Substring(correctedString.LastIndexOf('.')+1)}";
                         }
                         else
-                        {
+                        { */
                             correctedString = $"{anwendung}.{datenmodell}.{correctedString}";
-                        }
+                       /*  } */
                     }
                 }
             }

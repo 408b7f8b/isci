@@ -18,10 +18,19 @@ namespace isci.Daten
             }
         }
 
+        public dtFloat(String Identifikation, String path = "") : base(Identifikation)
+        {
+            this.type = Datentypen.Float;
+            this.Wert = (float)0.0;
+            this.aenderungIntern = false;
+            if (path != "") this.path = path;
+        }
+
         public dtFloat(float Wert, String Identifikation, String path = "") : base(Identifikation)
         {
             this.type = Datentypen.Float;
             this.Wert = Wert;
+            this.aenderungIntern = false;
             if (path != "") this.path = path;
         }
 
