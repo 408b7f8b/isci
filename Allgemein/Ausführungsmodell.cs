@@ -9,17 +9,20 @@ namespace isci.Allgemein
 
         public Ausführungsmodell() : base()
         {
-            
+
         }
 
         public Ausführungsmodell(Parameter konfiguration, Daten.dtZustand zustand) : base()
         {
             Newtonsoft.Json.Linq.JObject geparst = null;
 
-            try {
+            try
+            {
                 var datei = (konfiguration.OrdnerAnwendungen + "/" + konfiguration.Anwendung + "/Ausführungsmodell.json").Replace("//", "/");
                 geparst = Newtonsoft.Json.Linq.JObject.Parse(System.IO.File.ReadAllText(datei));
-            } catch (System.Exception e) {
+            }
+            catch (System.Exception e)
+            {
                 Logger.Fatal("Ausführungsmodell ist nicht vorhanden oder konnte nicht gelesen werden: " + e.Message);
                 System.Environment.Exit(-1);
             }
@@ -51,6 +54,7 @@ namespace isci.Allgemein
             zustand.WertAusSpeicherLesen();
             if (!geparst.ContainsKey(zustand.WertSerialisieren()))
             {
+                Logger.Information("Zustandswert war außerhalb des Ausführungsmodell. Wird auf 0 zurückgesetzt.");
                 zustand.Wert = 0;
                 zustand.WertInSpeicherSchreiben();
             }
@@ -58,10 +62,15 @@ namespace isci.Allgemein
 
         public static Ausführungsmodell ausDatei(string modell)
         {
-            try {
+            try
+            {
+                Logger.Debug("JSON-Parsing für Ausführungsmodell: " + modell);
                 var ret = Newtonsoft.Json.JsonConvert.DeserializeObject<Ausführungsmodell>(modell);
                 return ret;
-            } catch {
+            }
+            catch (System.Exception e)
+            {
+                Logger.Fehler("Ausnahme beim JSON-Parsing des Ausführungsmodells: " + e.Message);
                 return null;
             }
         }
@@ -74,6 +83,7 @@ namespace isci.Allgemein
             {
                 if (Schritt.Value.Modulidentifikation == Modulidentifikation)
                 {
+                    Logger.Information("Ausführungsmodell: Modulinstanz " + Modulidentifikation + " als aktiv eingetragen bei Zustand: " + Schritt.Key);
                     ret.Add(Schritt.Key);
                 }
             }
@@ -89,11 +99,12 @@ namespace isci.Allgemein
             {
                 if (Schritt.Value.Modulidentifikation == Modulidentifikation)
                 {
+                    Logger.Information("Ausführungsmodell: Modulinstanz " + Modulidentifikation + " als aktiv eingetragen bei Zustand: " + Schritt.Key);
                     ret.Add(Schritt);
                 }
             }
 
-            return ret;            
+            return ret;
         }
 
         public bool AktuellerZustandModulAktivieren()
@@ -118,14 +129,26 @@ namespace isci.Allgemein
 
         public void Folgezustand()
         {
-            if (this[Zustand.Wert].Folgezustand == -1) Zustand.Wert++;
-            else Zustand.Wert = (ushort)(this[Zustand.Wert].Folgezustand);
+            if (this[Zustand.Wert].Folgezustand == -1)
+            {
+                Zustand.Wert++;
+            }
+            else
+            {
+                Zustand.Wert = (ushort)this[Zustand.Wert].Folgezustand;
+            }
         }
 
         public void Folgezustand(Daten.dtZustand Zustand)
         {
-            if (this[Zustand.Wert].Folgezustand == -1) Zustand.Wert++;
-            else Zustand.Wert = (ushort)(this[Zustand.Wert].Folgezustand);
+            if (this[Zustand.Wert].Folgezustand == -1)
+            {
+                Zustand.Wert++;
+            }
+            else
+            {
+                Zustand.Wert = (ushort)this[Zustand.Wert].Folgezustand;
+            }
         }
     }
 }
