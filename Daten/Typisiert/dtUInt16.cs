@@ -26,6 +26,7 @@ namespace isci.Daten
             if (path != "") this.path = path;
         }
 
+        [Newtonsoft.Json.JsonConstructor]
         public dtUInt16(System.UInt16 value, String Identifikation, String path = "") : base(Identifikation)
         {
             this.type = Datentypen.UInt16;

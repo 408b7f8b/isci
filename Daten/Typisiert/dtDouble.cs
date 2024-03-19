@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 
 namespace isci.Daten
@@ -26,6 +27,7 @@ namespace isci.Daten
             if (path != "") this.path = path;
         }
 
+        [Newtonsoft.Json.JsonConstructor]
         public dtDouble(Double Wert, String Identifikation, String path = "") : base(Identifikation)
         {
             this.type = Datentypen.Double;

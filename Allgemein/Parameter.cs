@@ -323,15 +323,15 @@ namespace isci.Allgemein
             LeerPruefen(OrdnerDatenstrukturen, "OrdnerDatenstrukturen");
             LeerPruefen(Anwendung, "Anwendung");
 
-            Logger.Information("Richte Logging anhand Konfiguration ein.");
-            Logger.Konfigurieren(this);
-
             OrdnerDatenmodelle = (OrdnerAnwendungen + "/" + Anwendung + "/Datenmodelle").Replace("//", "/");
             OrdnerEreignismodelle = (OrdnerAnwendungen + "/" + Anwendung + "/Ereignismodelle").Replace("//", "/");
             OrdnerFunktionsmodelle = (OrdnerAnwendungen + "/" + Anwendung + "/Funktionsmodelle").Replace("//", "/");
             OrdnerSchnittstellen = (OrdnerAnwendungen + "/" + Anwendung + "/Schnittstellen").Replace("//", "/");
             OrdnerBeschreibungen = (OrdnerAnwendungen + "/" + Anwendung + "/Beschreibungen").Replace("//", "/");
             OrdnerLogs = (OrdnerAnwendungen + "/" + Anwendung + "/Logs").Replace("//", "/");
+
+            Logger.Information("Richte Logging anhand Konfiguration ein.");
+            Logger.Konfigurieren(this);
 
             Logger.Debug("Prüfe und erstelle nach Notwendigkeit Ordner.");
             Helfer.OrdnerPruefenErstellen(OrdnerDatenmodelle);

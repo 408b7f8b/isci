@@ -26,6 +26,7 @@ namespace isci.Daten
             if (path != "") this.path = path;
         }
 
+        [Newtonsoft.Json.JsonConstructor]
         public dtUInt8(System.Byte Wert, String Identifikation, String path = "") : base(Identifikation)
         {
             this.type = Datentypen.UInt8;

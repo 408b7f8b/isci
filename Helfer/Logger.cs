@@ -33,7 +33,7 @@ namespace isci
         public static void Konfigurieren(Allgemein.Parameter parameter)
         {
             var config = new LoggerConfiguration();
-            if (parameter.LoggingInDateiAktiv) config.WriteTo.File(parameter.OrdnerLogs, rollOnFileSizeLimit: true, fileSizeLimitBytes: parameter.LoggingInDateiMaxDateiGroesseInMb*1000000);
+            if (parameter.LoggingInDateiAktiv) config.WriteTo.File(parameter.OrdnerLogs + "/" + parameter.Identifikation + ".log", rollOnFileSizeLimit: true, fileSizeLimitBytes: parameter.LoggingInDateiMaxDateiGroesseInMb*1000000);
             if (parameter.LoggingInKonsoleAktiv) config.WriteTo.Console();
             Log.Logger = config.CreateLogger();
             Log.Information("Logging mit ab jetzt mit Konfigurationseinstellungen.");

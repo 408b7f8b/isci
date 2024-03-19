@@ -12,6 +12,6 @@ namespace isci.Anwendungen
         public Dictionary<string, Dictionary<string, string>> Ressourcenkartierung;
 
         //Ressource --> Modulidentifikation --> Liste Transitionen
-        public Dictionary<string, Dictionary<string, List<Ausführungstransition>>> Ausführungstransitionen;
+        public Ausführungsmodell ausführungsmodell;
     }
 }
