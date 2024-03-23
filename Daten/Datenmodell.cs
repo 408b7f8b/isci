@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using isci.Allgemein;
@@ -125,6 +126,52 @@ namespace isci.Daten
         public List<string> Identifikatoren()
         {
             return this.Dateneinträge.Identifikatoren();
+        }
+
+        public static bool AbfrageDatenmodell1NeuerAlsDatenmodell2(Datenmodell dm1, Datenmodell dm2)
+        {
+            DateTime dt1, dt2;
+            if (!DateTime.TryParse(dm1.Stand, out dt1))
+            {
+                Logger.Fehler("Zeitstempel des Datenmodells " + dm1.Name + " konnte nicht gelesen werden.");
+                return false;
+            }
+
+            if (!DateTime.TryParse(dm2.Stand, out dt2))
+            {
+                Logger.Fehler("Zeitstempel des Datenmodells " + dm2.Name + " konnte nicht gelesen werden.");
+                return false;
+            }
+
+            return dt1 < dt2;
+        }
+
+        public void Ueberlagern(Datenmodell ueberlagerungsmodell)
+        {
+            if (ueberlagerungsmodell.Identifikation != null && ueberlagerungsmodell.Identifikation != "") this.Identifikation = ueberlagerungsmodell.Identifikation;
+            if (ueberlagerungsmodell.Name != null && ueberlagerungsmodell.Name != "") this.Name = ueberlagerungsmodell.Name;
+            if (ueberlagerungsmodell.Beschreibung != null && ueberlagerungsmodell.Beschreibung != "") this.Beschreibung = ueberlagerungsmodell.Beschreibung;
+
+            foreach (var eintrag in ueberlagerungsmodell.Dateneinträge)
+            {
+                if (Dateneinträge.IdentifikationBereitsEnthalten(eintrag.Identifikation))
+                {
+                    if (Dateneinträge[eintrag.Identifikation].Einheit == EinheitenKodierung.keine && eintrag.Einheit != EinheitenKodierung.keine) Dateneinträge[eintrag.Identifikation].Einheit = eintrag.Einheit;
+                    if (eintrag.Beschreibung != null && eintrag.Beschreibung != "") Dateneinträge[eintrag.Identifikation].Beschreibung = eintrag.Beschreibung;
+                    if (eintrag.parentEintrag != null && eintrag.parentEintrag != "") Dateneinträge[eintrag.Identifikation].parentEintrag = eintrag.parentEintrag;
+                }
+            }
+        }
+
+        public void Ueberlagern(string pfad)
+        {
+            try {
+                var dm = AusDatei(pfad);
+                Ueberlagern(dm);
+            } catch (Exception e)
+            {
+                Logger.Fehler("Ausnahme beim Überlagern des Datenmodells " + Identifikation + " mit dem Datenmodell " + pfad + ": " + e.Message);
+            }
         }
     }
 }

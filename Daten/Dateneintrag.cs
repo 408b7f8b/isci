@@ -53,6 +53,7 @@ namespace isci.Daten
 
         //parent, children? oder relationen?
         //dimensionen array?
+        public string Beschreibung;
 
         public EinheitenKodierung Einheit = EinheitenKodierung.keine;
 
