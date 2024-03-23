@@ -90,8 +90,9 @@ namespace isci.Allgemein
 
         public Parameter(string[] args)
         {
-            var param_env = new System.Collections.Generic.Dictionary<string, string>();
+            Helfer.SetzeArchitektur();
 
+            var param_env = new System.Collections.Generic.Dictionary<string, string>();
             var envVariablen = Environment.GetEnvironmentVariables();
 
             foreach (System.Collections.DictionaryEntry variable in envVariablen)

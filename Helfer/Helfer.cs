@@ -1,48 +1,78 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Common.Logging.Factory;
-
-/*
-#if X64
-#if WINDOWS
-[System.Runtime.InteropServices.DllImport("lib_wait_us-win-x64.dll")]
-#else
-[System.Runtime.InteropServices.DllImport("lib_wait_us-linux-x64.so")]
-#endif
-public static extern void WaitForMicroseconds(uint microseconds);
-
-#elif X86
-#if WINDOWS
-[System.Runtime.InteropServices.DllImport("lib_wait_us-win-x86.dll")]
-#else
-[System.Runtime.InteropServices.DllImport("lib_wait_us-linux-x86.so")]
-#endif
-public static extern void WaitForMicroseconds(uint microseconds);
-
-#elif ARM
-#if WINDOWS
-[System.Runtime.InteropServices.DllImport("lib_wait_us-win-arm.dll")]
-#else
-[System.Runtime.InteropServices.DllImport("lib_wait_us-linux-arm.so")]
-#endif
-public static extern void WaitForMicroseconds(uint microseconds);
-
-#elif ANYCPU
-#if WINDOWS
-[System.Runtime.InteropServices.DllImport("lib_wait_us-win-arm.dll")]
-#else
-[System.Runtime.InteropServices.DllImport("lib_wait_us-linux-arm.so")]
-#endif
-public static extern void WaitForMicroseconds(uint microseconds);
-
-#endif*/
 
 namespace isci
 {
     public static class Helfer
     {
-        [System.Runtime.InteropServices.DllImport("lib_wait_us.so")]
-        public static extern void SleepForMicroseconds(uint microseconds);
+        [System.Runtime.InteropServices.DllImport("lib_wait_us_x86_64.a")]
+        public static extern void SleepForMicrosecondsLinuxX64(uint microseconds);
+        [System.Runtime.InteropServices.DllImport("lib_wait_us_arm64.a")]
+        public static extern void SleepForMicrosecondsLinuxARM64(uint microseconds);
+        [System.Runtime.InteropServices.DllImport("lib_wait_us-win-x64.dll")]
+        public static extern void SleepForMicrosecondsWinX64(uint microseconds);
+        public static void SleepAusweichfunktion(uint microseconds)
+        {
+            System.Threading.Thread.Sleep((int)microseconds/1000);
+        }
+
+        private static byte Architektur;
+        public static void SetzeArchitektur()
+        {
+            var HW = System.Runtime.InteropServices.RuntimeInformation.OSArchitecture;
+            
+            if (HW == System.Runtime.InteropServices.Architecture.X64)
+            {
+                if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+                    Logger.Information("Plattform ist Win-X64.");
+                    try {
+                        Architektur = 0;
+                        SleepForMicrosecondsWinX64(1);
+                        return;
+                    } catch (Exception e)
+                    {
+                        Logger.Fehler("Ausnahme bei Test der Bibliothek für Hilfsfunktionen: " + e.Message + ". Nutze architekturunabhängige Standardfunktionen.");
+                    }
+                } else if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
+                    Logger.Information("Plattform ist Linux-X64.");
+                    try {
+                        Architektur = 1;
+                        SleepForMicrosecondsLinuxX64(1);
+                        return;
+                    } catch (Exception e)
+                    {
+                        Logger.Fehler("Ausnahme bei Test der Bibliothek für Hilfsfunktionen: " + e.Message + ". Nutze architekturunabhängige Standardfunktionen.");
+                    }
+                }
+            } else if( HW == Architecture.Arm64) {
+                if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
+                    Logger.Information("Plattform ist Linux-Arm64.");
+                    try {
+                        Architektur = 2;
+                        SleepForMicrosecondsLinuxARM64(1);
+                        return;
+                    } catch (Exception e)
+                    {
+                        Logger.Fehler("Ausnahme bei Test der Bibliothek für Hilfsfunktionen: " + e.Message + ". Nutze architekturunabhängige Standardfunktionen.");
+                    }
+                }
+            }
+
+            Logger.Warnung("Plattform ist unbekannt. Nutze architekturunabhängige Standardfunktionen.");
+
+            Architektur = 255;
+        }
+
+        public static void SleepForMicroseconds(uint microseconds)
+        {
+            if (Architektur == 0) SleepForMicrosecondsWinX64(microseconds);
+            else if (Architektur == 1) SleepForMicrosecondsLinuxX64(microseconds);
+            else if (Architektur == 2) SleepForMicrosecondsLinuxARM64(microseconds);
+            else SleepAusweichfunktion(microseconds);
+        }
+
         public static uint OptimiereSleepForMicroseconds(uint ZieldauerInUs, uint maximumIterationen = 100, double zulFehler = 0.01)
         {
             int iteration = 0;
