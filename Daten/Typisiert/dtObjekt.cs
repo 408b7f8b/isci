@@ -63,6 +63,11 @@ namespace isci.Daten
             }
         }
 
+        /* public new void WertInSpeicherSchreiben()
+        {
+
+        } */
+
         public override void WertAusSpeicherLesenSpezifisch(System.IO.BinaryReader reader)
         {
             

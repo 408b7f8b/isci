@@ -242,8 +242,10 @@ namespace isci.Daten
 
         }
 
-        public void WertInSpeicherSchreiben()
+        public void WertInSpeicherSchreiben(bool force = false)
         {
+            if (!aenderungIntern && !force) return;
+
             MutexBlockierenSynchron();
 
             System.IO.FileStream stream = null;
@@ -266,6 +268,8 @@ namespace isci.Daten
             }
 
             MutexFreigeben();
+
+            aenderungIntern = false;
         }
 
         public virtual string WertSerialisieren()
