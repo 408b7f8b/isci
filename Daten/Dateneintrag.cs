@@ -146,9 +146,10 @@ namespace isci.Daten
                 if (!System.IO.Directory.Exists(dir))
                     System.IO.Directory.CreateDirectory(dir);
             }
-            catch
+            catch (System.Exception e)
             {
-
+                Logger.Fatal("Ausnahme beim Anlegen des Dateneintrags " + this.Identifikation + ": " + e.Message);
+                System.Environment.Exit(-1);
             }
 
             //mutex
@@ -167,9 +168,9 @@ namespace isci.Daten
                     WertInSpeicherSchreiben();
                 }
             }
-            catch
+            catch (System.Exception e)
             {
-                Logger.Fehler("ImSpeicherAnlagen fehlgeschlagen: " + this.Identifikation);
+                Logger.Fehler("Ausnahme beim Anlegen des Dateneintrags " + this.Identifikation + ": " + e.Message);
             }
         }
 
@@ -403,16 +404,17 @@ namespace isci.Daten
                         /* } */
                     }
                 } else {
-                    if (!correctedString.StartsWith($"{anwendung}.{datenmodell}."))
+                    if (correctedString.StartsWith($"{anwendung}"))
                     {
-                        /* if (correctedString.Contains('.'))
+                        
+
+                    } else {
+                        if (correctedString.StartsWith($"{datenmodell}"))
                         {
-                            correctedString = $"{anwendung}.{datenmodell}.{correctedString.Substring(correctedString.LastIndexOf('.')+1)}";
-                        }
-                        else
-                        { */
+                            correctedString = $"{anwendung}.{correctedString}";
+                        } else {
                             correctedString = $"{anwendung}.{datenmodell}.{correctedString}";
-                       /*  } */
+                        }
                     }
                 }
             }

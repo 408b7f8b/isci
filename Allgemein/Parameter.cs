@@ -24,20 +24,28 @@ namespace isci.Allgemein
             public fromEnv(){}
         }
 
-        static void NullPruefen(object var, string Name)
+        static void NullPruefen(object var, string Name, bool auchKonfigurationsdatei)
         {
             if (var == null) 
             {
-                Logger.Fatal("'" + Name + "' undefiniert, Umgebungsvariable ('ISCI_${" + Name.ToUpper() + "}) anlegen oder als '" + Name + "' als Startparameter oder über die Konfigurationsdatei vorgeben.");
+                var msg = ( auchKonfigurationsdatei ?
+                "'" + Name + "' undefiniert, Umgebungsvariable ('ISCI_${" + Name.ToUpper() + "}) anlegen oder als '" + Name + "' als Startparameter oder über die Konfigurationsdatei vorgeben." :
+                "'" + Name + "' undefiniert, Umgebungsvariable ('ISCI_${" + Name.ToUpper() + "}) anlegen oder als '" + Name + "' als Startparameter vorgeben.");
+
+                Logger.Fatal(msg);
                 System.Environment.Exit(-1);
             }
         }
 
-        static void LeerPruefen(string var, string Name)
+        static void LeerPruefen(string var, string Name, bool auchKonfigurationsdatei)
         {
             if (var.Trim() == "")
             {
-                Logger.Fatal("'" + Name + "' leer, Umgebungsvariable ('ISCI_${" + Name.ToUpper() + "}) anlegen oder als '" + Name + "' als Startparameter oder über die Konfigurationsdatei vorgeben.");
+                var msg = ( auchKonfigurationsdatei ?
+                "'" + Name + "' leer, Umgebungsvariable ('ISCI_${" + Name.ToUpper() + "}) anlegen oder als '" + Name + "' als Startparameter oder über die Konfigurationsdatei vorgeben." :
+                "'" + Name + "' leer, Umgebungsvariable ('ISCI_${" + Name.ToUpper() + "}) anlegen oder als '" + Name + "' als Startparameter vorgeben.");
+
+                Logger.Fatal(msg);
                 System.Environment.Exit(-1);
             }
         }
@@ -77,6 +85,8 @@ namespace isci.Allgemein
         public string OrdnerBeschreibungen;
         [IgnoreParse]
         public string OrdnerLogs;
+        [IgnoreParse]
+        public string OrdnerKonfigurationen;
 
         public Parameter(string[] args)
         {
@@ -140,8 +150,27 @@ namespace isci.Allgemein
             }
             Logger.Debug("Ende Versuch initiale Konfiguration aus Umgebungsvariablen und Startargumenten zu befüllen.");
 
-            var param_file = new Newtonsoft.Json.Linq.JObject();
-            var konfigurationsdatei = (OrdnerAnwendungen + "/" + Anwendung + "/Konfigurationen/" + Identifikation + ".json").Replace("//", "/");
+
+            var konfigurationsdatei = "";
+            if (Identifikation != null && Identifikation != "")
+            {
+                if (OrdnerAnwendungen != null && OrdnerAnwendungen != "" && Anwendung == null && Anwendung == "")
+                {
+                    OrdnerKonfigurationen = (OrdnerAnwendungen + "/" + Anwendung + "/Konfigurationen/" + Identifikation).Replace("//", "/");
+                    konfigurationsdatei = OrdnerKonfigurationen + "/" + Identifikation + ".json";
+                } else {
+                    konfigurationsdatei = Identifikation + ".json";
+                }
+            }
+
+            if (!System.IO.File.Exists(konfigurationsdatei))
+            {
+                konfigurationsdatei = "konfiguration.json";
+                Logger.Information("Keine Konfigurationsdatei über Konfigurationsordner, versuche lokale Konfigurationsdatei konfiguration.json");
+            }
+
+            var param_file = new Newtonsoft.Json.Linq.JObject();            
+
             if (System.IO.File.Exists(konfigurationsdatei))
             {
                 Logger.Information("Konfigurationsdatei: " + konfigurationsdatei);
@@ -312,16 +341,17 @@ namespace isci.Allgemein
             }
 
             Logger.Debug("Prüfe kritische Konfigurationsparameter.");
-            NullPruefen(Ressource, "Ressource");
-            NullPruefen(Identifikation, "Identifikation");
-            NullPruefen(OrdnerAnwendungen, "OrdnerAnwendungen");
-            NullPruefen(OrdnerDatenstrukturen, "OrdnerDatenstrukturen");
-            NullPruefen(Anwendung, "Anwendung");
-            LeerPruefen(Ressource, "Ressource");
-            LeerPruefen(Identifikation, "Identifikation");
-            LeerPruefen(OrdnerAnwendungen, "OrdnerAnwendungen");
-            LeerPruefen(OrdnerDatenstrukturen, "OrdnerDatenstrukturen");
-            LeerPruefen(Anwendung, "Anwendung");
+
+            NullPruefen(OrdnerAnwendungen, "OrdnerAnwendungen", false);
+            NullPruefen(OrdnerDatenstrukturen, "OrdnerDatenstrukturen", false);
+            NullPruefen(Ressource, "Ressource", true);
+            NullPruefen(Identifikation, "Identifikation", true);            
+            NullPruefen(Anwendung, "Anwendung", true);
+            LeerPruefen(OrdnerAnwendungen, "OrdnerAnwendungen", false);
+            LeerPruefen(OrdnerDatenstrukturen, "OrdnerDatenstrukturen", false);
+            LeerPruefen(Ressource, "Ressource", true);
+            LeerPruefen(Identifikation, "Identifikation", true);
+            LeerPruefen(Anwendung, "Anwendung", true);
 
             OrdnerDatenmodelle = (OrdnerAnwendungen + "/" + Anwendung + "/Datenmodelle").Replace("//", "/");
             OrdnerEreignismodelle = (OrdnerAnwendungen + "/" + Anwendung + "/Ereignismodelle").Replace("//", "/");
@@ -329,6 +359,7 @@ namespace isci.Allgemein
             OrdnerSchnittstellen = (OrdnerAnwendungen + "/" + Anwendung + "/Schnittstellen").Replace("//", "/");
             OrdnerBeschreibungen = (OrdnerAnwendungen + "/" + Anwendung + "/Beschreibungen").Replace("//", "/");
             OrdnerLogs = (OrdnerAnwendungen + "/" + Anwendung + "/Logs").Replace("//", "/");
+            OrdnerKonfigurationen = (OrdnerAnwendungen + "/" + Anwendung + "/Konfigurationen/" + Identifikation).Replace("//", "/");
 
             Logger.Information("Richte Logging anhand Konfiguration ein.");
             Logger.Konfigurieren(this);
@@ -340,6 +371,7 @@ namespace isci.Allgemein
             Helfer.OrdnerPruefenErstellen(OrdnerSchnittstellen);
             Helfer.OrdnerPruefenErstellen(OrdnerBeschreibungen);
             Helfer.OrdnerPruefenErstellen(OrdnerLogs);
+            Helfer.OrdnerPruefenErstellen(OrdnerKonfigurationen);
         }
     }
 }
