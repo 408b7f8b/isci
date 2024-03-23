@@ -11,7 +11,7 @@ namespace isci
         public ServiceDiscovery sd;
 
         public Dictionary<string, Entdeckung> Entdeckungen = new Dictionary<string, Entdeckung>();
-        public Dictionary<string, List<Entdeckung>> Anwendungen_Entdeckungen = new Dictionary<string, List<Entdeckung>>();
+        public Dictionary<string, List<Entdeckung>> Anwendungen_ZugehoerigeEntdeckungen = new Dictionary<string, List<Entdeckung>>();
 
         System.Threading.Thread thread;
         bool thread_beenden;
@@ -27,17 +27,33 @@ namespace isci
             public string Modul;
         }
 
+        Allgemein.Parameter parameter;
+        string Modultyp;
+        int Port;
         Dictionary<string, DomainName> targets = new Dictionary<string, DomainName>();
 
         public void Bewerben(Allgemein.Parameter parameter, string Modultyp, int Port)
         {
-            Bewerben(parameter.Anwendung, parameter.Identifikation, parameter.Ressource, Modultyp, Port);
+            this.parameter = parameter;
+            this.Modultyp = Modultyp;
+            this.Port = Port;
+            Bewerben();
         }
 
-        public void Bewerben(string Anwendung, string Identifikation, string Ressource, string Modultyp, int Port)
+        /* public void Bewerben(string Anwendung, string Identifikation, string Ressource, string Modultyp, int Port)
         {
             var service = new ServiceProfile(Anwendung, Identifikation + ".isci", (ushort)Port);
             service.AddProperty("Ressource", Ressource);
+            service.AddProperty("Modul", "isci." + Modultyp);
+            service.AddProperty("Port", Port.ToString());
+            var sd = new ServiceDiscovery();
+            sd.Advertise(service);
+        } */
+
+        public void Bewerben()
+        {
+            var service = new ServiceProfile(parameter.Anwendung, parameter.Identifikation + ".isci", (ushort)Port);
+            service.AddProperty("Ressource", parameter.Ressource);
             service.AddProperty("Modul", "isci." + Modultyp);
             service.AddProperty("Port", Port.ToString());
             var sd = new ServiceDiscovery();
@@ -71,6 +87,45 @@ namespace isci
 
             mdns.AnswerReceived += (s, e) =>
             {
+                if (e.Message.Answers.Count == 2)
+                {
+                    if (e.Message.Answers[0].CanonicalName.Contains(".isci."))
+                    {
+                        var address = e.Message.Answers.OfType<AddressRecord>().First();
+                        var textRecord = e.Message.Answers.OfType<TXTRecord>().First();
+                        
+                        var geteilt = address.CanonicalName.Split('.');
+                        Entdeckung neueEntdeckung = new Entdeckung
+                        {
+                            Ipv4 = address.Address,
+                            Anwendung = geteilt[0],
+                            Identifikation = geteilt[1],
+                            CanonicalName = address.CanonicalName
+                        };
+                        foreach (var Eintrag in textRecord.Strings)
+                        {
+                            geteilt = Eintrag.Split('=');
+                            switch (geteilt[0])
+                            {
+                                case "Modul": neueEntdeckung.Modul = geteilt[1]; break;
+                                case "Port": neueEntdeckung.Port = geteilt[1]; break;
+                                case "Ressource": neueEntdeckung.Ressource = geteilt[1]; break;
+                                default: break;
+                            }
+                        }
+                        // Modellaustausch bei gleicher IP verhindern
+                        var eigeneIP = MulticastService.GetIPAddresses().Where(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).First();
+                        if (neueEntdeckung.Ipv4.Equals(eigeneIP)) return;
+                        if(!Anwendungen_ZugehoerigeEntdeckungen.ContainsKey(neueEntdeckung.Anwendung)){
+                            // Wenn Anwendung des gefundenen Modulls noch nie gefunden wurde, dann erstelle sie
+                            Anwendungen_ZugehoerigeEntdeckungen.Add(neueEntdeckung.Anwendung, new List<Entdeckung>());
+                        }
+                        if(!Anwendungen_ZugehoerigeEntdeckungen[neueEntdeckung.Anwendung].Contains(neueEntdeckung)){
+                            // Wenn das gefundene Modull neu ist, füge es der Liste hinzu
+                            Anwendungen_ZugehoerigeEntdeckungen[neueEntdeckung.Anwendung].Add(neueEntdeckung);
+                        }
+                    }
+                }
                 // Is this an answer to a service instance details?
                 var servers = e.Message.Answers.OfType<SRVRecord>();
                 foreach (var server in servers)
@@ -82,61 +137,41 @@ namespace isci
                     targets.Add(server.CanonicalName, server.Target);
                     //mdns.SendQuery(server.Target, type: DnsType.AAAA); //frage nach ipv6
                 }
+            };
 
-                // Is this an answer to host addresses?
-                var addresses = e.Message.Answers.OfType<AddressRecord>();
-                foreach (var address in addresses)
+            mdns.QueryReceived += (s, e) =>
+            {
+                var msg = e.Message;
+                foreach (var Question in msg.Questions)
                 {
-                    if (!address.CanonicalName.Contains(".isci.")) continue;
-                    if (!Entdeckungen.ContainsKey(address.CanonicalName))
+                    if (Question.Name.Labels.Contains("isci"))
                     {
-                        Entdeckungen.Add(address.CanonicalName, new Entdeckung(){CanonicalName = address.CanonicalName});
-                    }
-                    var geteilt = address.CanonicalName.Split('.');
-                    
-                    Entdeckungen[address.CanonicalName].Ipv4 = address.Address;
-                    Entdeckungen[address.CanonicalName].Anwendung = geteilt[0];
-                    Entdeckungen[address.CanonicalName].Identifikation = geteilt[1];
-
-                    if (!Anwendungen_Entdeckungen.ContainsKey(geteilt[0])) Anwendungen_Entdeckungen.Add(geteilt[0], new List<Entdeckung>() {});
-                    if (!Anwendungen_Entdeckungen[geteilt[0]].Contains(Entdeckungen[address.CanonicalName])) Anwendungen_Entdeckungen[geteilt[0]].Add(Entdeckungen[address.CanonicalName]);
-                    //if (address.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork) //wir fragen eh bloß nach ipv4
-
-                    mdns.SendQuery(targets[address.CanonicalName], type: DnsType.TXT);
-                }
-
-                var props = e.Message.Answers.OfType<TXTRecord>();
-                foreach (var prop in props)
-                {
-                    if (!prop.CanonicalName.Contains(".isci.")) continue;
-                    if (!Entdeckungen.ContainsKey(prop.CanonicalName))
-                    {
-                        Entdeckungen.Add(prop.CanonicalName, new Entdeckung(){CanonicalName = prop.CanonicalName});
-                    }
-                    var geteilt = prop.CanonicalName.Split('.');
-                    Entdeckungen[prop.CanonicalName].Anwendung = geteilt[0];
-                    Entdeckungen[prop.CanonicalName].Identifikation = geteilt[1];
-
-                    if (!Anwendungen_Entdeckungen.ContainsKey(geteilt[0])) Anwendungen_Entdeckungen.Add(geteilt[0], new List<Entdeckung>() {});
-                    if (!Anwendungen_Entdeckungen[geteilt[0]].Contains(Entdeckungen[prop.CanonicalName])) Anwendungen_Entdeckungen[geteilt[0]].Add(Entdeckungen[prop.CanonicalName]);
-
-                    foreach (var p_ in prop.Strings)
-                    {
-                        geteilt = p_.Split('=');
-                        switch (geteilt[0])
+                        Message antwort = msg.CreateResponse();
+                        antwort.Answers.Add(new TXTRecord
                         {
-                            case "Modul": Entdeckungen[prop.CanonicalName].Modul = geteilt[1]; break;
-                            case "Port": Entdeckungen[prop.CanonicalName].Port = geteilt[1];break;
-                            case "Ressource": Entdeckungen[prop.CanonicalName].Ressource = geteilt[1];break;
-                            default: break;
-                        }
+                            Name = parameter.Anwendung + "." + parameter.Identifikation + ".isci." + Modultyp,
+                            Strings = new List<string>{
+                                "Modul=" + Modultyp,
+                                "Port=" + Port.ToString(),
+                                "Ressource="+parameter.Ressource }
+                        });
+                        antwort.Answers.Add(new ARecord
+                        {
+                            Name = parameter.Anwendung + "." + parameter.Identifikation + ".isci." + Modultyp,
+                            Address = MulticastService.GetIPAddresses().Where(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).First()
+                        });
+                        mdns.SendAnswer(antwort);
                     }
                 }
             };
         }
 
-        public mdnsDiscovery()
+        public mdnsDiscovery(Allgemein.Parameter InputParameter, string InputModultyp, int InputPort)
         {
+            parameter = InputParameter;
+            Modultyp = InputModultyp;
+            Port = InputPort;
+
             mdns = new MulticastService();
             sd = new ServiceDiscovery(mdns);
         }
