@@ -2,6 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>isci</PackageId>
+    <Version>1.0.0-beta</Version>
+    <Authors>David Breunig</Authors>
+    <Company>David Breunig</Company>
+    <Product>Integrations- und Steuerungsframework für die Cyberphysische Industrieautomatisierung</Product>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,19 +18,12 @@
     <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
   </ItemGroup>
 
-  <Target Name="BuildCppLibraryLinux" BeforeTargets="BeforeBuild" Condition="'$(OS)' == 'Unix'">
-    <Message Importance="high" Text="Baue wait_us-Library" />
-    <Message Importance="high" Text="'$(OS)'" />
-    <Message Importance="high" Text="'$(PLATFORM)'" />
-    <Exec Command="g++ -c -fPIC Helfer/wait_us.cpp -o Helfer/wait_us.o" />
-    <Exec Command="g++ -shared -o Helfer/lib_wait_us-linux-x64.so Helfer/wait_us.o" />
-  </Target>
-
-  <Target Name="BuildCppLibraryWin" BeforeTargets="BeforeBuild" Condition="'$(OS)' == 'Windows'">
-    <Message Importance="high" Text="Baue wait_us-Library" />
-    <Message Importance="high" Text="'$(OS)'" />
-    <Exec Command="g++ -c -fPIC Helfer/wait_us.cpp -o Helfer/wait_us.o" />
-    <Exec Command="g++ -shared -o Helfer/lib_wait_us-linux-x64.so Helfer/wait_us.o" />
-  </Target>
+  <ItemGroup>
+    <Content Include="lib_wait_us_x86_64.a">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+      <pack>true</pack>
+    </Content>
+  </ItemGroup>
 
 </Project>
