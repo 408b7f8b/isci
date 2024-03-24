@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
 using isci.Allgemein;
 
 namespace isci.Daten
@@ -10,10 +11,11 @@ namespace isci.Daten
     public class Datenmodell : Header
     {
         public string Stand;
+        public string Ablauf;
         public ListeDateneintraege Dateneinträge;
         public VerweislisteDateneintraege Links;
 
-        public Datenmodell(isci.Allgemein.Parameter parameter, ListeDateneintraege Dateneinträge = null) : base(parameter.Identifikation)
+        public Datenmodell(isci.Allgemein.Parameter parameter, ListeDateneintraege Dateneinträge = null, string Stand = null, string Ablauf = null) : base(parameter.Identifikation)
         {
             if (this.Dateneinträge == null)
             {
@@ -21,9 +23,15 @@ namespace isci.Daten
             }
             
             if (this.Links == null) this.Links = new VerweislisteDateneintraege();
+            if (Stand == null)
+            {
+                this.Stand = DateTime.Now.ToString("O");
+            } else {
+                this.Stand = Stand;
+            }
         }
 
-        public Datenmodell(string Identifikation, ListeDateneintraege Dateneinträge = null) : base(Identifikation)
+        public Datenmodell(string Identifikation, ListeDateneintraege Dateneinträge = null, string Stand = null, string Ablauf = null) : base(Identifikation)
         {
             if (this.Dateneinträge == null)
             {
@@ -31,6 +39,12 @@ namespace isci.Daten
             }
             
             if (this.Links == null) this.Links = new VerweislisteDateneintraege();
+            if (Stand == null)
+            {
+                this.Stand = DateTime.Now.ToString("O");
+            } else {
+                this.Stand = Stand;
+            }
         }
 
         public static Datenmodell AusDatei(string path)
@@ -45,6 +59,44 @@ namespace isci.Daten
 
         public void Speichern(Parameter parameter)
         {
+            var pfad = parameter.OrdnerDatenmodelle + "/" + Identifikation + ".json";
+            if (System.IO.File.Exists(pfad))
+            {
+                var modell_ = System.IO.File.ReadAllText(pfad);
+                var fremdesJObject = Newtonsoft.Json.Linq.JObject.Parse(modell_);
+                string fremderStand = fremdesJObject["Stand"].ToObject<String>();
+
+                var eigenesJObject = Newtonsoft.Json.Linq.JObject.FromObject(this);
+
+                fremdesJObject.Remove("Stand");
+                eigenesJObject.Remove("Stand");
+                fremdesJObject.Remove("Identifikation");
+                eigenesJObject.Remove("Identifikation");
+
+                if (Newtonsoft.Json.Linq.JToken.DeepEquals(fremdesJObject, eigenesJObject))
+                {
+                    if (fremderStand != null && fremderStand != "")
+                    {
+                        this.Stand = fremderStand;
+                    }
+                    return;
+                } else {
+                    if (Stand == null || Stand == "")
+                    {
+                        if (fremderStand != null && fremderStand != "")
+                        {
+                            uint version;
+                            if (UInt32.TryParse(fremderStand, out version))
+                            {
+                                this.Stand = (++version).ToString();
+                            } else {
+                                this.Stand = DateTime.Now.ToString("O");
+                            }
+                        }
+                    }
+                }
+            }
+
             Speichern(parameter.OrdnerDatenmodelle + "/" + Identifikation + ".json");
         }
 
@@ -128,22 +180,51 @@ namespace isci.Daten
             return this.Dateneinträge.Identifikatoren();
         }
 
+        public bool AbfrageNeuerAlsDatenmodell(Datenmodell dm)
+        {
+            return AbfrageDatenmodell1NeuerAlsDatenmodell2(this, dm);
+        }
+
         public static bool AbfrageDatenmodell1NeuerAlsDatenmodell2(Datenmodell dm1, Datenmodell dm2)
         {
-            DateTime dt1, dt2;
-            if (!DateTime.TryParse(dm1.Stand, out dt1))
+            if (dm1.Stand == "" || dm1.Stand == null)
             {
-                Logger.Fehler("Zeitstempel des Datenmodells " + dm1.Name + " konnte nicht gelesen werden.");
-                return false;
+                throw new Exception("Stand des Datenmodells 1 nicht determinierbar.");
             }
 
-            if (!DateTime.TryParse(dm2.Stand, out dt2))
+            if (dm2.Stand == "" || dm2.Stand == null)
             {
-                Logger.Fehler("Zeitstempel des Datenmodells " + dm2.Name + " konnte nicht gelesen werden.");
-                return false;
+                throw new Exception("Stand des Datenmodells 2 nicht determinierbar.");
             }
 
-            return dt1 < dt2;
+            UInt32 ui1, ui2;
+            if (UInt32.TryParse(dm1.Stand, out ui1))
+            {
+                if (UInt32.TryParse(dm2.Stand, out ui2))
+                {
+                    return ui1 > ui2; //beide sind versioniert
+                } else {
+                    return true; //nur dm1 ist versioniert
+                }
+            } else {
+                if (UInt32.TryParse(dm2.Stand, out ui2))
+                {
+                    return false; //nur dm2 ist versioniert
+                } else {
+                    DateTime dt1, dt2;
+                    if (!DateTime.TryParse(dm1.Stand, out dt1))
+                    {
+                        throw new Exception("Stand des Datenmodells 1 nicht determinierbar.");
+                    }
+
+                    if (!DateTime.TryParse(dm2.Stand, out dt2))
+                    {
+                        throw new Exception("Stand des Datenmodells 2 nicht determinierbar.");
+                    }
+
+                    return dt1 > dt2;
+                }
+            }
         }
 
         public void Ueberlagern(Datenmodell ueberlagerungsmodell)
