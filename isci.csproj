@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="lib_wait_us_x86_64.a">
+    <Content Include="lib_wait_us_x86_64.a;lib_wait_us_armv7l.a">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <PackageCopyToOutput>true</PackageCopyToOutput>
       <pack>true</pack>
