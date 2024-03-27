@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the mount point and size for the tmpfs filesystem
-mount_point="/media/ramdisk"
+mount_point="/var/isci"
 size="100M"
 
 # Create the mount point directory if it doesn't exist
