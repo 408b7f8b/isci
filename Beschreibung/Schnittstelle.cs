@@ -22,12 +22,16 @@ namespace isci.Beschreibung
     public class SchnittstelleUdp : Schnittstelle
     {
         public string adresse;
+        public int sendPort;
+        public int receivePort;
 
         public SchnittstelleUdp() : base() { }
 
-        public SchnittstelleUdp(string Identifikation, string adresse, string Ressource, string Name = "", string Beschreibung = "", string Typ = "")  : base(Identifikation, Ressource, Name, Beschreibung, Typ)
+        public SchnittstelleUdp(string Identifikation, string adresse, int sendPort, int receivePort, string Ressource, string Name = "", string Beschreibung = "", string Typ = "") : base(Identifikation, Ressource, Name, Beschreibung, Typ)
         {
             this.adresse = adresse;
+            this.sendPort = sendPort;
+            this.receivePort = receivePort;
         }
     }
 }
