@@ -157,7 +157,7 @@ namespace isci.Allgemein
             {
                 if (OrdnerAnwendungen != null && OrdnerAnwendungen != "" && Anwendung == null && Anwendung == "")
                 {
-                    OrdnerKonfigurationen = (OrdnerAnwendungen + "/" + Anwendung + "/Konfigurationen/" + Identifikation).Replace("//", "/");
+                    OrdnerKonfigurationen = (OrdnerAnwendungen + "/" + Anwendung + "/Konfigurationen").Replace("//", "/");
                     konfigurationsdatei = OrdnerKonfigurationen + "/" + Identifikation + ".json";
                 } else {
                     konfigurationsdatei = Identifikation + ".json";
