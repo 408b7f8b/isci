@@ -360,7 +360,7 @@ namespace isci.Allgemein
             OrdnerSchnittstellen = (OrdnerAnwendungen + "/" + Anwendung + "/Schnittstellen").Replace("//", "/");
             OrdnerBeschreibungen = (OrdnerAnwendungen + "/" + Anwendung + "/Beschreibungen").Replace("//", "/");
             OrdnerLogs = (OrdnerAnwendungen + "/" + Anwendung + "/Logs").Replace("//", "/");
-            OrdnerKonfigurationen = (OrdnerAnwendungen + "/" + Anwendung + "/Konfigurationen/" + Identifikation).Replace("//", "/");
+            OrdnerKonfigurationen = (OrdnerAnwendungen + "/" + Anwendung + "/Konfigurationen").Replace("//", "/");
 
             Logger.Information("Richte Logging anhand Konfiguration ein.");
             Logger.Konfigurieren(this);
