@@ -12,4 +12,10 @@ namespace isci.Beschreibung
         public List<string> Anwendungen;
         public Dictionary<string, Systemteil> Systemteile;
     }
+
+    public class Automatisierungsressource_ : Header
+    {
+        public List<string> Anwendungen;
+        public Dictionary<string, List<Modul>> AnwendungenUndModule;
+    }
 }
