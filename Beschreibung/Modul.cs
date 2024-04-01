@@ -23,6 +23,19 @@ namespace isci.Beschreibung
             this.Funktionen = (Funktionen == null ? new List<Funktion>() : Funktionen);
         }
 
+        public Modul(string Identifikation, string Typidentifikation, List<Datenmodell> datenmodelle, string automatisierungsressource = "", List<Ereignis> Ereignisse = null, List<Funktion> Funktionen = null) : base(Identifikation)
+        {
+            this.Typidentifikation = Typidentifikation;
+            this.Dateneinträge = new ListeDateneintraege();
+            foreach (var modell in datenmodelle)
+            {
+                this.Dateneinträge.AddRange(modell.Dateneinträge);
+            }
+            this.Automatisierungsressource = automatisierungsressource;
+            this.Ereignisse = (Ereignisse == null ? new List<Ereignis>() : Ereignisse);
+            this.Funktionen = (Funktionen == null ? new List<Funktion>() : Funktionen);
+        }
+
         public Modul(string Identifikation, string Typidentifikation, ListeDateneintraege Dateneinträge = null, string automatisierungsressource = "", List<Ereignis> Ereignisse = null, List<Funktion> Funktionen = null) : base(Identifikation) {
             this.Typidentifikation = Typidentifikation;
             this.Dateneinträge = (Dateneinträge == null ? new ListeDateneintraege() : Dateneinträge);

@@ -5,7 +5,9 @@ namespace isci.Daten
 {
     public class dtZustand : dtUInt16
     {
+#pragma warning disable CS0169
         private new EinheitenKodierung Einheit;
+#pragma warning restore CS0169
         public dtZustand() : base(0, "Zustand")
         {
 

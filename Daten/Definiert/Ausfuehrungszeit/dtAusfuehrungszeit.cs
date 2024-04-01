@@ -6,9 +6,11 @@ namespace isci.Daten
 {
     public class dtAusfuehrungsanalyse : dtObjekt
     {
+#pragma warning disable CS0649
         private dtDouble LetzteDauer;
         private dtDouble MaximaleDauer;
         private dtDouble SchnittDauer;
+#pragma warning restore CS0649
         private List<double> Schnittbildung;
         public uint AnzahlElementeSchnittbildung;
         private uint PositionSchnittbildung;

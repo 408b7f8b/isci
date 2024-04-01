@@ -7,7 +7,10 @@ namespace isci.Daten
 {
     public class dtObjekt : Dateneintrag
     {
+#pragma warning disable CS0169
         private new EinheitenKodierung Einheit;
+
+#pragma warning restore CS0169
         public List<string> Elemente;
         public List<Dateneintrag> ElementeLaufzeit;
 
