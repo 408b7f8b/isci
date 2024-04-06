@@ -24,7 +24,7 @@ namespace isci
         public static void Initialisieren()
         {
             var config = new LoggerConfiguration();
-            config.WriteTo.File("startup.log", rollOnFileSizeLimit: true, fileSizeLimitBytes: 1000000);
+            config.WriteTo.File("startup.log", rollOnFileSizeLimit: true, fileSizeLimitBytes: 1000000, retainedFileCountLimit: 3);
             config.WriteTo.Console();
             Log.Logger = config.CreateLogger();
             Log.Information("Logging mit Initialeinstellungen in Konsole und startup.log.");
@@ -33,7 +33,7 @@ namespace isci
         public static void Konfigurieren(Allgemein.Parameter parameter)
         {
             var config = new LoggerConfiguration();
-            if (parameter.LoggingInDateiAktiv) config.WriteTo.File(parameter.OrdnerLogs + "/" + parameter.Identifikation + ".log", rollOnFileSizeLimit: true, fileSizeLimitBytes: parameter.LoggingInDateiMaxDateiGroesseInMb*1000000);
+            if (parameter.LoggingInDateiAktiv) config.WriteTo.File(parameter.OrdnerLogs + "/" + parameter.Identifikation + ".log", rollOnFileSizeLimit: true, fileSizeLimitBytes: parameter.LoggingInDateiMaxDateiGroesseInMb*1000000, retainedFileCountLimit: 3);
             if (parameter.LoggingInKonsoleAktiv) config.WriteTo.Console();
             Log.Logger = config.CreateLogger();
             Log.Information("Logging mit ab jetzt mit Konfigurationseinstellungen.");

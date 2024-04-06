@@ -34,7 +34,12 @@ namespace isci.Allgemein
                     var identifikation_ = child.Value.SelectToken("Modulidentifikation").ToObject<string>();
                     if (identifikation_ != konfiguration.Identifikation) continue;
                     var index = uint.Parse(child.Name);
-                    Add(index, child.Value.ToObject<Ausführungsschritt>());
+                    var schritt = child.Value.ToObject<Ausführungsschritt>();
+                    if (index == geparst.Properties().Count()-1)
+                    {
+                        if (schritt.Folgezustand != 0) schritt.Folgezustand = 0;
+                    }
+                    Add(index, schritt);
                 }
             }
             catch (System.Exception e)

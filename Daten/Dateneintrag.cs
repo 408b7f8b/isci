@@ -149,7 +149,7 @@ namespace isci.Daten
             }
             catch (System.Exception e)
             {
-                Logger.Fatal("Ausnahme beim Anlegen des Dateneintrags " + this.Identifikation + ": " + e.Message);
+                Logger.Fatal("Ausnahme beim Anlegen des Datenstrukturordners für " + this.Identifikation + ": " + e.Message);
                 System.Environment.Exit(-1);
             }
 
@@ -166,7 +166,7 @@ namespace isci.Daten
                 if (!System.IO.File.Exists(path))
                 {
                     System.IO.File.Create(path).Close();
-                    WertInSpeicherSchreiben();
+                    WertInSpeicherSchreiben(true);
                 }
             }
             catch (System.Exception e)
@@ -222,9 +222,9 @@ namespace isci.Daten
                 reader = new System.IO.BinaryReader(stream);
                 WertAusSpeicherLesenSpezifisch(reader);
             }
-            catch
+            catch (System.Exception e)
             {
-                Logger.Fehler("WertAusSpeicherLesen fehlgeschlagen: " + this.Identifikation);
+                Logger.Fehler("Ausnahme bei WertAusSpeicherLesen " + this.Identifikation + ": " + e.Message);
             }
             finally {
                 if (reader != null) reader.Dispose();

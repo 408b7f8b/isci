@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -88,9 +89,24 @@ namespace isci.Allgemein
         [IgnoreParse]
         public string OrdnerKonfigurationen;
 
+        public void Beschreiben()
+        {
+            var Parameterbeschreibung = new List<string>();
+            var felder = GetType().GetFields();
+            foreach (var f in felder)
+            {
+                var ParameterbeschreibungEintrag = f.Name + ": " + f.FieldType.FullName;
+                Parameterbeschreibung.Add(ParameterbeschreibungEintrag);
+            }
+
+            System.IO.File.WriteAllLines("MoeglicheParameter.meta", Parameterbeschreibung.ToArray());
+        }
+
         public Parameter(string[] args)
         {
             Helfer.SetzeArchitektur();
+
+            Beschreiben();
 
             var param_env = new System.Collections.Generic.Dictionary<string, string>();
             var envVariablen = Environment.GetEnvironmentVariables();
@@ -186,6 +202,7 @@ namespace isci.Allgemein
             }
 
             Logger.Debug("Versuche gesamte Konfiguration aus Umgebungsvariablen, Startargumenten und Konfigurationsdatei zu befüllen. Konfigurationsdatei > Startargument > Umgebungsvariable.");
+            var Parameterbeschreibung = new List<string>();
             foreach (var f in felder)
             {
                 var in_env_vorhanden = param_env.ContainsKey(f.Name);

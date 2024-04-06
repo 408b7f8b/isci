@@ -18,5 +18,16 @@ namespace isci.Daten
             element.Wert++;
             return element;
         }
+
+        public override void WertAusSpeicherLesenSpezifisch(System.IO.BinaryReader reader)
+        {
+            while (reader.BaseStream.Length != sizeof(UInt16)) {}
+            var tmp = reader.ReadUInt16();
+            if (tmp != Wert)
+            {
+                Wert = tmp;
+                aenderungExtern = true;
+            }
+        }
     }
 }
