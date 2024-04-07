@@ -104,6 +104,8 @@ namespace isci.Allgemein
 
         public Parameter(string[] args)
         {
+            Logger.Initialisieren();
+
             Helfer.SetzeArchitektur();
 
             Beschreiben();

@@ -1,8 +1,4 @@
-using System;
-using System.Linq;
-using Common.Logging.Factory;
 using Serilog;
-using Tmds.Linux;
 
 namespace isci
 {
