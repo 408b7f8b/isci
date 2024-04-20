@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace isci.Allgemein
@@ -65,12 +66,28 @@ namespace isci.Allgemein
             }
         }
 
+        public Ausführungsmodell(List<Ausführungsmodell> Ausführungsmodelle) : base()
+        {
+            uint i = 0;
+            int letzterCount = -1;
+            while(letzterCount != this.Count())
+            {
+                letzterCount = this.Count();
+                foreach (var modell in Ausführungsmodelle)
+                {
+                    if (modell.ContainsKey(i)) this.Add((uint)this.Count(), modell[i]);
+                }
+                ++i;
+            }
+        }
+
         public static Ausführungsmodell ausDatei(string modell)
         {
             try
             {
                 Logger.Debug("JSON-Parsing für Ausführungsmodell: " + modell);
-                var ret = Newtonsoft.Json.JsonConvert.DeserializeObject<Ausführungsmodell>(modell);
+                var inhalt = System.IO.File.ReadAllText(modell);
+                var ret = Newtonsoft.Json.JsonConvert.DeserializeObject<Ausführungsmodell>(inhalt);
                 return ret;
             }
             catch (System.Exception e)
