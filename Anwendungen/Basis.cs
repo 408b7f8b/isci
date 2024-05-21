@@ -31,10 +31,12 @@ namespace isci.Anwendungen
 
         public Dictionary<string, Ausführungsmodell> Ausführungsmodelle;
 
+        //noch ungeprüft
         public void KartierungAnwenden(Dictionary<string, string> Kartierung)
         {
             var Konfigurationspakete_neu = new Dictionary<string, List<string>>();
             var Konfigurationselemente_neu = new Dictionary<string, List<Konfigurationselement>>();
+            var Ausführungsmodelle_neu = new Dictionary<string, Ausführungsmodell>();
             foreach (var Verknuepfung in Kartierung)
             {
                 if (Konfigurationspakete.ContainsKey(Verknuepfung.Key)) {
@@ -58,13 +60,17 @@ namespace isci.Anwendungen
 
                 if (Ausführungsmodelle.ContainsKey(Verknuepfung.Key))
                 {
-                    
+                    if (!Ausführungsmodelle_neu.ContainsKey(Verknuepfung.Value))
+                    {
+                        Ausführungsmodelle_neu.Add(Verknuepfung.Value, new Ausführungsmodell());
+                    }
+
+                    Ausführungsmodelle_neu[Verknuepfung.Value] = new Ausführungsmodell(new List<Ausführungsmodell>(){ Ausführungsmodelle_neu[Verknuepfung.Value], Ausführungsmodelle[Verknuepfung.Key] });
                 }
             }
             Konfigurationspakete = Konfigurationspakete_neu;
             Konfigurationselemente = Konfigurationselemente_neu;
-
-
+            Ausführungsmodelle = Ausführungsmodelle_neu;
         }
     }
 }

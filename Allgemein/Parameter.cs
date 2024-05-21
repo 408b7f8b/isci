@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using Serilog;
 
 namespace isci.Allgemein
 {
@@ -23,6 +21,32 @@ namespace isci.Allgemein
         public class fromEnv : Attribute
         {
             public fromEnv(){}
+        }
+
+        public class Port : Attribute
+        {
+            public uint standardPort;
+            public Port(uint port) {
+                standardPort = port;
+            }
+        }
+
+        public class Volume : Attribute
+        {
+            public string standardVolume;
+            public Volume(string volume)
+            {
+                standardVolume = volume;
+            }
+        }
+
+        public class Beschreibung : Attribute
+        {
+            public string inhaltBeschreibung;
+            public Beschreibung(string beschreibung)
+            {
+                inhaltBeschreibung = beschreibung;
+            }
         }
 
         static void NullPruefen(object var, string Name, bool auchKonfigurationsdatei)
@@ -55,9 +79,9 @@ namespace isci.Allgemein
         public string Ressource = "";
         [fromArgs, fromEnv]
         public string Identifikation = "";
-        [fromArgs, fromEnv]
+        [fromArgs, fromEnv, Volume("/opt/isci")]
         public string OrdnerAnwendungen = "";
-        [fromArgs, fromEnv]
+        [fromArgs, fromEnv, Volume("/var/isci")]
         public string OrdnerDatenstrukturen = "";
         [fromArgs, fromEnv]
         public string Anwendung = "";
@@ -91,15 +115,174 @@ namespace isci.Allgemein
 
         public void Beschreiben()
         {
+            var felder = GetType().GetFields();
+
+            var serviceOfferingVersion = new Newtonsoft.Json.Linq.JObject() {
+                {"id", ""},
+                {"serviceOfferingId", ""},
+                {"version", ""},
+                {"serviceRequirements", new Newtonsoft.Json.Linq.JArray()},
+                {"serviceRepositories", new Newtonsoft.Json.Linq.JArray()},
+                {"deploymentDefinition", new Newtonsoft.Json.Linq.JObject()},
+                {"servicePorts", new Newtonsoft.Json.Linq.JArray()}
+            };
+
+            var serviceOptionsEnvironment = new Newtonsoft.Json.Linq.JArray();
+            var serviceOptionsPorts = new Newtonsoft.Json.Linq.JArray();
+            var serviceOptionsVolumes= new Newtonsoft.Json.Linq.JArray();
+
+            foreach (var f in felder)
+            {
+                var option = new Newtonsoft.Json.Linq.JObject()
+                {
+                    {"relation", ""},
+                    {"key", f.Name},
+                    {"name", f.Name},
+                    {"description", ""},
+                    {"optionType", "ENVIRONMENT_VARIABLE"},
+                    {"valueOptions", new Newtonsoft.Json.Linq.JArray()},
+                    {"required", true},
+                    {"editable", true}
+                };
+
+                var aktuellerWert = f.GetValue(this);
+                if (aktuellerWert != null)
+                {
+                    option.Add("defaultValue", aktuellerWert.ToString());
+                }
+
+                if (Attribute.IsDefined(f, attributeType: typeof(Beschreibung)))
+                {
+                    var attribut = (Beschreibung)Attribute.GetCustomAttribute(f, typeof(Beschreibung));
+                    option["description"] = attribut.inhaltBeschreibung;
+                }
+
+                var feld = GetType().GetField(f.Name);
+                var feldtyp = feld.FieldType;
+
+                //STRING, PASSWORD, BOOLEAN, NUMBER, INTEGER, DECIMAL, EMAIL, IP, ENUM, AUTO_GENERATED_UUID, PORT, VOLUME, AAS_SM_TEMPLATE, SYSTEM_VARIABLE, DEPLOYMENT_VARIABLE 
+                var typAlsString = "";
+                if (feldtyp == typeof(string))
+                {
+                    typAlsString = "STRING";
+
+                    if (Attribute.IsDefined(f, attributeType: typeof(Volume)))
+                    {
+                        var attribut = (Volume)Attribute.GetCustomAttribute(f, typeof(Volume));
+
+                        var volOption = new Newtonsoft.Json.Linq.JObject()
+                        {
+                            {"relation", ""},
+                            {"key", attribut.standardVolume},
+                            {"name", f.Name},
+                            {"description", ""},
+                            {"optionType", "VOLUME"},
+                            {"valueOptions", new Newtonsoft.Json.Linq.JArray()},
+                            {"required", true},
+                            {"editable", true},
+                            {"defaultValue", f.GetValue(this).ToString()}
+                        };
+
+                        serviceOptionsVolumes.Add(volOption);
+                    }
+                }
+                else if (feldtyp == typeof(int) || feldtyp == typeof(uint))
+                {
+                    typAlsString = "INTEGER";                    
+
+                    if (Attribute.IsDefined(f, attributeType: typeof(Port)))
+                    {
+                        var attribut = (Port)Attribute.GetCustomAttribute(f, typeof(Port));
+
+                        var portOption = new Newtonsoft.Json.Linq.JObject()
+                        {
+                            {"relation", ""},
+                            {"key", attribut.standardPort},
+                            {"name", f.Name},
+                            {"description", ""},
+                            {"optionType", "PORT_MAPPING"},
+                            {"valueOptions", new Newtonsoft.Json.Linq.JArray()},
+                            {"required", true},
+                            {"editable", true},
+                            {"defaultValue", f.GetValue(this).ToString()}
+                        };
+
+                        if (portOption["key"].ToObject<int>() == 0) portOption["key"] = 1234;
+
+                        serviceOptionsPorts.Add(portOption);
+                    }
+                }
+                else if (feldtyp == typeof(bool))
+                {
+                    typAlsString = "BOOLEAN";
+                }
+                else if (feldtyp == typeof(double))
+                {
+                    typAlsString = "DECIMAL";
+                }
+                else if (feldtyp == typeof(Int32[]))
+                {
+                    typAlsString = "STRING";
+                    option["valueOptions"] = new Newtonsoft.Json.Linq.JArray()
+                    {
+                        "ARRAY"
+                    };
+                }
+                else if (feldtyp == typeof(string[]))
+                {
+                    typAlsString = "STRING";
+                    option["valueOptions"] = new Newtonsoft.Json.Linq.JArray()
+                    {
+                        "ARRAY"
+                    };
+                }
+                else if (feldtyp == typeof(Logger.Stufe))
+                {
+                    typAlsString = "ENUM";
+                    var enumNames = Enum.GetNames(feldtyp);
+                    option["valueOptions"] = Newtonsoft.Json.Linq.JArray.FromObject(enumNames);
+                }
+
+                option.Add("valueType", typAlsString);
+                serviceOptionsEnvironment.Add(option);
+            }
+
+            var serviceOptionCategories = new Newtonsoft.Json.Linq.JArray() {
+                new Newtonsoft.Json.Linq.JObject() {
+                    {"id", 0},
+                    {"name", "Environment"},
+                    {"serviceOptions", serviceOptionsEnvironment}
+                },
+                new Newtonsoft.Json.Linq.JObject() {
+                    {"id", 1},
+                    {"name", "Ports"},
+                    {"serviceOptions", serviceOptionsPorts}
+                },
+                new Newtonsoft.Json.Linq.JObject() {
+                    {"id", 2},
+                    {"name", "Volumes"},
+                    {"serviceOptions", serviceOptionsVolumes}
+                }
+            };
+
+            serviceOfferingVersion.Add("serviceOptionCategories", serviceOptionCategories);
+
+            var serialisiert = serviceOfferingVersion.ToString(Newtonsoft.Json.Formatting.Indented);
+
+            System.IO.File.WriteAllText("serviceOffering.json", serialisiert);
+        }
+
+        public void BeschreibenDocker()
+        {
             var Parameterbeschreibung = new List<string>();
             var felder = GetType().GetFields();
             foreach (var f in felder)
             {
-                var ParameterbeschreibungEintrag = f.Name + ": " + f.FieldType.FullName;
+                var ParameterbeschreibungEintrag = "ENV \"" + f.Name + "\"=\"" + f.FieldType.FullName + "\"";
                 Parameterbeschreibung.Add(ParameterbeschreibungEintrag);
             }
 
-            System.IO.File.WriteAllLines("MoeglicheParameter.meta", Parameterbeschreibung.ToArray());
+            System.IO.File.WriteAllLines("MoeglicheParameterDocker.meta", Parameterbeschreibung.ToArray());
         }
 
         public Parameter(string[] args)
@@ -108,7 +291,11 @@ namespace isci.Allgemein
 
             Helfer.SetzeArchitektur();
 
-            Beschreiben();
+            if (args.Contains("--service-description"))
+            {
+                Beschreiben();
+                System.Environment.Exit(0);
+            }
 
             var param_env = new System.Collections.Generic.Dictionary<string, string>();
             var envVariablen = Environment.GetEnvironmentVariables();
