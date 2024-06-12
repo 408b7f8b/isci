@@ -269,7 +269,7 @@ namespace isci.Allgemein
 
             var serialisiert = serviceOfferingVersion.ToString(Newtonsoft.Json.Formatting.Indented);
 
-            System.IO.File.WriteAllText("serviceOffering.json", serialisiert);
+            System.IO.File.WriteAllText("serviceOfferingVersion_generated.json", serialisiert);
         }
 
         public void BeschreibenDocker()

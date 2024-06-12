@@ -60,6 +60,5 @@ namespace isci.Daten
             }
             SchnittDauer.Wert = Schnittbildung.Average();
         }
-
     }
 }
